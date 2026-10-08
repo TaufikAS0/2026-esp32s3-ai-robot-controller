@@ -1,5 +1,6 @@
 #include "web_service.h"
 #include "firmware_version.h"
+#include "network_defaults.h"
 #include "web_ui.h"
 #include <Update.h>
 #include <cJSON.h>
@@ -78,6 +79,8 @@ void WebService::status() {
   cJSON_AddBoolToObject(root.get(), "maintenance", l.maintenance);
   cJSON_AddBoolToObject(root.get(), "arduino_ota", ota_.enabled);
   cJSON_AddBoolToObject(root.get(), "sta_connected", WiFi.status() == WL_CONNECTED);
+  cJSON_AddStringToObject(root.get(), "sta_target_ssid", NetworkDefaults::stationSsid);
+  cJSON_AddStringToObject(root.get(), "sta_ssid", WiFi.SSID().c_str());
   cJSON_AddStringToObject(root.get(), "sta_ip", WiFi.localIP().toString().c_str());
   cJSON_AddBoolToObject(root.get(), "ap_active", network_.apActive);
   cJSON_AddStringToObject(root.get(), "ap_ip", WiFi.softAPIP().toString().c_str());

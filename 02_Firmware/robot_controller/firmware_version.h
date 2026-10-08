@@ -1,2 +1,2 @@
 #pragma once
-constexpr char kFirmwareVersion[] = "v0.1.0";
+constexpr char kFirmwareVersion[] = "v0.1.1";

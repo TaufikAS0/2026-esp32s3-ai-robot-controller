@@ -1,6 +1,6 @@
 # AI Robot Controller
 
-Firmware **v0.1.0** for ESP32-S3 N16R8: two DC motors, two servo hands, and a laser, controlled through a local Indonesian dashboard or HTTP JSON API. A laptop AI can call the included Python client; no AI engine is embedded in this firmware.
+Firmware **v0.1.1** for ESP32-S3 N16R8: two DC motors, two servo hands, and a laser, controlled through a local Indonesian dashboard or HTTP JSON API. A laptop AI can call the included Python client; no AI engine is embedded in this firmware.
 
 **No encoder or other feedback:** output status is commanded PWM/angle, never measured motion. Hardware power design and autonomous navigation are outside this version.
 
@@ -37,9 +37,9 @@ arduino-cli upload --fqbn esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,PartitionS
 
 ## Setup and use
 
-1. Open USB serial at 115200 baud. Boot prints version plus generated API token, AP password, and separate ArduinoOTA password. Send `info` followed by newline if the initial USB boot output was missed. These persist in NVS; erase NVS to regenerate credentials.
-2. Configure router: `wifi <ssid>|<password>` followed by newline. The first `|` separates SSID/password; use the web form for SSIDs containing `|`.
-3. If STA is unavailable for 15 seconds, join the device-specific `ai-robot-<id>-setup` AP with its generated password and browse `http://192.168.4.1/`. AP remains available until reboot once started.
+1. Open USB serial at 115200 baud. Boot prints version plus generated API token and separate ArduinoOTA password. Send `info` followed by newline if the initial USB boot output was missed. API/OTA secrets persist in NVS and are not changed by Wi-Fi migration.
+2. This lab build automatically connects to SSID **HuaweiJIN**, password **jayaabadi100**, carried in `network_defaults.h` with explicit user approval. These shared lab defaults override old STA/AP NVS values on boot without erasing other keys. Web/serial Wi-Fi settings accept only this lab profile; other profiles require an explicitly approved source/policy change.
+3. If STA is unavailable for 15 seconds, join the device-specific `ai-robot-<id>-setup` AP with password **12345678** and browse `http://192.168.4.1/`. AP remains available until reboot once started.
 4. On the router, use the assigned device IP. Enter API token, connect, then take manual control. Press and hold direction buttons. Release stops motion and invalidates the session; acquire again for the next movement.
 5. Servo sliders use 0–180 degrees. Initial commanded angle is 90 degrees on the first complete command; boot itself generates no servo pulses. Servo pulse defaults are 500–2500 microseconds and are centralized in config.h.
 
@@ -77,6 +77,7 @@ The client heartbeat sends every 100 ms, but a stale producer target expires aft
 g++ -std=c++17 -Wall -Wextra -Werror tests/test_control.cpp -o test-control
 ./test-control
 python -m unittest discover -s tests -p test_client.py -v
+python -m unittest discover -s tests -p test_network_policy.py -v
 python -m pip install playwright==1.58.0
 python -m playwright install chromium
 python tests/test_dashboard.py
@@ -85,7 +86,7 @@ python scripts/build.py
 
 On Windows, compile the C++ test from a Visual Studio developer command prompt with `cl /std:c++17 /EHsc /W4 /WX tests\test_control.cpp /Fe:test-control.exe`, then run it. CI runs the same logic tests under g++ and dashboard tests under Chromium.
 
-See `04_Dokumen/VERIFICATION.md` for current evidence and pending device tests. Firmware version comes only from `firmware_version.h`; API version is independently `/api/v1`.
+See `04_Dokumen/VERIFICATION.md` for current evidence and pending device tests. Firmware version comes only from `firmware_version.h`; API version is independently `/api/v1`. Every build runs the lab-profile gate before compile. Local builds read the sibling Obsidian credential rule/profile; standalone CI checks the approved profile without needing the vault checkout. This gate checks source configuration, not whether an AI read the prose; AGENTS.md supplies the mandatory reading workflow.
 
 ## GitHub workflow
 

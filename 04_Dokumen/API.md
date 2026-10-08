@@ -31,7 +31,7 @@ Output reflects software targets after ramping; GPIO application can lag by one 
 
 ## Settings
 
-`POST /settings` accepts either `{"ssid":"router","password":"..."}` or `{"arduino_ota":true}`. SSID is 1..32 bytes and password 0..63 bytes. Wi-Fi is stored in NVS; connection changes stop the current lease. ArduinoOTA enablement is volatile and resets OFF on boot. Never return stored credentials in status.
+`POST /settings` accepts either `{"ssid":"HuaweiJIN","password":"jayaabadi100"}` or `{"arduino_ota":true}`. This lab build accepts only the approved HuaweiJIN profile; other values return 400. Reconnecting stops the current lease. On boot, old STA/AP NVS values are migrated to the centralized lab defaults, preserving API/OTA secrets. Status also includes `sta_target_ssid` and `sta_ssid`; connection success is determined by `sta_connected` and a nonzero IP. ArduinoOTA enablement is volatile and resets OFF on boot. Never return stored passwords or tokens in status.
 
 ## OTA upload
 

@@ -1,8 +1,20 @@
 # Verification evidence
 
-Date: 2026-10-08. Baseline firmware: v0.1.0.
+Date: 2026-10-08. Current firmware: v0.1.1; earlier v0.1.0 evidence retained below.
 
-## Local results
+## v0.1.1 lab profile and mandatory rule reading
+
+- Build PASS with pinned Arduino CLI 1.4.1 / ESP32 core 3.3.10. Application: 1,037,024 bytes; program storage reported 1,036,874 bytes; global RAM 51,400 bytes. Both emitted OTA slots verified at 6,291,456 bytes each.
+- Application SHA256: `6a11fb06b2e95f574ecb23f3f4e2a5a0f9acdee3e74d6be052cc040ce4d58114`.
+- Seven network-policy tests PASS, six Python client tests PASS, eight Chromium dashboard simulations PASS. Control logic/drivers are unchanged from the native tests below.
+- Build gate reads local Obsidian Rules_Kredensial_WiFi.md and WiFi_HuaweiJIN.md, checks approved constants and actual network source, and rejects random AP passwords or STA connection through an arbitrary old NVS profile. Standalone CI applies the approved source gate without requiring the sibling vault.
+- Workspace AGENTS.md, vault home/AGENTS/template, and project AGENTS now explicitly require credential-rule/profile reading before firmware planning/reuse/changes/build/upload. This is an instruction and configuration gate, not proof of an AI's reading behavior. Other repositories are not retrofitted with this project's build gate.
+- Uploaded v0.1.1 through COM11; esptool verified written flash hashes. Boot confirmed v0.1.1 and STA target HuaweiJIN.
+- Serial verified AP password is 12345678. API token and OTA password fingerprints match their pre-upload values; no erase-all or secret rotation was performed.
+- Station connection NOT verified: after boot, STA connected=false and IP 0.0.0.0; fallback AP active at 192.168.4.1. Laptop is connected to HuaweiJIN and its saved password matches the requested lab password. This does not prove ESP32 compatibility/association; cause remains undetermined. No router settings or laptop network association were changed.
+- Vault/workspace rule updates are local; pre-existing dirty vault edits are preserved and are not included in the robot repository commit. No GitHub push was performed.
+
+## Local results — v0.1.0
 
 - Native C++ control assertions: PASS under MSVC 14.51, C++17, /W4 /WX. Covers boot idle, command validation/ranges, NaN, old sequence, wrong session, expiry, manual takeover, maintenance lock, immediate stop, clock wrap, and reversal zero dwell.
 - Python client: 6 tests PASS under Python 3.11. Covers fresh producer targets, expiry/release, no heartbeat on acquisition alone, atomic setter validation, network errors, and blocked HTTP I/O rejecting a stale target before transmission.

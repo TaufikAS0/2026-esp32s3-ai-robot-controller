@@ -4,6 +4,7 @@ import csv
 import pathlib
 import shutil
 import subprocess
+from network_policy import check as check_network_policy
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 CORE = "3.3.10"
@@ -42,6 +43,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--cli", default=shutil.which("arduino-cli"))
     args = parser.parse_args()
+    check_network_policy(ROOT)
     if not args.cli:
         parser.error("arduino-cli not found; supply --cli /path/to/arduino-cli")
     installed = subprocess.check_output([args.cli, "core", "list", "--format", "json"], text=True)

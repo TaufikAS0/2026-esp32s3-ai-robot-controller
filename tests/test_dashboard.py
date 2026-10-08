@@ -2,12 +2,15 @@
 import json
 import os
 import pathlib
+import re
 import unittest
 from playwright.sync_api import sync_playwright
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SOURCE = (ROOT / "02_Firmware/robot_controller/web_ui.h").read_text(encoding="utf-8")
 HTML = SOURCE.split('R"HTML(', 1)[1].split(')HTML";', 1)[0]
+VERSION = re.search(r'kFirmwareVersion\[\]\s*=\s*"([^"]+)"',
+                    (ROOT / "02_Firmware/robot_controller/firmware_version.h").read_text()).group(1)
 
 
 class DashboardTests(unittest.TestCase):
@@ -34,7 +37,7 @@ class DashboardTests(unittest.TestCase):
         self.page.goto("http://robot/")
         self.page.locator("#token").fill("test-only")
         self.page.locator("#connect").click()
-        self.page.wait_for_function("document.getElementById('version').textContent==='v0.1.0'")
+        self.page.wait_for_function("document.getElementById('version').textContent===" + json.dumps(VERSION))
 
     def tearDown(self):
         self.assertEqual(self.errors, [])
@@ -62,7 +65,7 @@ class DashboardTests(unittest.TestCase):
             code = 409
             result = {"error": "session_or_sequence_rejected"}
         elif path == "/status":
-            result = dict(firmware_version="v0.1.0", session=self.session, reason="stop", arduino_ota=False,
+            result = dict(firmware_version=VERSION, session=self.session, reason="stop", arduino_ota=False,
                           commanded_output=dict(left=0, right=0, arm_left=90, arm_right=90, laser=False))
         else:
             result = {"ok": True}
