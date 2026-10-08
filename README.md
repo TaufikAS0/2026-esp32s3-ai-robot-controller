@@ -29,7 +29,7 @@ Pinned FQBN:
 esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB,CDCOnBoot=default,USBMode=hwcdc
 ```
 
-The sketch's custom `partitions.csv` overrides the menu partition table. The build script overrides the menu application-size ceiling to match the actual 6 MiB slot and validates the emitted table and binary. Native USB serial is enabled; actual development-board USB wiring remains unverified. First upload (replace `<PORT>` with the verified port):
+The sketch's custom `partitions.csv` overrides the menu partition table. The build script overrides the menu application-size ceiling to match the actual 6 MiB slot and validates the emitted table and binary. `CDCOnBoot=default` means native USB CDC is disabled; `Serial` uses UART0 through the board's USB-to-UART bridge. Upload and serial boot were verified through COM11. First upload (replace `<PORT>` with the verified port):
 
 ```text
 arduino-cli upload --fqbn esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,PartitionScheme=app3M_fat9M_16MB,CDCOnBoot=default,USBMode=hwcdc --port <PORT> --input-dir build 02_Firmware/robot_controller
