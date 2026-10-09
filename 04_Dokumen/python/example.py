@@ -5,6 +5,7 @@ from robot_client import RobotClient
 
 with RobotClient(os.environ["ROBOT_URL"]) as robot:
     print(robot.status())
+    robot.set_mode("auto")
     robot.acquire()
     # Keep producing fresh targets. A sleeping/stalled producer loses its lease.
     until = time.monotonic() + 1

@@ -2,9 +2,13 @@
 
 Base URL: `http://<device-ip>/api/v1`. All API routes are open on the local network: no token or OTA password. Control sessions arbitrate ownership; they do not authenticate a person. Status reports `access_mode: "open_lan"`. JSON requests require `Content-Type: application/json`. Control bodies reject missing, extra, duplicate, wrongly typed, non-finite, or out-of-range fields. Maximum parsed JSON body is 1024 bytes; this is application validation, not a streaming HTTP memory limit. The dashboard also requires no token.
 
+## Mode
+
+`POST /control/mode` with `{"mode":"manual"}` or `{"mode":"auto"}` selects the explicit runtime mode. Boot defaults to Manual; mode is not persisted in NVS. Changing mode stops output and invalidates the active session. Manual permits `owner: manual`; Auto permits `owner: program`. Auto awaits the laptop engine and never generates commands on its own. The engine should explicitly call `RobotClient.set_mode("auto")` before acquisition; this changes control policy and is not an implicit acquisition side effect.
+
 ## Acquire
 
-`POST /control/acquire` with `{"owner":"manual"}` or `{"owner":"program"}` returns `{"session":123,"timeout_ms":500}`. Session is an opaque nonzero uint32. Only one lease exists. Manual can replace a program lease after outputs acknowledge stop. Other occupied acquisitions return 409. Acquiring alone does not emit servo pulses. A lease expires 500 ms after acquisition if no command follows.
+`POST /control/acquire` with `{"owner":"manual"}` or `{"owner":"program"}` returns `{"session":123,"timeout_ms":500}`. Session is an opaque nonzero uint32. Only one lease exists. Only the owner matching the selected mode is accepted. Switching Auto to Manual invalidates the program lease after stopping output. Occupied acquisitions or mode mismatch return 409. Acquiring alone does not emit servo pulses. A lease expires 500 ms after acquisition if no command follows.
 
 ## Command
 
@@ -27,7 +31,9 @@ Refresh at 100 ms. At 500 ms without a valid command, motor PWM becomes zero, la
 
 `GET /status` returns firmware/API version, uptime, owner (`none`, `manual`, `program`), session, latest sequence, stop reason, maintenance/ArduinoOTA flags, STA/AP state/IPs, and `commanded_output` containing `left`, `right`, `arm_left`, `arm_right`, `laser`, `servo_enabled`.
 
-Output reflects software targets after ramping; GPIO application can lag by one task cycle. There is no measured position, wheel velocity, battery level, or obstacle status. Stop reasons include `boot`, `acquired`, `running`, `timeout`, `stop`, `released`, `wifi_config`, `ota`, `ota_finished`, `task_unresponsive`, `pwm_init_failed`.
+Status includes `wifi_sleep` (false in the latency profile), `mode` plus `pwm`: `ready`, `write_ok`, `left1_duty`/`left2_duty` (GPIO 12/13), `right1_duty`/`right2_duty` (GPIO 10/11), `left_active_hz`/`right_active_hz`, and mapped servo `arm_left_pulse_angle`/`arm_right_pulse_angle`. Motor raw duty is 0–1024 (1024 is full-on in the pinned core); active frequency returns 0 when duty is zero. Logical arm commands remain 0–180 degrees, mapped to left `180 - angle` and right `angle` in the driver. These fields report LEDC state and mapped pulse targets, not measured voltage, position, or motion.
+
+Output reflects software targets after ramping; GPIO application can lag by one task cycle. There is no measured position, wheel velocity, battery level, or obstacle status. Stop reasons include `boot`, `acquired`, `running`, `timeout`, `stop`, `released`, `wifi_config`, `ota`, `ota_finished`, `task_unresponsive`, `pwm_init_failed`, `pwm_write_failed`, `mode_changed`.
 
 ## Settings
 

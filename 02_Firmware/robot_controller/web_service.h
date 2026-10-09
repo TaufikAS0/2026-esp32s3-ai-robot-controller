@@ -18,6 +18,7 @@ class WebService {
   void error(int code, const char* message);
   void status();
   void acquire();
+  void mode();
   void command();
   void release();
   void settings();

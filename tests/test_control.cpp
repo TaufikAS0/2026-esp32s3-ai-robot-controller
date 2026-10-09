@@ -5,6 +5,10 @@
 int main() {
   ControlLogic c;
   assert(!c.output.servoEnabled && c.output.left == 0 && !c.output.laser);
+  assert(c.mode == ControlMode::Manual);
+  assert(!c.acquire(Owner::Program, 42, 0));
+  assert(c.setMode(ControlMode::Auto));
+  assert(!c.acquire(Owner::Manual, 42, 0));
   assert(c.acquire(Owner::Program, 42, 0));
   Command cmd{42, 1, 1, -1, 0, 180, true};
   assert(c.command(cmd, 1)); c.tick(10);
@@ -20,13 +24,17 @@ int main() {
   assert(c.output.armRight == 180 && c.output.servoEnabled);
   cmd.armLeft = 90; assert(!c.command(cmd, 502));
   assert(c.acquire(Owner::Program, 44, 510));
+  assert(c.setMode(ControlMode::Manual));
+  assert(c.session == 0 && c.output.left == 0 && !c.output.laser);
   assert(c.acquire(Owner::Manual, 45, 520));
   assert(!c.acquire(Owner::Program, 46, 530));
   cmd.session = 45; cmd.sequence = 1; cmd.left = 1;
   assert(c.command(cmd, 540)); c.tick(550);
   c.stop("stop"); assert(c.session == 0 && c.output.left == 0);
   c.beginMaintenance(); assert(!c.acquire(Owner::Manual, 47, 560));
+  assert(!c.setMode(ControlMode::Auto));
   assert(!c.output.servoEnabled); c.endMaintenance();
+  assert(c.setMode(ControlMode::Auto));
   assert(c.acquire(Owner::Program, 48, UINT32_MAX - 100));
   c.tick(399); assert(c.owner == Owner::None);  // Clock wrap: exactly 500 ms.
   assert(c.acquire(Owner::Program, 49, 600));

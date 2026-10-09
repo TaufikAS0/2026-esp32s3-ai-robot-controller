@@ -28,3 +28,6 @@ Mandatory vault read order (resolve the sibling vault before local firmware work
 7. 01_Rules/Rules_Akses_Robot_Lab.md
 
 For a standalone checkout without the private sibling vault, the approved lab decisions are reproduced in README, API.md and this file for reproducible CI. Do not infer changed deployment requirements; local workspace work must locate and read the actual vault.
+
+- Auto/Manual are explicit runtime modes, boot Manual. Mode changes stop/invalidate sessions; never silently switch mode during acquire. Python engines explicitly select Auto.
+- Left hand commands are logical 0–180; driver pulse angle is 180 minus left angle. PWM status is LEDC readback, never measured wheel movement. Keep Wi-Fi modem sleep disabled for the lab latency profile.

@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "config.h"
 
+enum class ControlMode { Manual, Auto };
 enum class Owner { None, Manual, Program };
 struct Command {
   uint32_t session = 0, sequence = 0;
@@ -38,6 +39,7 @@ class MotorRamp {
 // Pure logic: caller serializes access; no network or GPIO dependencies.
 class ControlLogic {
  public:
+  ControlMode mode = ControlMode::Manual;
   Owner owner = Owner::None;
   uint32_t session = 0, lastSequence = 0, lastCommandMs = 0;
   const char* reason = "boot";
@@ -55,9 +57,16 @@ class ControlLogic {
     if (owner != Owner::None && uint32_t(now - lastCommandMs) >= Config::timeoutMs)
       stop("timeout");
   }
+  bool setMode(ControlMode requested) {
+    if (maintenance) return false;
+    if (mode != requested) { stop("mode_changed"); mode = requested; }
+    return true;
+  }
   bool acquire(Owner requested, uint32_t id, uint32_t now) {
     expire(now);
-    if (maintenance || !id || requested == Owner::None) return false;
+    if (maintenance || !id || requested == Owner::None ||
+        (mode == ControlMode::Manual && requested != Owner::Manual) ||
+        (mode == ControlMode::Auto && requested != Owner::Program)) return false;
     if (owner != Owner::None && !(owner == Owner::Program && requested == Owner::Manual))
       return false;
     stop("acquired");

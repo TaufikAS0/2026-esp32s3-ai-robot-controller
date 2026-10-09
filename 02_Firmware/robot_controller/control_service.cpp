@@ -23,8 +23,14 @@ void ControlService::task(void* argument) {
     Output out = self.logic_.output;
     uint32_t generation = self.generation_;
     portEXIT_CRITICAL(&self.mux_);
-    self.driver_.write(out);
+    bool writeOk = self.driver_.write(out);
+    PwmSnapshot pwm = self.driver_.snapshot();
     portENTER_CRITICAL(&self.mux_);
+    self.pwm_ = pwm;
+    if (!writeOk && self.hardwareReady_) {
+      self.logic_.maintenance = true;
+      self.logic_.stop("pwm_write_failed", true);
+    }
     self.appliedGeneration_ = generation;
     portEXIT_CRITICAL(&self.mux_);
     vTaskDelayUntil(&wake, pdMS_TO_TICKS(Config::tickMs));
@@ -33,14 +39,15 @@ void ControlService::task(void* argument) {
 bool ControlService::awaitApplied(uint32_t generation) {
   uint32_t start = millis();
   while (millis() - start < 100) {
-    if (snapshot().appliedGeneration == generation) return true;
+    auto s = snapshot();
+    if (s.appliedGeneration == generation) return s.pwm.writeOk;
     delay(1);
   }
   return false;
 }
 ControlSnapshot ControlService::snapshot() {
   portENTER_CRITICAL(&mux_);
-  ControlSnapshot s{logic_, appliedGeneration_};
+  ControlSnapshot s{logic_, appliedGeneration_, pwm_};
   portEXIT_CRITICAL(&mux_);
   return s;
 }
@@ -53,6 +60,13 @@ bool ControlService::acquire(Owner owner, uint32_t& session) {
   if (!ok) return false;
   if (!awaitApplied(gen)) { stop("task_unresponsive"); return false; }
   session = id; return true;
+}
+bool ControlService::setMode(ControlMode mode) {
+  portENTER_CRITICAL(&mux_);
+  bool ok = logic_.setMode(mode);
+  uint32_t gen = ok ? ++generation_ : generation_;
+  portEXIT_CRITICAL(&mux_);
+  return ok && awaitApplied(gen);
 }
 bool ControlService::command(const Command& c) {
   portENTER_CRITICAL(&mux_);

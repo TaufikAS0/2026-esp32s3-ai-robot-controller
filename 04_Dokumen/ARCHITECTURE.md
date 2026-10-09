@@ -15,3 +15,7 @@ Dashboard has no external assets or CDN. Python uses only standard library. Firm
 This is a local prototype controller without motion feedback, collision avoidance, TLS, automatic rollback, or independent hardware power cutoff. These are capabilities not provided by v0.1.0, not prerequisites added to the requested scope.
 
 Access profile v0.2.0: all HTTP API routes and both OTA transports have no authentication, as explicitly authorized for this robot lab. ArduinoOTA remains OFF by default. Sessions, command ordering, timeout, and OTA maintenance interlocks remain enforced.
+
+## v0.3.0 modes and driver verification
+
+Volatile boot mode Manual gates manual ownership; Auto gates program ownership. Mode changes stop before acknowledgment and invalidate the lease. Dashboard acquires manual control on actuator interaction, polls status on load, retries network failures, and releases only its own session on focus/release/errors. A generation guard discards late acquisition responses. The driver maps left servo angle to 180-angle, checks LEDC writes, and snapshots peripheral duty/frequency after each write from the single output task. PWM failure locks control and suppresses stop/acquire acknowledgment until writes succeed. No physical sensor measurement is implied.

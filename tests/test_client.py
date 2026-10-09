@@ -23,6 +23,15 @@ class ClientTests(unittest.TestCase):
             raise OSError("offline")
         return {"session": 123} if path == "/control/acquire" else {"ok": True}
 
+    def test_explicit_mode(self):
+        self.client.set_mode("auto")
+        self.assertIn(("/control/mode", {"mode": "auto"}), self.calls)
+        with self.assertRaises(ValueError):
+            self.client.set_mode("invalid")
+        self.client.acquire()
+        with self.assertRaises(RuntimeError):
+            self.client.set_mode("manual")
+
     def test_http_status_requires_no_token(self):
         with RobotClient("http://robot") as client:
             with patch("urllib.request.urlopen", return_value=io.BytesIO(b'{"access_mode":"open_lan"}')) as http:

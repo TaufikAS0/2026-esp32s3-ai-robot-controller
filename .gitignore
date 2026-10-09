@@ -8,3 +8,6 @@ secrets*
 test-control.exe
 test-control.obj
 test_control.obj
+
+test-driver.exe
+*.obj

@@ -49,6 +49,14 @@ class RobotClient:
             with urllib.request.urlopen(req, timeout=self.timeout) as response:
                 return json.load(response)
 
+    def set_mode(self, mode):
+        if mode not in ("auto", "manual"):
+            raise ValueError("mode must be auto or manual")
+        with self._lock:
+            if self._session:
+                raise RuntimeError("release current session before changing mode")
+        return self._request("/control/mode", {"mode": mode})
+
     def acquire(self, owner="program"):
         if owner not in ("manual", "program"):
             raise ValueError("owner must be manual or program")

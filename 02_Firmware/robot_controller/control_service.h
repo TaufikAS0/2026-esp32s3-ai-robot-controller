@@ -1,11 +1,12 @@
 #pragma once
 #include <Arduino.h>
 #include "actuator_driver.h"
-struct ControlSnapshot { ControlLogic logic; uint32_t appliedGeneration; };
+struct ControlSnapshot { ControlLogic logic; uint32_t appliedGeneration; PwmSnapshot pwm; };
 class ControlService {
  public:
   bool begin();
   bool acquire(Owner owner, uint32_t& session);
+  bool setMode(ControlMode mode);
   bool command(const Command& command);
   bool release(uint32_t session);
   bool stop(const char* reason, bool disableServo = false);
@@ -18,6 +19,7 @@ class ControlService {
   portMUX_TYPE mux_ = portMUX_INITIALIZER_UNLOCKED;
   ControlLogic logic_;
   ActuatorDriver driver_;
+  PwmSnapshot pwm_;
   uint32_t generation_ = 0, appliedGeneration_ = 0;
   volatile bool initialized_ = false, hardwareReady_ = false;
 };

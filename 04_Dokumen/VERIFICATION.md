@@ -1,6 +1,18 @@
 # Verification evidence
 
-Current firmware: v0.2.0 (2026-10-09). Earlier version evidence is historical.
+Current firmware: v0.3.1 (2026-10-09). Earlier version evidence is historical.
+
+## v0.3.1 dashboard, modes, mirrored hand and PWM — 2026-10-09
+
+- Local pinned build PASS: ESP32 core 3.3.10 / Arduino CLI 1.4.1. Application 1,040,896 bytes; program storage 1,040,754 bytes; global RAM 51,440 bytes. Both emitted 6,291,456-byte OTA slots verified. Application SHA256 `ee53fff22e6c7452a3d7457589b4a562d00c5717bd464e50558396bdf764d2d2`.
+- Native control and actual actuator-driver boundary assertions PASS with MSVC C++17 /W4 /WX. Eight Python client tests, seven network-policy tests, and fourteen Chromium dashboard tests PASS. Covers mode gates/stop, reversal, inactive-leg-first writes, mirroring endpoints/centre, zero boot PWM, full-on duty, write failure, automatic connection/recovery, mode controls, automatic acquisition, and release before a late acquisition response.
+- OTA v0.3.0 and v0.3.1 through http://192.168.1.34/api/v1/update both returned success/rebooting without authentication. Post-reboot API confirmed each version, Manual mode, no lease, wheel duty zero, laser off, servo pulses disabled, ArduinoOTA OFF, and HuaweiJIN association at 192.168.1.34. API v0.3.1 reports wifi_sleep=false.
+- Direct device Manual forward/reverse at 25% passed: active legs GPIO12/10 then GPIO13/11 read duty 256; inactive legs read zero; active frequency read 20,000 Hz. Switching to Auto read all wheel duties zero and invalidated the lease. Program acquisition in Manual and manual acquisition in Auto returned 409 as intended.
+- Auto/Python live client passed: right-only wheel duty 256 and left duty zero; logical hands 60/60 mapped to left pulse-angle target 120 and right 60. Producer expiry released its lease and zeroed PWM. Separate raw commands without a client stop timed out and zeroed PWM. These are LEDC peripheral readbacks, not external voltage, waveforms, or measured motion.
+- An initial v0.3.0 Auto test received 409; repeat passed. HTTP jitter reached 625 ms in observed requests. This did not establish the sole cause of that rejection. The v0.3.1 latency profile disables modem sleep; 28 requests in the final test measured 32–266 ms. This sample is not a latency guarantee.
+- Real Chrome dashboard automatically showed Connected and v0.3.1 on page load. Auto disabled manual actuators; Manual re-enabled them. A left-slider keyboard step from 90 to 89 automatically acquired a manual lease and device readback confirmed mapped pulse-angle target 91. STOP invalidated the lease and zeroed wheel duty. Hands were returned to 90 and laser stayed off. Live screenshot and detailed device JSON are in ignored build/.
+- Rules read: Firmware_AI_Vault_Home.md, Rules_Nama_dan_Folder_Workspace.md, Rules_Firmware_Standar.md, Rules_GitHub_Gitflow.md, Rules_Kredensial_WiFi.md, WiFi_HuaweiJIN.md, Rules_Akses_Robot_Lab.md (paths listed below for the previous policy rollout). STA/AP remain HuaweiJIN/12345678. Existing targeted NVS migration remains unchanged: only obsolete apiToken/otaPassword keys are removed, differing STA/AP keys are corrected, unrelated keys are retained; no full NVS erase.
+- External GPIO waveforms, actual wheel movement/direction, actual hand alignment, failed/aborted OTA recovery, and endurance are not independently verified. No physical feedback sensor exists. A user observation has been requested separately.
 
 ## v0.2.0 open-LAN profile — 2026-10-09
 

@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.3.1 — 2026-10-09
+
+- Disable Wi-Fi modem sleep for LAN control after device tests observed HTTP jitter close to the 500 ms lease. Expose Wi-Fi sleep state in status.
+
+
+## v0.3.0 — 2026-10-09
+
+- Connect dashboard status automatically, retry failures, and show an explicit connection state.
+- Add explicit Auto/Manual modes; Manual boot default, mode changes stop and invalidate the session. Python clients explicitly select Auto before program acquisition.
+- Acquire manual ownership on button/slider interaction; release only the dashboard session on blur, hide, and button release.
+- Mirror left servo pulse angle centrally as 180 minus logical angle.
+- Check LEDC write results and report driver duty/frequency readback; add actuator-boundary and mode/recovery/race tests.
+
+
 ## v0.2.0 â€” 2026-10-09
 
 - Explicit open-LAN robot profile: remove API bearer-token checks and both OTA passwords.

@@ -4,6 +4,8 @@
 void NetworkService::begin() {
   // Do not enable a default AP before its lab credentials are configured.
   WiFi.mode(WIFI_STA);
+  // Responsive LAN control takes priority over modem power saving in this lab.
+  if (!WiFi.setSleep(false)) Serial.println("WiFi sleep disable failed");
   preferences_.begin("robot", false);
   hostname = "ai-robot-" + String(uint32_t(ESP.getEfuseMac() & 0xffffff), HEX);
   apName = hostname + "-setup";

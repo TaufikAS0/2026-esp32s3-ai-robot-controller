@@ -41,8 +41,9 @@ void WebService::error(int code, const char* message) {
 void WebService::begin() {
   const char* headers[] = {"Content-Type"};
   server_.collectHeaders(headers, 1);
-  server_.on("/", HTTP_GET, [this]() { server_.send_P(200, "text/html; charset=utf-8", kWebUi); });
+  server_.on("/", HTTP_GET, [this]() { server_.sendHeader("Cache-Control", "no-store"); server_.send_P(200, "text/html; charset=utf-8", kWebUi); });
   server_.on("/api/v1/status", HTTP_GET, [this]() { status(); });
+  server_.on("/api/v1/control/mode", HTTP_POST, [this]() { mode(); });
   server_.on("/api/v1/control/acquire", HTTP_POST, [this]() { acquire(); });
   server_.on("/api/v1/command", HTTP_POST, [this]() { command(); });
   server_.on("/api/v1/control/release", HTTP_POST, [this]() { release(); });
@@ -61,6 +62,7 @@ void WebService::status() {
   Json root(cJSON_CreateObject(), cJSON_Delete);
   cJSON_AddStringToObject(root.get(), "firmware_version", kFirmwareVersion);
   cJSON_AddNumberToObject(root.get(), "api_version", 1);
+  cJSON_AddStringToObject(root.get(), "mode", l.mode == ControlMode::Manual ? "manual" : "auto");
   cJSON_AddStringToObject(root.get(), "access_mode", "open_lan");
   cJSON_AddNumberToObject(root.get(), "uptime_ms", millis());
   cJSON_AddStringToObject(root.get(), "owner", l.owner == Owner::Manual ? "manual" : l.owner == Owner::Program ? "program" : "none");
@@ -69,6 +71,7 @@ void WebService::status() {
   cJSON_AddStringToObject(root.get(), "reason", l.reason);
   cJSON_AddBoolToObject(root.get(), "maintenance", l.maintenance);
   cJSON_AddBoolToObject(root.get(), "arduino_ota", ota_.enabled);
+  cJSON_AddBoolToObject(root.get(), "wifi_sleep", WiFi.getSleep());
   cJSON_AddBoolToObject(root.get(), "sta_connected", WiFi.status() == WL_CONNECTED);
   cJSON_AddStringToObject(root.get(), "sta_target_ssid", NetworkDefaults::stationSsid);
   cJSON_AddStringToObject(root.get(), "sta_ssid", WiFi.SSID().c_str());
@@ -79,9 +82,29 @@ void WebService::status() {
   cJSON_AddNumberToObject(out, "left", l.output.left); cJSON_AddNumberToObject(out, "right", l.output.right);
   cJSON_AddNumberToObject(out, "arm_left", l.output.armLeft); cJSON_AddNumberToObject(out, "arm_right", l.output.armRight);
   cJSON_AddBoolToObject(out, "laser", l.output.laser); cJSON_AddBoolToObject(out, "servo_enabled", l.output.servoEnabled);
+  cJSON* pwm = cJSON_AddObjectToObject(root.get(), "pwm");
+  cJSON_AddBoolToObject(pwm, "ready", s.pwm.ready);
+  cJSON_AddBoolToObject(pwm, "write_ok", s.pwm.writeOk);
+  cJSON_AddNumberToObject(pwm, "left1_duty", s.pwm.left1);
+  cJSON_AddNumberToObject(pwm, "left2_duty", s.pwm.left2);
+  cJSON_AddNumberToObject(pwm, "right1_duty", s.pwm.right1);
+  cJSON_AddNumberToObject(pwm, "right2_duty", s.pwm.right2);
+  cJSON_AddNumberToObject(pwm, "left_active_hz", s.pwm.leftHz);
+  cJSON_AddNumberToObject(pwm, "right_active_hz", s.pwm.rightHz);
+  cJSON_AddNumberToObject(pwm, "arm_left_pulse_angle", s.pwm.armLeftPulseAngle);
+  cJSON_AddNumberToObject(pwm, "arm_right_pulse_angle", s.pwm.armRightPulseAngle);
+  server_.sendHeader("Cache-Control", "no-store");
   char* json = cJSON_PrintUnformatted(root.get());
   if (!json) { error(503, "out_of_memory"); return; }
   server_.send(200, "application/json", json); cJSON_free(json);
+}
+void WebService::mode() {
+  auto root = parse(server_);
+  if (!fields(root.get(), {"mode"}) || !cJSON_IsString(item(root.get(), "mode"))) { error(400, "invalid_mode"); return; }
+  String name = item(root.get(), "mode")->valuestring;
+  if (name != "manual" && name != "auto") { error(400, "invalid_mode"); return; }
+  if (!control_.setMode(name == "manual" ? ControlMode::Manual : ControlMode::Auto)) { error(409, "mode_unavailable"); return; }
+  server_.send(200, "application/json", "{\"ok\":true}");
 }
 void WebService::acquire() {
   auto root = parse(server_);
@@ -90,7 +113,7 @@ void WebService::acquire() {
   Owner owner = name == "manual" ? Owner::Manual : name == "program" ? Owner::Program : Owner::None;
   if (owner == Owner::None) { error(400, "invalid_owner"); return; }
   uint32_t session;
-  if (!control_.acquire(owner, session)) { error(409, "control_unavailable"); return; }
+  if (!control_.acquire(owner, session)) { error(409, "mode_or_control_unavailable"); return; }
   server_.send(200, "application/json", "{\"session\":" + String(session) + ",\"timeout_ms\":500}");
 }
 void WebService::command() {
