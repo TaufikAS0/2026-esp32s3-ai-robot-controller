@@ -8,12 +8,12 @@ import urllib.request
 
 
 class RobotClient:
-    def __init__(self, base_url: str, token: str, *, target_ttl: float = 0.3,
+    def __init__(self, base_url: str, token: str | None = None, *, target_ttl: float = 0.3,
                  timeout: float = 0.25, transport=None):
         if not 0.1 <= target_ttl <= 0.4:
             raise ValueError("target_ttl must be 0.1..0.4 seconds")
+        # Legacy token argument is accepted for older scripts, ignored and never sent.
         self.base_url = base_url.rstrip("/")
-        self.token = token
         self.target_ttl = target_ttl
         self.timeout = timeout
         self._transport = transport
@@ -45,8 +45,7 @@ class RobotClient:
             data = None if body is None else json.dumps(body, allow_nan=False).encode()
             req = urllib.request.Request(self.base_url + "/api/v1" + path, data=data,
                                          method="GET" if body is None else "POST",
-                                         headers={"Authorization": "Bearer " + self.token,
-                                                  "Content-Type": "application/json"})
+                                         headers={"Content-Type": "application/json"})
             with urllib.request.urlopen(req, timeout=self.timeout) as response:
                 return json.load(response)
 

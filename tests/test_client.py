@@ -2,6 +2,8 @@ import pathlib
 import sys
 import time
 import unittest
+from unittest.mock import patch
+import io
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "04_Dokumen" / "python"))
 from robot_client import RobotClient
 
@@ -10,7 +12,7 @@ class ClientTests(unittest.TestCase):
     def setUp(self):
         self.calls = []
         self.fail = False
-        self.client = RobotClient("http://robot", "test-only", transport=self.transport, target_ttl=0.2)
+        self.client = RobotClient("http://robot", transport=self.transport, target_ttl=0.2)
 
     def tearDown(self):
         self.client.close()
@@ -20,6 +22,13 @@ class ClientTests(unittest.TestCase):
         if path == "/command" and self.fail:
             raise OSError("offline")
         return {"session": 123} if path == "/control/acquire" else {"ok": True}
+
+    def test_http_status_requires_no_token(self):
+        with RobotClient("http://robot") as client:
+            with patch("urllib.request.urlopen", return_value=io.BytesIO(b'{"access_mode":"open_lan"}')) as http:
+                self.assertEqual(client.status()["access_mode"], "open_lan")
+                request = http.call_args.args[0]
+                self.assertFalse(request.has_header("Authorization"))
 
     def test_acquisition_does_not_replay(self):
         self.client.acquire()

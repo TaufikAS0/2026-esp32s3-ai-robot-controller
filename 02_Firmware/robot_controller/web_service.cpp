@@ -38,29 +38,19 @@ bool number(cJSON* root, const char* key, float& value) {
 void WebService::error(int code, const char* message) {
   server_.send(code, "application/json", String("{\"error\":\"") + message + "\"}");
 }
-bool WebService::authorize() {
-  String provided = server_.header("Authorization");
-  String expected = "Bearer " + network_.token;
-  if (provided.length() != expected.length()) { error(401, "unauthorized"); return false; }
-  unsigned mismatch = 0;
-  for (size_t i = 0; i < provided.length(); ++i) mismatch |= provided[i] ^ expected[i];
-  if (mismatch) { error(401, "unauthorized"); return false; }
-  return true;
-}
 void WebService::begin() {
-  const char* headers[] = {"Authorization", "Content-Type"};
-  server_.collectHeaders(headers, 2);
+  const char* headers[] = {"Content-Type"};
+  server_.collectHeaders(headers, 1);
   server_.on("/", HTTP_GET, [this]() { server_.send_P(200, "text/html; charset=utf-8", kWebUi); });
-  server_.on("/api/v1/status", HTTP_GET, [this]() { if (authorize()) status(); });
-  server_.on("/api/v1/control/acquire", HTTP_POST, [this]() { if (authorize()) acquire(); });
-  server_.on("/api/v1/command", HTTP_POST, [this]() { if (authorize()) command(); });
-  server_.on("/api/v1/control/release", HTTP_POST, [this]() { if (authorize()) release(); });
+  server_.on("/api/v1/status", HTTP_GET, [this]() { status(); });
+  server_.on("/api/v1/control/acquire", HTTP_POST, [this]() { acquire(); });
+  server_.on("/api/v1/command", HTTP_POST, [this]() { command(); });
+  server_.on("/api/v1/control/release", HTTP_POST, [this]() { release(); });
   server_.on("/api/v1/stop", HTTP_POST, [this]() {
-    if (!authorize()) return;
     if (!control_.stop("stop")) { error(503, "task_unresponsive"); return; }
     server_.send(200, "application/json", "{\"ok\":true}");
   });
-  server_.on("/api/v1/settings", HTTP_POST, [this]() { if (authorize()) settings(); });
+  server_.on("/api/v1/settings", HTTP_POST, [this]() { settings(); });
   server_.on("/api/v1/update", HTTP_POST, [this]() { finishUpload(); }, [this]() { upload(); });
   server_.onNotFound([this]() { error(404, "not_found"); });
   server_.begin();
@@ -71,6 +61,7 @@ void WebService::status() {
   Json root(cJSON_CreateObject(), cJSON_Delete);
   cJSON_AddStringToObject(root.get(), "firmware_version", kFirmwareVersion);
   cJSON_AddNumberToObject(root.get(), "api_version", 1);
+  cJSON_AddStringToObject(root.get(), "access_mode", "open_lan");
   cJSON_AddNumberToObject(root.get(), "uptime_ms", millis());
   cJSON_AddStringToObject(root.get(), "owner", l.owner == Owner::Manual ? "manual" : l.owner == Owner::Program ? "program" : "none");
   cJSON_AddNumberToObject(root.get(), "session", l.session);
@@ -140,17 +131,16 @@ void WebService::upload() {
   if (u.status == UPLOAD_FILE_START) {
     // A single multipart request must contain exactly one application image.
     if (webOta_) { uploadFailed_ = true; return; }
-    uploadAuthorized_ = authorize(); uploadOk_ = false; uploadFailed_ = false; uploadComplete_ = false;
-    if (!uploadAuthorized_) return;
+    uploadOk_ = false; uploadFailed_ = false; uploadComplete_ = false;
     if (webOta_ || ota_.busy || ota_.enabled || u.name != "firmware") { uploadFailed_ = true; return; }
     webOta_ = true; uploadAt_ = millis();
     if (!control_.beginMaintenance() || !Update.begin(UPDATE_SIZE_UNKNOWN, U_FLASH)) uploadFailed_ = true;
   } else if (u.status == UPLOAD_FILE_WRITE) {
-    if (!uploadAuthorized_ || !webOta_ || uploadFailed_) return;
+    if (!webOta_ || uploadFailed_) return;
     uploadAt_ = millis();
     if (Update.write(u.buf, u.currentSize) != u.currentSize) uploadFailed_ = true;
   } else if (u.status == UPLOAD_FILE_END || u.status == UPLOAD_FILE_ABORTED) {
-    if (!uploadAuthorized_ || !webOta_) return;
+    if (!webOta_) return;
     uploadComplete_ = u.status == UPLOAD_FILE_END && !uploadFailed_;
     if (u.status == UPLOAD_FILE_ABORTED) {
       Update.abort(); webOta_ = false; uploadFailed_ = true; control_.endMaintenance();
@@ -158,7 +148,6 @@ void WebService::upload() {
   }
 }
 void WebService::finishUpload() {
-  if (!authorize()) return;
   uploadOk_ = webOta_ && uploadComplete_ && !uploadFailed_ && Update.end(true);
   if (!uploadOk_) {
     if (webOta_) { Update.abort(); control_.endMaintenance(); }

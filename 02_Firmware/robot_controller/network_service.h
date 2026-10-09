@@ -7,13 +7,12 @@ class NetworkService {
   void begin();
   void update();
   bool configure(const String& ssid, const String& password);
-  String token, apPassword, otaPassword;
+  String apPassword;
   String hostname, apName;
   bool apActive = false;
  private:
   Preferences preferences_;
   uint32_t attemptAt_ = 0;
   String serialLine_;
-  String secret(const char* key);
   void connect();
 };

@@ -1,35 +1,26 @@
 #include "network_service.h"
 #include "network_defaults.h"
 #include <esp_system.h>
-#include <esp_random.h>
-String NetworkService::secret(const char* key) {
-  String value = preferences_.getString(key, "");
-  if (!value.length()) {
-    uint8_t bytes[16]; esp_fill_random(bytes, sizeof(bytes));
-    char hex[33];
-    for (size_t i = 0; i < sizeof(bytes); ++i) snprintf(hex + i * 2, 3, "%02x", bytes[i]);
-    value = hex; preferences_.putString(key, value);
-  }
-  return value;
-}
 void NetworkService::begin() {
-  // Do not enable a default AP before its generated credentials are configured.
+  // Do not enable a default AP before its lab credentials are configured.
   WiFi.mode(WIFI_STA);
   preferences_.begin("robot", false);
   hostname = "ai-robot-" + String(uint32_t(ESP.getEfuseMac() & 0xffffff), HEX);
   apName = hostname + "-setup";
-  token = secret("apiToken"); otaPassword = secret("otaPassword");
+  // Explicit open-lab migration: remove only obsolete authentication keys.
+  preferences_.remove("apiToken");
+  preferences_.remove("otaPassword");
   apPassword = NetworkDefaults::apPassword;
-  // Correct existing devices too, preserving API/OTA secrets and unrelated NVS.
+  // Correct existing devices too, preserving unrelated NVS.
   if (preferences_.getString("apPassword", "") != apPassword)
     preferences_.putString("apPassword", apPassword);
   if (preferences_.getString("ssid", "") != NetworkDefaults::stationSsid)
     preferences_.putString("ssid", NetworkDefaults::stationSsid);
   if (preferences_.getString("wifiPassword", "") != NetworkDefaults::stationPassword)
     preferences_.putString("wifiPassword", NetworkDefaults::stationPassword);
-  Serial.println("API token: " + token);
+  Serial.println("Access: open LAN; API and OTA require no credentials");
   Serial.println("AP password: " + apPassword);
-  Serial.println("OTA password: " + otaPassword);
+
   Serial.println("WiFi setup: wifi <ssid>|<password> (USB serial, 115200 baud)");
   WiFi.setHostname(hostname.c_str());
   connect();
@@ -55,9 +46,9 @@ void NetworkService::update() {
     if (c == '\r') continue;
     if (c == '\n') {
       if (serialLine_ == "info") {
-        Serial.println("API token: " + token);
+        Serial.println("Access: open LAN; API and OTA require no credentials");
         Serial.println("AP password: " + apPassword);
-        Serial.println("OTA password: " + otaPassword);
+
         Serial.println("STA IP: " + WiFi.localIP().toString());
         Serial.println("STA SSID: " + WiFi.SSID());
         Serial.println(String("STA connected: ") + (WiFi.status() == WL_CONNECTED ? "true" : "false"));

@@ -35,7 +35,6 @@ class DashboardTests(unittest.TestCase):
         self.page.on("pageerror", lambda e: self.errors.append(str(e)))
         self.page.route("http://robot/**", self.route)
         self.page.goto("http://robot/")
-        self.page.locator("#token").fill("test-only")
         self.page.locator("#connect").click()
         self.page.wait_for_function("document.getElementById('version').textContent===" + json.dumps(VERSION))
 
@@ -48,6 +47,7 @@ class DashboardTests(unittest.TestCase):
         if req.url == "http://robot/":
             route.fulfill(status=200, content_type="text/html", body=HTML)
             return
+        self.assertNotIn("authorization", req.headers)
         path = req.url.split("/api/v1", 1)[1]
         body = json.loads(req.post_data) if req.post_data and "application/json" in req.headers.get("content-type", "") else None
         self.calls.append((path, body))
@@ -122,6 +122,16 @@ class DashboardTests(unittest.TestCase):
         self.page.locator("#stop").click()
         self.assert_stopped()
         self.assertFalse(self.page.locator("#laser").is_checked())
+
+    def test_open_access_and_ota_upload(self):
+        self.assertEqual(self.page.locator("#token").count(), 0)
+        self.acquire()
+        self.page.locator("#firmware").set_input_files({"name": "robot.bin", "mimeType": "application/octet-stream", "buffer": b"test-image"})
+        self.page.locator("#upload").click()
+        self.page.wait_for_function("document.getElementById('message').textContent.includes('Upload berhasil')")
+        self.assertTrue(any(p == "/stop" for p, _ in self.calls))
+        self.assertTrue(any(p == "/update" for p, _ in self.calls))
+        self.assert_stopped()
 
     def test_mobile_layout(self):
         self.page.set_viewport_size({"width": 390, "height": 844})

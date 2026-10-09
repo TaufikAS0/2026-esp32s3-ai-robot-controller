@@ -1,6 +1,6 @@
 # AI Robot Controller
 
-Firmware **v0.1.1** for ESP32-S3 N16R8: two DC motors, two servo hands, and a laser, controlled through a local Indonesian dashboard or HTTP JSON API. A laptop AI can call the included Python client; no AI engine is embedded in this firmware.
+Firmware **v0.2.0** for ESP32-S3 N16R8: two DC motors, two servo hands, and a laser, controlled through a local Indonesian dashboard or HTTP JSON API. A laptop AI can call the included Python client; no AI engine is embedded in this firmware.
 
 **No encoder or other feedback:** output status is commanded PWM/angle, never measured motion. Hardware power design and autonomous navigation are outside this version.
 
@@ -37,10 +37,10 @@ arduino-cli upload --fqbn esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,PartitionS
 
 ## Setup and use
 
-1. Open USB serial at 115200 baud. Boot prints version plus generated API token and separate ArduinoOTA password. Send `info` followed by newline if the initial USB boot output was missed. API/OTA secrets persist in NVS and are not changed by Wi-Fi migration.
+1. Open USB serial at 115200 baud. Boot prints version and open-LAN access mode. Send `info` followed by newline to see connection information. Boot removes only legacy `apiToken` and `otaPassword` NVS keys; unrelated settings are preserved.
 2. This lab build automatically connects to SSID **HuaweiJIN**, password **jayaabadi100**, carried in `network_defaults.h` with explicit user approval. These shared lab defaults override old STA/AP NVS values on boot without erasing other keys. Web/serial Wi-Fi settings accept only this lab profile; other profiles require an explicitly approved source/policy change.
 3. If STA is unavailable for 15 seconds, join the device-specific `ai-robot-<id>-setup` AP with password **12345678** and browse `http://192.168.4.1/`. AP remains available until reboot once started.
-4. On the router, use the assigned device IP. Enter API token, connect, then take manual control. Press and hold direction buttons. Release stops motion and invalidates the session; acquire again for the next movement.
+4. On the router, use the assigned device IP. Connect, then take manual control; no token is required. Press and hold direction buttons. Release stops motion and invalidates the session; acquire again for the next movement.
 5. Servo sliders use 0–180 degrees. Initial commanded angle is 90 degrees on the first complete command; boot itself generates no servo pulses. Servo pulse defaults are 500–2500 microseconds and are centralized in config.h.
 
 Motor sign convention: positive is the configured forward polarity. There is no physical polarity calibration or speed measurement. PWM is 20 kHz / 10 bits; servo PWM is 50 Hz / 14 bits on separate LEDC timers.
@@ -51,7 +51,7 @@ Set `ROBOT_URL` and `ROBOT_TOKEN` outside Git, then run `python 04_Dokumen/pytho
 
 ```python
 from robot_client import RobotClient
-with RobotClient(base_url, token) as robot:
+with RobotClient(base_url) as robot:
     robot.acquire("program")
     robot.drive(0.2, 0.2)
     robot.set_arms(45, 135)
@@ -65,7 +65,7 @@ The client heartbeat sends every 100 ms, but a stale producer target expires aft
 ## OTA
 
 - Rebuild and upload **`build/robot_controller.ino.bin`** through the dashboard firmware panel or authenticated multipart API. Do not upload merged, bootloader, or partition binaries through OTA.
-- Web OTA uses API token. ArduinoOTA is OFF each boot; enable it from dashboard settings and supply the separate generated OTA password to Arduino IDE/espota.
+- Web OTA and ArduinoOTA require no password or token. ArduinoOTA is OFF each boot; enable it from dashboard settings when needed.
 - Disable ArduinoOTA before web upload. During OTA, motor and laser turn off, servo pulses stop, and new control sessions are rejected.
 - Failed upload leaves idle output with no active session. Successful upload reboots idle. If a connection disappears after image validation, reboot manually if necessary.
 - USB is required for initial installation and partition-layout changes. Automatic boot rollback is not implemented.
@@ -91,3 +91,7 @@ See `04_Dokumen/VERIFICATION.md` for current evidence and pending device tests. 
 ## GitHub workflow
 
 Local work branch: `feature/initial-robot-controller`, based on `develop`. Push this feature branch and open a reviewed PR to `develop` when publication is requested. `main` is for approved releases through `release/*` with semantic tags and back-merge. No remote is configured by this implementation. No release binaries are tracked.
+
+## License and LAN access
+
+MIT license. API, settings, stop, and firmware upload are accessible to anyone who can reach the device on its LAN or recovery AP. Open-source licensing and network access are separate choices; both are explicitly authorized for this robot lab profile. Control sessions arbitrate ownership and are not authentication. Customer/site deployments require their own explicit access policy.

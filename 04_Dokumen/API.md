@@ -1,6 +1,6 @@
 # HTTP API v1
 
-Base URL: `http://<device-ip>/api/v1`. All API routes require `Authorization: Bearer <device-token>`. JSON requests require `Content-Type: application/json`. Control bodies reject missing, extra, duplicate, wrongly typed, non-finite, or out-of-range fields. Maximum parsed JSON body is 1024 bytes; this is application validation, not a streaming HTTP memory limit. Root dashboard HTML is accessible without token.
+Base URL: `http://<device-ip>/api/v1`. All API routes are open on the local network: no token or OTA password. Control sessions arbitrate ownership; they do not authenticate a person. Status reports `access_mode: "open_lan"`. JSON requests require `Content-Type: application/json`. Control bodies reject missing, extra, duplicate, wrongly typed, non-finite, or out-of-range fields. Maximum parsed JSON body is 1024 bytes; this is application validation, not a streaming HTTP memory limit. The dashboard also requires no token.
 
 ## Acquire
 
@@ -20,7 +20,7 @@ Refresh at 100 ms. At 500 ms without a valid command, motor PWM becomes zero, la
 
 ## Stop and release
 
-- `POST /stop` with `{}`: authenticated global stop, including a different owner's session. Idempotent; preserves last servo angle. Response 200 means the task acknowledged output application, not that physical motion has ceased.
+- `POST /stop` with `{}`: global stop, including a different owner's session. Idempotent; preserves last servo angle. Response 200 means the task acknowledged output application, not that physical motion has ceased.
 - `POST /control/release` with `{"session":123}`: stops only the matching active lease; otherwise 409. Use this on background client errors to avoid stopping a newer manual session.
 
 ## Status
@@ -31,16 +31,16 @@ Output reflects software targets after ramping; GPIO application can lag by one 
 
 ## Settings
 
-`POST /settings` accepts either `{"ssid":"HuaweiJIN","password":"jayaabadi100"}` or `{"arduino_ota":true}`. This lab build accepts only the approved HuaweiJIN profile; other values return 400. Reconnecting stops the current lease. On boot, old STA/AP NVS values are migrated to the centralized lab defaults, preserving API/OTA secrets. Status also includes `sta_target_ssid` and `sta_ssid`; connection success is determined by `sta_connected` and a nonzero IP. ArduinoOTA enablement is volatile and resets OFF on boot. Never return stored passwords or tokens in status.
+`POST /settings` accepts either `{"ssid":"HuaweiJIN","password":"jayaabadi100"}` or `{"arduino_ota":true}`. This lab build accepts only the approved HuaweiJIN profile; other values return 400. Reconnecting stops the current lease. On boot, old STA/AP NVS values are migrated to the centralized lab defaults, removing obsolete `apiToken`/`otaPassword` keys while preserving unrelated settings. Status also includes `sta_target_ssid` and `sta_ssid`; connection success is determined by `sta_connected` and a nonzero IP. ArduinoOTA enablement is volatile and resets OFF on boot. Never return stored passwords or tokens in status.
 
 ## OTA upload
 
-`POST /update`, authenticated multipart/form-data with one file named `firmware`: application `.bin` for this board/partition layout. Example:
+`POST /update`, multipart/form-data with one file named `firmware`: application `.bin` for this board/partition layout. Example:
 
 ```text
-curl -H "Authorization: Bearer <token>" -F "firmware=@build/robot_controller.ino.bin" http://<device-ip>/api/v1/update
+curl -F "firmware=@build/robot_controller.ino.bin" http://<device-ip>/api/v1/update
 ```
 
-ArduinoOTA must be disabled. OTA locks control and waits for zero motor/laser plus disabled servo PWM before flash writes. Valid image returns `{"ok":true,"rebooting":true}` then reboots. Upload failure returns 400 and leaves idle with no lease; authentication failure is 401. Firmware image validation comes from ESP32 Update; there is no signed-image/product-ID enforcement, TLS, downgrade prevention, or automatic boot rollback.
+ArduinoOTA must be disabled. OTA locks control and waits for zero motor/laser plus disabled servo PWM before flash writes. Valid image returns `{"ok":true,"rebooting":true}` then reboots. Upload failure returns 400 and leaves idle with no lease. Firmware image validation comes from ESP32 Update; there is no signed-image/product-ID enforcement, TLS, downgrade prevention, or automatic boot rollback.
 
-General errors: 401 authentication, 400 invalid input, 409 control conflict, 503 output acknowledgement or resource failure, 404 unknown route. JSON error response: `{"error":"reason"}`. No CORS is enabled; Python is the intended laptop program interface.
+General errors: 400 invalid input, 409 control conflict, 503 output acknowledgement or resource failure, 404 unknown route. JSON error response: `{"error":"reason"}`. No CORS is enabled; Python is the intended laptop program interface.
