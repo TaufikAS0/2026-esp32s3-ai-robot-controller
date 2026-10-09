@@ -1,6 +1,6 @@
 # AI Robot Controller
 
-Firmware **v0.3.2** for ESP32-S3 N16R8: two DC motors, two servo hands, and a laser, controlled through a local Indonesian dashboard or HTTP JSON API. A laptop AI can call the included Python client; no AI engine is embedded in this firmware.
+Firmware **v0.3.3** for ESP32-S3 N16R8: two DC motors, two servo hands, and a laser, controlled through a local Indonesian dashboard or HTTP JSON API. A laptop AI can call the included Python client; no AI engine is embedded in this firmware.
 
 **No encoder or other feedback:** output status is commanded PWM/angle, never measured motion. Hardware power design and autonomous navigation are outside this version.
 
@@ -102,3 +102,5 @@ MIT license. API, settings, stop, and firmware upload are accessible to anyone w
 Hand angles in UI/API are logical 0–180 degrees. The left servo pulse angle is `180 - arm_left`; the right is `arm_right`. Mirroring is configured centrally in config.h. `pwm` status contains LEDC duty readback for GPIO 12/13 (left) and 10/11 (right), initialization/write status, and active frequency. Raw motor duty is 0–1024; core 3.3.10 uses 1024 for full-on. An idle active-frequency read is zero because duty is zero. This reports peripheral configuration/readback, not voltage or physical wheel movement.
 
 Wi-Fi modem sleep is disabled for responsive local control. Status reports `wifi_sleep: false`. Network delays can still exceed the lease; timeout never automatically resumes motion.
+
+Wi-Fi recovery retries a stalled/disconnected STA attempt every 30 seconds while retaining the recovery AP. USB serial `info` includes last disconnect reason/count, RSSI, heap, and uptime; boot logs reset reason. A retry does not resume expired control.

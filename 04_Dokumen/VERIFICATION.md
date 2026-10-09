@@ -1,6 +1,19 @@
 # Verification evidence
 
-Current firmware: v0.3.2 (2026-10-09). Earlier version evidence is historical.
+Current firmware: v0.3.3 (2026-10-09). Earlier version evidence is historical.
+
+## v0.3.3 Wi-Fi investigation — 2026-10-09
+
+- Pinned build PASS: application 1,042,384 bytes, program storage 1,042,230, RAM 51,448; both 6 MiB OTA slots verified. SHA256 `a794f1fe590027f7d13388fda28132960afe6622ffed4c3c7bf053c2ca8a05de`. USB COM11 upload succeeded with esptool hash verification; NVS was not erased.
+- v0.3.3 serial observed disconnect reason 2 (AUTH_EXPIRE), subsequent reason 8 (explicit retry disconnect), RSSI -49 to -57 dBm and STA state 0 without an IPv4 address. Periodic retry executed. No continuing reset loop was seen. Firmware-side recovery does not prove original cause or solve persistent router authentication/DHCP failures.
+- Laptop temporarily joined robot AP with a separate temporary profile; actual HTTP status and dashboard both returned 200 at 192.168.4.1. API confirmed v0.3.3, uptime 144674 ms, idle Manual, no session, motor/laser off, servo pulses disabled; STA still disconnected/IP0. The laptop was restored to HuaweiJIN and temporary profile deleted. An existing same-name AP profile was preserved after a scope conflict; its authentication attempt did not establish AP failure.
+- Former LAN IP 192.168.1.34 failed all 15 HTTP probes. LAN stability is NOT fixed/verified. Recovery AP is verified working. Further router-side authentication/DHCP and 2.4 GHz diagnosis is needed; no speculative router modification was made. Evidence stored in ignored build/v0.3.3-* diagnostic files.
+- User reported intermittent then unavailable web access. COM12 (CP210x) was silent; COM11 (CH343) identified AI Robot Controller v0.3.2. User confirmed use of COM11. Esptool identified the original ESP32-S3 revision 0.2, embedded 8 MB PSRAM and MAC e0:72:a1:d6:1b:48.
+- Old firmware serial repeatedly showed HuaweiJIN target, STA IP 0.0.0.0, disconnected, recovery AP 192.168.4.1. Existing serial Wi-Fi reconnect did not obtain an IP. HTTP at the former IP timed out. No continuing reboot loop was observed during serial sampling; reset observed when opening serial cannot establish prior reset history.
+- Laptop associated to HuaweiJIN and detected its 2.4 GHz AP. AP-advertised channel utilization samples were 81-95%; this suggests congestion, not proof of cause. No router changes were made.
+- Source v0.3.2 changed only wheel polarity/version/tests/docs; Wi-Fi was unchanged from v0.3.1. Existing network service lacked periodic recovery of a stalled attempt and disconnect-reason logging. v0.3.3 adds a 30-second retry and USB event/status/reset/RSSI/heap diagnostics. Left wheel inversion remains enabled.
+- Local native control/driver suites, 8 Python client tests, 7 policy tests and 14 Chromium simulations PASS. These tests do not establish radio stability.
+- All seven mandatory vault notes listed in the v0.3.2 section were read again. STA HuaweiJIN and AP 12345678 remain approved; no NVS erase, credentials change, or motor commands are part of this diagnosis. Existing migration preserves unrelated keys.
 
 ## v0.3.2 left wheel polarity — 2026-10-09
 

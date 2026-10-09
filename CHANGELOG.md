@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.3 — 2026-10-09
+
+- Retry stalled STA connection attempts every 30 seconds with recovery AP retained.
+- Log Wi-Fi disconnect reason/count, connection status, RSSI, heap, uptime and boot reset reason for USB diagnosis.
+- Preserve left wheel inversion and the approved lab/NVS profile.
+
 ## v0.3.2 — 2026-10-09
 
 - Invert left wheel polarity centrally for dashboard and API commands to match the installed right wheel direction.
