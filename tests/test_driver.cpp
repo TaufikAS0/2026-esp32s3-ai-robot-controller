@@ -25,12 +25,12 @@ int main() {
   assert(pins[12].channel / 2 != pins[5].channel / 2);
   out.left = .25f; out.right = -.5f; out.servoEnabled = true;
   out.armLeft = 0; out.armRight = 0; writes.clear(); assert(d.write(out));
-  assert(writes[0].first == 13 && writes[0].second == 0);
-  assert(writes[1].first == 12 && writes[1].second == 256);
+  assert(writes[0].first == 12 && writes[0].second == 0);
+  assert(writes[1].first == 13 && writes[1].second == 256);
   assert(pins[10].duty == 0 && pins[11].duty == 512);
   assert(pins[5].duty == 2048 && pins[6].duty == 410);
   auto state = d.snapshot(); assert(state.ready && state.writeOk);
-  assert(state.left1 == 256 && state.right2 == 512 && state.leftHz == 20000);
+  assert(state.left1 == 0 && state.left2 == 256 && state.right2 == 512 && state.leftHz == 20000);
   assert(state.armLeftPulseAngle == 180 && state.armRightPulseAngle == 0);
   out.armLeft = 180; out.armRight = 180; assert(d.write(out));
   assert(pins[5].duty == 410 && pins[6].duty == 2048);
@@ -40,8 +40,13 @@ int main() {
   assert(pins[10].duty == 0 && pins[11].duty == 0 && pins[12].duty == 0 && pins[13].duty == 0);
   assert(pins[5].duty == 0 && pins[6].duty == 0);
   out.left = out.right = 1; assert(d.write(out));
-  assert(d.snapshot().left1 == 1024 && d.snapshot().right1 == 1024);
+  assert(d.snapshot().left2 == 1024 && d.snapshot().right1 == 1024);
   out.left = out.right = 0; assert(d.write(out));
-  failPin = 13; out.left = 1; assert(!d.write(out));
-  assert(pins[12].duty == 0 && !d.snapshot().writeOk);
+  out.left = out.right = -1; assert(d.write(out));
+  assert(pins[12].duty == 1024 && pins[13].duty == 0);
+  assert(pins[10].duty == 0 && pins[11].duty == 1024);
+  assert(d.snapshot().leftHz == 20000 && d.snapshot().rightHz == 20000);
+  out.left = out.right = 0; assert(d.write(out));
+  failPin = 12; out.left = 1; assert(!d.write(out));
+  assert(pins[13].duty == 0 && !d.snapshot().writeOk);
 }

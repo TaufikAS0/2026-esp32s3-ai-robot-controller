@@ -29,8 +29,10 @@ uint32_t ActuatorDriver::servoDuty(float angle) {
 }
 bool ActuatorDriver::write(const Output& out) {
   if (!ready_) return false;
-  bool ok = motor(Config::left1, Config::left2, out.left);
-  ok = motor(Config::right1, Config::right2, out.right) && ok;
+  const float left = Config::invertLeftMotor ? -out.left : out.left;
+  const float right = Config::invertRightMotor ? -out.right : out.right;
+  bool ok = motor(Config::left1, Config::left2, left);
+  ok = motor(Config::right1, Config::right2, right) && ok;
   state_.armLeftPulseAngle = Config::invertLeftArm ? 180 - out.armLeft : out.armLeft;
   state_.armRightPulseAngle = Config::invertRightArm ? 180 - out.armRight : out.armRight;
   ok = ledcWrite(Config::armLeft, out.servoEnabled ? servoDuty(state_.armLeftPulseAngle) : 0) && ok;
@@ -38,8 +40,8 @@ bool ActuatorDriver::write(const Output& out) {
   digitalWrite(Config::laser, out.laser ? HIGH : LOW);
   state_.left1 = ledcRead(Config::left1); state_.left2 = ledcRead(Config::left2);
   state_.right1 = ledcRead(Config::right1); state_.right2 = ledcRead(Config::right2);
-  state_.leftHz = ledcReadFreq(out.left >= 0 ? Config::left1 : Config::left2);
-  state_.rightHz = ledcReadFreq(out.right >= 0 ? Config::right1 : Config::right2);
+  state_.leftHz = ledcReadFreq(left >= 0 ? Config::left1 : Config::left2);
+  state_.rightHz = ledcReadFreq(right >= 0 ? Config::right1 : Config::right2);
   state_.writeOk = ok;
   return ok;
 }

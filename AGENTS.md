@@ -31,3 +31,5 @@ For a standalone checkout without the private sibling vault, the approved lab de
 
 - Auto/Manual are explicit runtime modes, boot Manual. Mode changes stop/invalidate sessions; never silently switch mode during acquire. Python engines explicitly select Auto.
 - Left hand commands are logical 0–180; driver pulse angle is 180 minus left angle. PWM status is LEDC readback, never measured wheel movement. Keep Wi-Fi modem sleep disabled for the lab latency profile.
+
+- Wheel polarity is mapped only in the actuator driver: invertLeftMotor=true, invertRightMotor=false. Preserve logical forward signs in API/dashboard/ramp; choose PWM frequency readback from the mapped physical active input.

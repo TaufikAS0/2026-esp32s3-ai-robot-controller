@@ -1,6 +1,16 @@
 # Verification evidence
 
-Current firmware: v0.3.1 (2026-10-09). Earlier version evidence is historical.
+Current firmware: v0.3.2 (2026-10-09). Earlier version evidence is historical.
+
+## v0.3.2 left wheel polarity — 2026-10-09
+
+- Pinned local build PASS: application 1,040,928 bytes, storage 1,040,774 bytes, RAM 51,440 bytes; emitted two 6,291,456-byte OTA slots verified. SHA256 `abeb7fbcea402bc091e777901d9d0e258735b85fb2873d4b12dfffc8c8945562`.
+- Web OTA returned success/rebooting at 192.168.1.34. API after reboot confirmed v0.3.2, Manual, no session, motor duties zero, laser off, servo pulses disabled, HuaweiJIN connected, ArduinoOTA OFF.
+- Actual device +/-25% logical commands: forward read GPIO13/10 duty 256 and GPIO12/11 zero; reverse read GPIO12/11 duty 256 and GPIO13/10 zero. Both active frequency readbacks 20,000 Hz. Final state stopped, no session, laser off, arms 90 degrees held. Evidence in ignored build/v0.3.2-device-verification.json.
+- This verifies polarity mapping in the ESP32 peripheral, not measured wheel direction or voltage. Independent physical observation remains pending.
+- User requested inversion of the installed left wheel to match the right wheel. Driver maps left sign once after ramping; right polarity is unchanged. Logical forward activates GPIO 13/10; reverse activates GPIO 12/11. Frequency readback uses the mapped input. Stop, reversal dwell, sessions, and timeout remain unchanged.
+- Local validation PASS: native control and driver suites (MSVC C++17 /W4 /WX), 8 Python client tests, 7 network-policy tests, and 14 Chromium dashboard simulations.
+- Mandatory vault notes read in order: 00_Start_Here/Firmware_AI_Vault_Home.md; 01_Rules/Rules_Nama_dan_Folder_Workspace.md; Rules_Firmware_Standar.md; Rules_GitHub_Gitflow.md; Rules_Kredensial_WiFi.md; 04_Profiles/WiFi/WiFi_HuaweiJIN.md; 01_Rules/Rules_Akses_Robot_Lab.md. STA remains HuaweiJIN, shared AP password 12345678, open API/OTA. Existing NVS migration updates differing STA/AP keys and removes only legacy apiToken/otaPassword, retaining unrelated keys; this patch adds no NVS change or erase.
 
 ## v0.3.1 dashboard, modes, mirrored hand and PWM — 2026-10-09
 

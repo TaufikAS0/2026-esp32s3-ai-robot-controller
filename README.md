@@ -1,6 +1,6 @@
 # AI Robot Controller
 
-Firmware **v0.3.1** for ESP32-S3 N16R8: two DC motors, two servo hands, and a laser, controlled through a local Indonesian dashboard or HTTP JSON API. A laptop AI can call the included Python client; no AI engine is embedded in this firmware.
+Firmware **v0.3.2** for ESP32-S3 N16R8: two DC motors, two servo hands, and a laser, controlled through a local Indonesian dashboard or HTTP JSON API. A laptop AI can call the included Python client; no AI engine is embedded in this firmware.
 
 **No encoder or other feedback:** output status is commanded PWM/angle, never measured motion. Hardware power design and autonomous navigation are outside this version.
 
@@ -43,7 +43,7 @@ arduino-cli upload --fqbn esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,PartitionS
 4. On the router, use the assigned device IP. The dashboard connects and retries automatically. Select Manual to use buttons/sliders; pressing an actuator control acquires the manual session automatically. Release stops motion and invalidates the session. Auto is for the laptop engine/API and disables dashboard actuator controls. Changing mode stops output and invalidates the session. Boot mode is Manual.
 5. Servo sliders use 0–180 degrees. Initial commanded angle is 90 degrees on the first complete command; boot itself generates no servo pulses. Servo pulse defaults are 500–2500 microseconds and are centralized in config.h.
 
-Motor sign convention: positive is the configured forward polarity. There is no physical polarity calibration or speed measurement. PWM is 20 kHz / 10 bits; servo PWM is 50 Hz / 14 bits on separate LEDC timers.
+Motor sign convention: positive is the configured forward polarity. Left motor polarity is inverted in config.h to match the right wheel on this robot. Positive commands activate GPIO 13 (left) and GPIO 10 (right); negative commands activate GPIO 12 and GPIO 11. There is no speed measurement. PWM is 20 kHz / 10 bits; servo PWM is 50 Hz / 14 bits on separate LEDC timers.
 
 ## Laptop client
 

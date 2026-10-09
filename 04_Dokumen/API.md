@@ -50,3 +50,7 @@ curl -F "firmware=@build/robot_controller.ino.bin" http://<device-ip>/api/v1/upd
 ArduinoOTA must be disabled. OTA locks control and waits for zero motor/laser plus disabled servo PWM before flash writes. Valid image returns `{"ok":true,"rebooting":true}` then reboots. Upload failure returns 400 and leaves idle with no lease. Firmware image validation comes from ESP32 Update; there is no signed-image/product-ID enforcement, TLS, downgrade prevention, or automatic boot rollback.
 
 General errors: 400 invalid input, 409 control conflict, 503 output acknowledgement or resource failure, 404 unknown route. JSON error response: `{"error":"reason"}`. No CORS is enabled; Python is the intended laptop program interface.
+
+## Wheel polarity v0.3.2
+
+Logical positive means configured forward for both wheels. The driver inverts the left motor only (config.h): forward uses GPIO 13/10, reverse uses GPIO 12/11; the paired input remains zero. Status commanded_output retains logical signs; PWM duty fields retain physical GPIO identities. Frequency readback follows the mapped active pin.

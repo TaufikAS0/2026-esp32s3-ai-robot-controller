@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.3.2 — 2026-10-09
+
+- Invert left wheel polarity centrally for dashboard and API commands to match the installed right wheel direction.
+- Read frequency from the mapped active pin; preserve logical signs, ramp, reversal pause, and timeout.
+
 ## v0.3.1 — 2026-10-09
 
 - Disable Wi-Fi modem sleep for LAN control after device tests observed HTTP jitter close to the 500 ms lease. Expose Wi-Fi sleep state in status.
