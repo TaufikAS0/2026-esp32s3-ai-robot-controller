@@ -95,3 +95,12 @@ GitHub Actions is configured but has not run on GitHub because no remote/push is
 - Verify ArduinoOTA without a password, opt-in enablement, and reboot default OFF.
 
 Compile/simulation success is not physical robot acceptance.
+
+## Build identity v0.3.4 — 2026-10-12
+
+- PATCH from v0.3.3: generated build-start UTC on serial boot, status API and dashboard; no control/network/NVS behavior changes.
+- Read vault home, workspace naming, firmware standard, Gitflow, credential rules, HuaweiJIN profile, robot access, Rules_Versioning and Rules_Change_Notifications. STA HuaweiJIN, AP 12345678; existing selective NVS migration is unchanged.
+- Native control and actuator suites PASS; 8 Python client, 7 network policy, 2 build identity tests and 15 dashboard simulations PASS. Metadata tests reject stale binaries, naive time and missing mandatory rule entrypoints.
+- Local pinned core 3.3.10 ESP32-S3 N16R8 clean compile PASS; emitted two 6,291,456-byte OTA slots verified. Application 1,042,688 bytes; version and current timestamp verified inside binary. Build UTC 2026-10-12T03:19:37Z; SHA-256 7d5d730b28e4aaa6fdf8fef7ad0f5d3e3d20f33a4681a8d945f30d57df637083. Manifest retained in ignored build/build_manifest.json; CI publishes its own build timestamp/manifest.
+- Hardware: v0.3.3 was verified on COM11 and LAN 192.168.1.43 earlier today. v0.3.4 has NOT been uploaded; new serial/API identity and runtime stability on the physical board remain unverified.
+- Vault policy published separately, commit aa0bb9e on feature/v1-firmware-ai-vault-bootstrap; unrelated dirty vault work preserved. Robot publication uses feature/initial-robot-controller and existing PR to develop, without merge.

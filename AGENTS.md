@@ -33,3 +33,7 @@ For a standalone checkout without the private sibling vault, the approved lab de
 - Left hand commands are logical 0–180; driver pulse angle is 180 minus left angle. PWM status is LEDC readback, never measured wheel movement. Keep Wi-Fi modem sleep disabled for the lab latency profile.
 
 - Wheel polarity is mapped only in the actuator driver: invertLeftMotor=true, invertRightMotor=false. Preserve logical forward signs in API/dashboard/ramp; choose PWM frequency readback from the mapped physical active input.
+
+## Aturan identitas build dan pemberitahuan perubahan — 2026-10-12
+
+Sebelum perubahan firmware, build/upload, atau push, AI wajib membaca `01_Rules/Rules_Versioning.md` dan `01_Rules/Rules_Change_Notifications.md` di vault (selain urutan baca yang sudah ada). Baca kedua file penuh pada awal tugas; sebutkan aturan yang dibaca dalam laporan. Semua perubahan firmware wajib dicatat di changelog/handoff dan diberitahukan kepada pengguna: versi sebelum/sesudah, timestamp build dengan zona waktu, perilaku/API/pin/NVS yang berubah, hasil tes, serta apakah perangkat sudah diupload. Jangan mengklaim timestamp sebagai jam perangkat atau uptime. Identitas versi + waktu build wajib terlihat pada serial, API, dashboard/display yang tersedia; metadata build dibuat ulang saat build, bukan ditulis manual. Build gate harus menolak metadata hilang/tidak cocok. AI tidak boleh melewati aturan ini karena mengingat sesi lama. Aturan baru/perubahan kebijakan wajib ditautkan dari halaman awal dan AGENTS/template agar terbaca oleh AI berikutnya.

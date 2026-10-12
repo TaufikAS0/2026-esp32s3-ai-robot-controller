@@ -54,3 +54,7 @@ General errors: 400 invalid input, 409 control conflict, 503 output acknowledgem
 ## Wheel polarity v0.3.2
 
 Logical positive means configured forward for both wheels. The driver inverts the left motor only (config.h): forward uses GPIO 13/10, reverse uses GPIO 12/11; the paired input remains zero. Status commanded_output retains logical signs; PWM duty fields retain physical GPIO identities. Frequency readback follows the mapped active pin.
+
+## Build identity v0.3.4
+
+`GET /status` adds `build_time_utc`, ISO 8601 UTC build-start time (`YYYY-MM-DDTHH:MM:SSZ`) from the compiled image. It is independent of `uptime_ms` and firmware version; clients must not infer clock synchronization or upload time from it.

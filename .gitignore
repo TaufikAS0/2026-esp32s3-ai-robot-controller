@@ -11,3 +11,5 @@ test_control.obj
 
 test-driver.exe
 *.obj
+
+02_Firmware/robot_controller/firmware_build.h

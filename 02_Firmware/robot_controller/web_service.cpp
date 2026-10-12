@@ -61,6 +61,7 @@ void WebService::status() {
   const auto& l = s.logic;
   Json root(cJSON_CreateObject(), cJSON_Delete);
   cJSON_AddStringToObject(root.get(), "firmware_version", kFirmwareVersion);
+  cJSON_AddStringToObject(root.get(), "build_time_utc", kFirmwareBuildUtc);
   cJSON_AddNumberToObject(root.get(), "api_version", 1);
   cJSON_AddStringToObject(root.get(), "mode", l.mode == ControlMode::Manual ? "manual" : "auto");
   cJSON_AddStringToObject(root.get(), "access_mode", "open_lan");

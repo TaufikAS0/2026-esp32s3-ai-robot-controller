@@ -69,11 +69,14 @@ class DashboardTests(unittest.TestCase):
             code = 409
             result = {"error": "session_or_sequence_rejected"}
         elif path == "/status":
-            result = dict(firmware_version=VERSION, mode=self.mode, sta_ip="192.168.1.34", session=self.session, reason="stop", arduino_ota=False,
+            result = dict(firmware_version=VERSION, build_time_utc="2026-10-12T01:02:03Z", mode=self.mode, sta_ip="192.168.1.34", session=self.session, reason="stop", arduino_ota=False,
                           commanded_output=dict(left=0, right=0, arm_left=90, arm_right=90, laser=False))
         else:
             result = {"ok": True}
         route.fulfill(status=code, content_type="application/json", body=json.dumps(result))
+
+    def test_build_time_visible(self):
+        self.assertEqual(self.page.locator("#buildTime").inner_text(), "Build UTC: 2026-10-12T01:02:03Z")
 
     def acquire(self):
         self.page.locator("#acquire").click()

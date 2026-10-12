@@ -1,6 +1,6 @@
 # AI Robot Controller
 
-Firmware **v0.3.3** for ESP32-S3 N16R8: two DC motors, two servo hands, and a laser, controlled through a local Indonesian dashboard or HTTP JSON API. A laptop AI can call the included Python client; no AI engine is embedded in this firmware.
+Firmware **v0.3.4** for ESP32-S3 N16R8: two DC motors, two servo hands, and a laser, controlled through a local Indonesian dashboard or HTTP JSON API. A laptop AI can call the included Python client; no AI engine is embedded in this firmware.
 
 **No encoder or other feedback:** output status is commanded PWM/angle, never measured motion. Hardware power design and autonomous navigation are outside this version.
 
@@ -79,6 +79,7 @@ g++ -std=c++17 -Wall -Wextra -Werror tests/test_control.cpp -o test-control
 ./test-control
 python -m unittest discover -s tests -p test_client.py -v
 python -m unittest discover -s tests -p test_network_policy.py -v
+python -m unittest discover -s tests -p test_build_metadata.py -v
 python -m pip install playwright==1.58.0
 python -m playwright install chromium
 python tests/test_dashboard.py
@@ -104,3 +105,7 @@ Hand angles in UI/API are logical 0–180 degrees. The left servo pulse angle is
 Wi-Fi modem sleep is disabled for responsive local control. Status reports `wifi_sleep: false`. Network delays can still exceed the lease; timeout never automatically resumes motion.
 
 Wi-Fi recovery retries a stalled/disconnected STA attempt every 30 seconds while retaining the recovery AP. USB serial `info` includes last disconnect reason/count, RSSI, heap, and uptime; boot logs reset reason. A retry does not resume expired control.
+
+## Build identity v0.3.4
+
+`scripts/build.py` generates ignored `firmware_build.h` at build start using the build machine UTC clock, then compiles with `--clean` and checks that the application contains the current version and timestamp. Direct sketch compile requires this generated header; use the build script to avoid stale metadata. The serial boot log, dashboard header and status `build_time_utc` expose ISO 8601 UTC (for example `2026-10-12T01:02:03Z`); this is neither uptime nor upload time. `build/build_manifest.json` records the version, UTC timestamp and application SHA-256 and accompanies CI binaries. Different build timestamps intentionally produce different images. Before publishing, read the vault versioning/change-notification rules and report changes plus whether hardware was actually uploaded.

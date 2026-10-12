@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.3.4 — 2026-10-12
+
+- Show generated build-start UTC timestamp in serial, dashboard and API status.
+- Clean build and reject stale/missing metadata in final application; publish SHA-256 build manifest with CI binaries.
+- Require versioning/change-notification rules in AI entrypoints and record changes across handoffs.
+- Preserve control, wheel polarity, lab STA/AP and NVS behavior.
+
 ## v0.3.3 — 2026-10-09
 
 - Retry stalled STA connection attempts every 30 seconds with recovery AP retained.
