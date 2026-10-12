@@ -15,6 +15,7 @@ class WebService {
   bool uploadOk_ = false, uploadFailed_ = false, webOta_ = false;
   bool uploadComplete_ = false;
   uint32_t uploadAt_ = 0, restartAt_ = 0;
+  uint32_t applicationBytes_ = 0, otaSlotBytes_ = 0;
   void error(int code, const char* message);
   void status();
   void acquire();

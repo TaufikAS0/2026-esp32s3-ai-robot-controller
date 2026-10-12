@@ -32,6 +32,7 @@ class DashboardTests(unittest.TestCase):
         self.mode = "manual"
         self.reject = False
         self.offline = False
+        self.hardware = dict(chip_model="ESP32-S3", cpu_freq_mhz=240, free_heap_bytes=245760, heap_size_bytes=327680, min_free_heap_bytes=220000, psram_size_bytes=8388608, free_psram_bytes=8000000, application_bytes=1050000, ota_slot_bytes=6291456, flash_size_bytes=16777216, wifi_rssi_dbm=-55)
         self.errors = []
         self.page.on("pageerror", lambda e: self.errors.append(str(e)))
         self.page.route("http://robot/**", self.route)
@@ -69,11 +70,33 @@ class DashboardTests(unittest.TestCase):
             code = 409
             result = {"error": "session_or_sequence_rejected"}
         elif path == "/status":
-            result = dict(firmware_version=VERSION, build_time_utc="2026-10-12T01:02:03Z", mode=self.mode, sta_ip="192.168.1.34", session=self.session, reason="stop", arduino_ota=False,
+            result = dict(firmware_version=VERSION, build_time_utc="2026-10-12T01:02:03Z", hardware=self.hardware, uptime_ms=112147, sta_connected=True, sta_ssid="HuaweiJIN", mode=self.mode, sta_ip="192.168.1.34", session=self.session, reason="stop", arduino_ota=False,
                           commanded_output=dict(left=0, right=0, arm_left=90, arm_right=90, laser=False))
         else:
             result = {"ok": True}
         route.fulfill(status=code, content_type="application/json", body=json.dumps(result))
+
+    def test_telemetry_values_and_offline_label(self):
+        self.assertEqual(self.page.locator("#heapMetric").inner_text(), "240.0 KiB / 320.0 KiB")
+        self.assertEqual(self.page.locator("#heapBar").evaluate("el=>el.style.width"), "75%")
+        self.assertEqual(self.page.locator("#rssiInfo").inner_text(), "-55 dBm")
+        self.assertIn("16.00 MiB", self.page.locator("#flashInfo").inner_text())
+        self.offline = True
+        self.page.wait_for_function("!connected")
+        self.assertIn("data terakhir", self.page.locator("#statusBadge").inner_text())
+
+    def test_navigation_opens_wifi_and_offline_assets(self):
+        self.page.locator("#wifiNav").click()
+        self.assertTrue(self.page.locator("#wifi-settings").evaluate("el=>el.open"))
+        self.assertFalse(self.page.locator('script[src],link[href^="http"],img[src^="http"]').count())
+        self.assertNotIn("WebSockets", HTML)
+        self.assertNotIn("ESP32-WROOM", HTML)
+
+    def test_missing_telemetry_is_not_fabricated(self):
+        self.hardware = {}
+        self.page.evaluate("refresh()")
+        self.page.wait_for_function("document.getElementById('heapMetric').textContent==='Tidak tersedia'")
+        self.assertEqual(self.page.locator("#heapBar").evaluate("el=>el.style.width"), "0%")
 
     def test_build_time_visible(self):
         self.assertEqual(self.page.locator("#buildTime").inner_text(), "Build UTC: 2026-10-12T01:02:03Z")

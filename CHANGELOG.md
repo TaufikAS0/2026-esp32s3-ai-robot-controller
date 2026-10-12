@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.4.0 — 2026-10-12
+
+- Adapt supplied Stitch design into a bundled responsive dark/cyan dashboard with sidebar navigation, robot banner, control/arm panels, system telemetry, JSON status and OTA.
+- Add hardware status: chip/CPU frequency, internal heap/free minimum, PSRAM, flash, app/OTA-slot sizes, STA RSSI. Cache immutable image/partition sizes at boot.
+- Show real telemetry and browser HTTP response latency, without mock CPU load, temperatures, filesystem or WebSocket claims.
+- Preserve generated build UTC, mode/session/stop behavior, GPIO mappings, lab credentials, and NVS migration.
+
 ## v0.3.4 — 2026-10-12
 
 - Show generated build-start UTC timestamp in serial, dashboard and API status.

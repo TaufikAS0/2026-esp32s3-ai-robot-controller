@@ -3,6 +3,7 @@
 #include "network_defaults.h"
 #include "web_ui.h"
 #include <Update.h>
+#include <esp_ota_ops.h>
 #include <cJSON.h>
 #include <memory>
 namespace {
@@ -39,6 +40,10 @@ void WebService::error(int code, const char* message) {
   server_.send(code, "application/json", String("{\"error\":\"") + message + "\"}");
 }
 void WebService::begin() {
+  // Image verification reads flash; cache immutable sizes once, not per status poll.
+  applicationBytes_ = ESP.getSketchSize();
+  const esp_partition_t* running = esp_ota_get_running_partition();
+  otaSlotBytes_ = running ? running->size : 0;
   const char* headers[] = {"Content-Type"};
   server_.collectHeaders(headers, 1);
   server_.on("/", HTTP_GET, [this]() { server_.sendHeader("Cache-Control", "no-store"); server_.send_P(200, "text/html; charset=utf-8", kWebUi); });
@@ -79,6 +84,19 @@ void WebService::status() {
   cJSON_AddStringToObject(root.get(), "sta_ip", WiFi.localIP().toString().c_str());
   cJSON_AddBoolToObject(root.get(), "ap_active", network_.apActive);
   cJSON_AddStringToObject(root.get(), "ap_ip", WiFi.softAPIP().toString().c_str());
+  cJSON* hardware = cJSON_AddObjectToObject(root.get(), "hardware");
+  cJSON_AddStringToObject(hardware, "chip_model", ESP.getChipModel());
+  cJSON_AddNumberToObject(hardware, "cpu_freq_mhz", ESP.getCpuFreqMHz());
+  cJSON_AddNumberToObject(hardware, "heap_size_bytes", ESP.getHeapSize());
+  cJSON_AddNumberToObject(hardware, "free_heap_bytes", ESP.getFreeHeap());
+  cJSON_AddNumberToObject(hardware, "min_free_heap_bytes", ESP.getMinFreeHeap());
+  cJSON_AddNumberToObject(hardware, "psram_size_bytes", ESP.getPsramSize());
+  cJSON_AddNumberToObject(hardware, "free_psram_bytes", ESP.getFreePsram());
+  cJSON_AddNumberToObject(hardware, "flash_size_bytes", ESP.getFlashChipSize());
+  cJSON_AddNumberToObject(hardware, "application_bytes", applicationBytes_);
+  cJSON_AddNumberToObject(hardware, "ota_slot_bytes", otaSlotBytes_);
+  if (WiFi.status() == WL_CONNECTED) cJSON_AddNumberToObject(hardware, "wifi_rssi_dbm", WiFi.RSSI());
+  else cJSON_AddNullToObject(hardware, "wifi_rssi_dbm");
   cJSON* out = cJSON_AddObjectToObject(root.get(), "commanded_output");
   cJSON_AddNumberToObject(out, "left", l.output.left); cJSON_AddNumberToObject(out, "right", l.output.right);
   cJSON_AddNumberToObject(out, "arm_left", l.output.armLeft); cJSON_AddNumberToObject(out, "arm_right", l.output.armRight);

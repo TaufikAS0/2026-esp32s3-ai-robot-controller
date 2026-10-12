@@ -1,6 +1,6 @@
 # AI Robot Controller
 
-Firmware **v0.3.4** for ESP32-S3 N16R8: two DC motors, two servo hands, and a laser, controlled through a local Indonesian dashboard or HTTP JSON API. A laptop AI can call the included Python client; no AI engine is embedded in this firmware.
+Firmware **v0.4.0** for ESP32-S3 N16R8: two DC motors, two servo hands, and a laser, controlled through a local Indonesian dashboard or HTTP JSON API. A laptop AI can call the included Python client; no AI engine is embedded in this firmware.
 
 **No encoder or other feedback:** output status is commanded PWM/angle, never measured motion. Hardware power design and autonomous navigation are outside this version.
 
@@ -109,3 +109,7 @@ Wi-Fi recovery retries a stalled/disconnected STA attempt every 30 seconds while
 ## Build identity v0.3.4
 
 `scripts/build.py` generates ignored `firmware_build.h` at build start using the build machine UTC clock, then compiles with `--clean` and checks that the application contains the current version and timestamp. Direct sketch compile requires this generated header; use the build script to avoid stale metadata. The serial boot log, dashboard header and status `build_time_utc` expose ISO 8601 UTC (for example `2026-10-12T01:02:03Z`); this is neither uptime nor upload time. `build/build_manifest.json` records the version, UTC timestamp and application SHA-256 and accompanies CI binaries. Different build timestamps intentionally produce different images. Before publishing, read the vault versioning/change-notification rules and report changes plus whether hardware was actually uploaded.
+
+## Dashboard v0.4.0
+
+The embedded dark/cyan dashboard adapts the supplied Stitch ESP32 web dashboard export. Navigation anchors lead to control, real system telemetry, OTA, Wi-Fi settings and JSON status. All CSS, icons and scripts ship in firmware; no Tailwind CDN or external fonts are required. CPU frequency is configuration, HTTP response time is browser-to-status latency, and memory values come from ESP32 APIs. No CPU-load/temperature/LittleFS sensor data is invented. Status remains HTTP polling every 1 second; actuator command refresh remains 100 ms with the same 500 ms device timeout. The wheels use MX1508 DC drive, not steppers. Available telemetry is separate from unmeasured wheel motion/arm position.

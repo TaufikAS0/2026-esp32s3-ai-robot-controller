@@ -58,3 +58,7 @@ Logical positive means configured forward for both wheels. The driver inverts th
 ## Build identity v0.3.4
 
 `GET /status` adds `build_time_utc`, ISO 8601 UTC build-start time (`YYYY-MM-DDTHH:MM:SSZ`) from the compiled image. It is independent of `uptime_ms` and firmware version; clients must not infer clock synchronization or upload time from it.
+
+## Hardware telemetry v0.4.0
+
+`GET /status` adds a `hardware` object (API v1 remains compatible): `chip_model` string, `cpu_freq_mhz`, `heap_size_bytes`, `free_heap_bytes`, `min_free_heap_bytes` (since boot), `psram_size_bytes`, `free_psram_bytes`, `flash_size_bytes`, `application_bytes`, `ota_slot_bytes`, and `wifi_rssi_dbm` (null when STA is disconnected). Memory sizes are allocator-reported bytes; zero PSRAM means unavailable. App size and running OTA slot size are cached at boot, with app image verification done only once. CPU frequency is not CPU utilization. No CPU usage, measured wheel motion, temperature or filesystem telemetry is provided. Dashboard HTTP latency measures a status request round trip including parsing; it is not ICMP ping.
