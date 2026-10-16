@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "config.h"
 #include "arm_motion.h"
+#include "arm_policy.h"
 
 enum class ControlMode { Manual, Auto };
 enum class Owner { None, Manual, Program };
@@ -48,6 +49,14 @@ class ControlLogic {
   Output output;
   Command target;
   ArmMotionSettings armSettings;
+  ArmPolicy armPolicy;
+  float effectiveArmLeft=90,effectiveArmRight=90;
+  bool dynamicActive=false;
+  bool configureArmPolicy(const ArmPolicy& p) {
+    if(maintenance || owner!=Owner::None || !ArmPolicy::valid(p) ||
+       (output.servoEnabled && !p.allows(output.armLeft,output.armRight))) return false;
+    armPolicy=p;dynamicPhase_=0;return true;
+  }
   bool configureArms(const ArmMotionSettings& s) {
     if(maintenance || !ArmMotionSettings::valid(s) || owner!=Owner::None) return false;
     armSettings=s; return true;
@@ -82,7 +91,7 @@ class ControlLogic {
   bool command(const Command& c, uint32_t now) {
     expire(now);
     if (maintenance || owner == Owner::None || c.session != session ||
-        c.sequence <= lastSequence || !valid(c)) return false;
+        c.sequence <= lastSequence || !valid(c) || !armPolicy.allows(c.armLeft,c.armRight)) return false;
     target = c; lastSequence = c.sequence; lastCommandMs = now; hasCommand = true;
     reason = "running";
     return true;
@@ -94,6 +103,8 @@ class ControlLogic {
     if (disableServos) output.servoEnabled = false;
     left_.reset(); right_.reset(); armsLeft_.hold(output.armLeft); armsRight_.hold(output.armRight);
     target.armLeft=output.armLeft;target.armRight=output.armRight; reason = why;
+    dynamicActive=false;dynamicPhase_=0;
+    effectiveArmLeft=output.armLeft;effectiveArmRight=output.armRight;
   }
   void beginMaintenance() { maintenance = true; stop("ota", true); }
   void endMaintenance() { maintenance = false; stop("ota_finished", true); }
@@ -110,12 +121,28 @@ class ControlLogic {
     }
     output.left = left_.step(target.left, now);
     output.right = right_.step(target.right, now);
-    output.armLeft = armsLeft_.step(target.armLeft,dt,armSettings);
-    output.armRight = armsRight_.step(target.armRight,dt,armSettings);
+    const float forward=(output.left+output.right)*.5f;
+    dynamicActive=armPolicy.dynamic && target.left*target.right>0 && output.left*output.right>0 && std::fabs(forward)>.02f;
+    float offset=0;
+    if(dynamicActive) {
+      dynamicPhase_+=dt*6283.1853f/armPolicy.periodMs*(forward>0?1.f:-1.f);
+      if(std::fabs(dynamicPhase_)>6.2831853f) dynamicPhase_=std::fmod(dynamicPhase_,6.2831853f);
+      offset=armPolicy.amplitude*std::fabs(forward)*std::sin(dynamicPhase_);
+    } else dynamicPhase_=0;
+    effectiveArmLeft=ArmPolicy::clamp(target.armLeft+offset,armPolicy.leftMin,armPolicy.leftMax);
+    effectiveArmRight=ArmPolicy::clamp(target.armRight-offset,armPolicy.rightMin,armPolicy.rightMax);
+    output.armLeft = armsLeft_.step(effectiveArmLeft,dt,armSettings);
+    output.armRight = armsRight_.step(effectiveArmRight,dt,armSettings);
+    const float safeLeft=ArmPolicy::clamp(output.armLeft,armPolicy.leftMin,armPolicy.leftMax);
+    const float safeRight=ArmPolicy::clamp(output.armRight,armPolicy.rightMin,armPolicy.rightMax);
+    if(safeLeft!=output.armLeft) armsLeft_.hold(safeLeft);
+    if(safeRight!=output.armRight) armsRight_.hold(safeRight);
+    output.armLeft=safeLeft;output.armRight=safeRight;
     output.servoEnabled = true; output.laser = target.laser;
   }
  private:
   MotorRamp left_, right_;
   ArmMotion armsLeft_,armsRight_;
   uint32_t lastTick_=0;
+  float dynamicPhase_=0;
 };

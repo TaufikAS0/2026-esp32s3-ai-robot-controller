@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 struct ArmMotionSettings {
-  float speed = 45, acceleration = 120;
+  float speed = 60, acceleration = 240;
   static bool valid(const ArmMotionSettings& s) {
     return std::isfinite(s.speed) && std::isfinite(s.acceleration) &&
       s.speed >= 5 && s.speed <= 120 && s.acceleration >= 20 && s.acceleration <= 600;

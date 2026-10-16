@@ -1,5 +1,23 @@
 # HTTP API v1
 
+### v0.10.0 servo and isolated control
+
+Read [SERVO_CONTROL_V010.md](SERVO_CONTROL_V010.md) for the strict7-field
+`POST /arms/policy` schema, per-arm min/max, optional forward/reverse hand motion,
+accepted-pose requirements and RAM reset behavior. Natural defaults are60/240.
+Status `arm_motion` adds min_left/max_left/min_right/max_right, dynamic,
+dynamic_active, amplitude_deg, period_ms and effective_left/right (bounded eased
+destinations before trajectory stepping). `moving` compares the effective target
+to reference; all angles remain commanded rather than measured.
+
+`control_channel:{ready:true,port:81}` advertises an additional HTTP service with
+the same status, command, acquire/release/mode, stop, arms/settings and arms/policy
+routes. Dashboard chooses81 when ready;80 retains legacy API, eyes, UI and OTA.
+Same-host dashboard CORS and OPTIONS are supported on81; non-browser LAN access
+remains open. Max1024-byte complete JSON/exact schemas. Out-of-limit targets reject
+without lease renewal; acquired sessions still expire500 ms after last valid
+command. Socket timeout/queue isolation does not guarantee radio latency.
+
 ### v0.9.0 additive telemetry and presets
 
 Status adds `sta_mac`, `wifi_connect_count` (GOT_IP events, including first boot

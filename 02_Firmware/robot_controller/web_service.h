@@ -1,5 +1,6 @@
 #pragma once
 #include <WebServer.h>
+#include <esp_http_server.h>
 #include "ota_service.h"
 #include "eye_service.h"
 class WebService {
@@ -10,6 +11,10 @@ class WebService {
   void update();
  private:
   WebServer server_{80};
+  httpd_handle_t fastServer_=nullptr;
+  void beginFastControl();
+  static esp_err_t fastControl(httpd_req_t* request);
+  char* statusJson();
   ControlService& control_;
   NetworkService& network_;
   OtaService& ota_;
@@ -24,6 +29,8 @@ class WebService {
   void eyeCheck();
   void eyeCatalog();
   void armSettings();
+  void armPolicy();
+  int applyArmPolicy(struct cJSON* root);
   void acquire();
   void mode();
   void command();

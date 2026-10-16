@@ -10,7 +10,7 @@ class NetworkService {
   bool configure(const String& ssid, const String& password);
   String apPassword;
   String hostname, apName;
-  bool apActive = false;
+  std::atomic<bool> apActive{false};
   uint32_t disconnectCount() const { return disconnectCount_.load(); }
   uint32_t disconnectReason() const { return lastDisconnectReason_.load(); }
   uint32_t connectCount() const { return connectCount_.load(); }

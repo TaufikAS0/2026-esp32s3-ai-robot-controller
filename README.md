@@ -1,6 +1,16 @@
 # AI Robot Controller
 
-Current source **v0.9.0** fixes Fox/Kurama highlight clipping, adds six distinct
+Source **v0.10.0** adds faster accelerate/cruise/brake servo motion, configurable
+per-arm degree limits and optional dynamic hands during forward/reverse. Slider
+targets stay separate from held references; a dedicated HTTP81 control channel
+isolates commands from HTTP80 dashboard stalls. See [servo controls](04_Dokumen/SERVO_CONTROL_V010.md)
+and latest verification for actual build/OTA evidence. Limits need operator
+calibration and reset at reboot. The first24-hour run ended partially after94
+minutes; [full result](04_Dokumen/SOAK_RESULT_2026-10-16.md). It did not PASS.
+
+The sections below describe earlier versions and their original launch context.
+
+Earlier **v0.9.0** fixed Fox/Kurama highlight clipping, adds six distinct
 Sharingan designs in their own category (52 total eye presets), reduces repeated
 native raster work and reports network/reset/OLED budgets. It adds a guarded
 [zero-wheel24-hour soak runner](04_Dokumen/SOAK.md). Connection stability remains
@@ -19,7 +29,7 @@ v0.7.0 keeps **Reactive/Playful as one rounded-box character** and separates22 b
 v0.6.0 adds **41 eye expressions / 10 categories**, Reactive/Playful/Showcase/Manual policies, energy selection and separate winks. Open **Mata & kepribadian**, choose category/preset or animation policy, then **Terapkan ke robot**. **Periksa LCD / OLED** provides a full I2C scan and five-second visual tests. The supplied0x78/0x7A write addresses map to Wire0x3C/0x3D; use scanner results rather than assuming both modules have different addresses. See [eye design](04_Dokumen/EYES_DESIGN.md) and [API](04_Dokumen/API.md).
 
 
-Firmware **v0.9.0** for ESP32-S3 N16R8: two DC motors, two servo hands, and a laser, controlled through a local Indonesian dashboard or HTTP JSON API. A laptop AI can call the included Python client; no AI engine is embedded in this firmware.
+Firmware **v0.10.0** for ESP32-S3 N16R8: two DC motors, two servo hands, and a laser, controlled through a local Indonesian dashboard or HTTP JSON API. A laptop AI can call the included Python client; no AI engine is embedded in this firmware.
 
 **No encoder or other feedback:** output status is commanded PWM/angle, never measured motion. Hardware power design and autonomous navigation are outside this version.
 

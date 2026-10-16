@@ -73,7 +73,7 @@ int main() {
   assert(arm.position==170 && arm.velocity==0);
   arm.hold(90);for(unsigned i=0;i<50;++i)arm.step(170,.01f,limits);
   const float beforeRetarget=arm.position;
-  arm.step(10,.01f,limits);assert(std::fabs(arm.position-beforeRetarget)<=.451f);
+  arm.step(10,.01f,limits);assert(std::fabs(arm.position-beforeRetarget)<=limits.speed*.01f+.001f);
   for(unsigned i=0;i<700;++i) arm.step(10,.01f,limits);
   assert(arm.position==10 && arm.velocity==0);
   ControlLogic smooth; assert(smooth.acquire(Owner::Manual,99,0));

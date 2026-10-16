@@ -1,4 +1,14 @@
-# Continuation status — v0.9.0, 2026-10-16
+# Continuation status — v0.10.0 servo follow-up
+
+## Latest source — v0.10.0
+
+Servo/UI/HTTP81 fixes, per-arm RAM min/max and optional bounded dynamic hands are implemented. Read SERVO_CONTROL_V010.md and the latest VERIFICATION entry for build/OTA/live evidence. Natural60/240; dynamic OFF at boot. Tests: six native suites and64 Python/browser tests passed. Firmware buildUTC2026-10-16T17:04:24Z (2026-10-17 00:04:24 WIB), app1,179,616 bytes. No physical wheel test is authorized; do not restart the failed old soak automatically.
+
+## Interrupted run, servo follow-up
+
+The original24-hour runner is **FAILED/PARTIAL**, not running: ended2026-10-16 21:51:33 WIB after1 h34 min15.719 s on conflicting controller ownership. Monitor is PAUSED. See [the full partial result](SOAK_RESULT_2026-10-16.md):13,609 requests/130 failures,8,202 zero-wheel command attempts/32 command failures, no recorded reboot/Wi-Fi disconnect. Final idle verification failed because of ownership conflict; do not label the last older idle snapshot a verified final state.
+
+User now requests fixing slider/control offline behavior, visible angles, configurable per-arm limits, faster accelerate/cruise/brake motion and optional dynamic arm movement during forward/reverse; then tested source push and app OTA. Do not restart the old soak. All physical wheel test commands still must remain zero. Dynamic wheel reactions are tested in simulation. The previous body below is historical launch evidence and must not be treated as current process status.
 
 Issue#2 has been consumed on the testing laptop. Feature branch remains feature/initial-robot-controller; PR#1 targets develop and must remain unmerged. Read the latest VERIFICATION entry and SOAK.md before further work. The original handoff is preserved below as historical problem definition.
 
@@ -8,7 +18,7 @@ App-only OTA verifiedv0.9.0/buildUTC2026-10-16T13:10:42Z (20:10:42 WIB), applica
 
 Smoke144.188 s completed all10 scenarios:527 zero-wheel commands,0 command failures,commandp95=48 ms/p99=78 ms,worst ACK gap234 ms. Normal non-slow-client requests721/0 failures. Intentional partial-header slow client caused2 status/recovery timeouts; recovered without radio disconnect/reboot. Producer expiry verified laser off/session invalidation. Thus normal short-run improved, but synchronous slow-client stalls remain a known limitation and causation of the original intermittent outages is still unproven. No exhibition-ready claim.
 
-**ONE24-hour process is RUNNING on the testing laptop. Do not start another.**
+**Historical launch below: this process subsequently failed; see latest status above.**
 
 - StartUTC2026-10-16T13:17:17.4144055Z =20:17:17 WIB; planned deadline around2026-10-17 20:17:18 WIB, plus cleanup, if uninterrupted.
 - Initial PID1620; verify command line/start time in ignoredbuild/soak-24h-v090.launch.json, never trust PID alone.

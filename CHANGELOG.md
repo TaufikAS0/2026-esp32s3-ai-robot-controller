@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.10.0 — 2026-10-17 WIB
+
+- Preserve integer slider/numeric drafts across polling/release; show separate0.1-degree reference, pulse state and stop reason. A stale draft is never silently resumed. Explain blur cancellation and keep fresh control alive across a failed cosmetic/status request.
+- Natural profile60 degrees/s,240 degrees/s2; Lembut25/60 and Lincah90/360. Existing planner accelerates, cruises and brakes rather than jumping. The interrupted soak left5/20 while a foreign owner prevented cleanup; decimals were not the reason for that speed.
+- Add atomic per-arm RAM min/max policy enforced in firmware command validation and intermediate/dynamic references. Reject invalid limits and limits excluding an enabled held reference. No configuration-only arm movement. UI Stop & Apply releases its own session.
+- Optional bounded dynamic hands on fresh same-direction forward/reverse commands; idle and in-place turns do not gesture. No wheel generation, no extra actuator/timer owner. Simulated dynamic tests only; all physical wheel commands remain zero.
+- Add bounded core ESP-IDF HTTP81 control/status service below actuator task priority, while HTTP80 retains dashboard/eyes/OTA/legacy APIs. Shared strict JSON validators, same-host browser CORS, advertised readiness, single-flight300 ms command requests, independent500 ms firmware expiry. Cross-task AP/OTA flags are atomic. This is queue isolation, not a proven RF/supply fix.
+- No pin/partition/NVS/access-profile change. Limits/dynamic mode remain RAM-only and require operator calibration; dynamic resets OFF. Record interrupted v0.9.0 soak as PARTIAL/FAILED and pause its monitor; do not claim24-hour completion.
+
 ## v0.9.0 — 2026-10-16
 
 - Clip and mirror animal-eye highlights inside their ellipse/lid silhouette in native and browser renderers; regression covers both Fox eyes across100 phases.

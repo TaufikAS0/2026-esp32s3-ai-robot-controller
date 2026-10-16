@@ -8,6 +8,7 @@ class ControlService {
   bool acquire(Owner owner, uint32_t& session);
   bool setMode(ControlMode mode);
   bool configureArms(const ArmMotionSettings& settings);
+  bool configureArmPolicy(const ArmPolicy& policy);
   bool command(const Command& command);
   bool release(uint32_t session);
   bool stop(const char* reason, bool disableServo = false);

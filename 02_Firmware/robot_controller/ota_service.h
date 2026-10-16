@@ -7,7 +7,7 @@ class OtaService {
   void begin(ControlService& control, NetworkService& network);
   void setEnabled(bool enabled);
   void update();
-  bool enabled = false, busy = false;
+  std::atomic<bool> enabled{false}, busy{false};
  private:
   ControlService* control_ = nullptr;
 };

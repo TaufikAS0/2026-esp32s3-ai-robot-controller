@@ -7,34 +7,13 @@
 #include <esp_system.h>
 #include <cJSON.h>
 #include <memory>
+#include "api_json.h"
+using namespace ApiJson;
 namespace {
-using Json = std::unique_ptr<cJSON, decltype(&cJSON_Delete)>;
 Json parse(WebServer& server) {
-  String body = server.arg("plain");
-  if (!server.header("Content-Type").startsWith("application/json") ||
-      !body.length() || body.length() > Config::maxJson) return Json(nullptr, cJSON_Delete);
-  return Json(cJSON_ParseWithOpts(body.c_str(), nullptr, true), cJSON_Delete);
-}
-bool fields(cJSON* root, std::initializer_list<const char*> names) {
-  if (!cJSON_IsObject(root) || cJSON_GetArraySize(root) != int(names.size())) return false;
-  for (const char* name : names) {
-    unsigned count = 0;
-    for (cJSON* p = root->child; p; p = p->next) if (p->string && strcmp(p->string, name) == 0) ++count;
-    if (count != 1) return false;
-  }
-  return true;
-}
-cJSON* item(cJSON* root, const char* key) { return cJSON_GetObjectItemCaseSensitive(root, key); }
-bool integer(cJSON* root, const char* key, uint32_t& value) {
-  auto p = item(root, key);
-  if (!cJSON_IsNumber(p) || !std::isfinite(p->valuedouble) || p->valuedouble < 1 ||
-      p->valuedouble > UINT32_MAX || std::floor(p->valuedouble) != p->valuedouble) return false;
-  value = uint32_t(p->valuedouble); return true;
-}
-bool number(cJSON* root, const char* key, float& value) {
-  auto p = item(root, key);
-  if (!cJSON_IsNumber(p)) return false;
-  value = p->valuedouble; return std::isfinite(value);
+  String body=server.arg("plain");
+  if(!server.header("Content-Type").startsWith("application/json")||!body.length()||body.length()>Config::maxJson) return Json(nullptr,cJSON_Delete);
+  return Json(cJSON_ParseWithOpts(body.c_str(),nullptr,true),cJSON_Delete);
 }
 }
 void WebService::error(int code, const char* message) {
@@ -58,6 +37,7 @@ void WebService::begin() {
     server_.send(200, "application/json", "{\"ok\":true}");
   });
   server_.on("/api/v1/arms/settings", HTTP_POST, [this]() { armSettings(); });
+  server_.on("/api/v1/arms/policy", HTTP_POST, [this]() { armPolicy(); });
   server_.on("/api/v1/eyes/catalog", HTTP_GET, [this]() { eyeCatalog(); });
   server_.on("/api/v1/eyes/check", HTTP_POST, [this]() { eyeCheck(); });
   server_.on("/api/v1/eyes", HTTP_POST, [this]() { eyes(); });
@@ -65,8 +45,15 @@ void WebService::begin() {
   server_.on("/api/v1/update", HTTP_POST, [this]() { finishUpload(); }, [this]() { upload(); });
   server_.onNotFound([this]() { error(404, "not_found"); });
   server_.begin();
+  beginFastControl();
 }
 void WebService::status() {
+  char* json=statusJson();
+  if(!json){error(503,"out_of_memory");return;}
+  server_.sendHeader("Cache-Control","no-store");
+  server_.send(200,"application/json",json);cJSON_free(json);
+}
+char* WebService::statusJson() {
   auto s = control_.snapshot();
   const auto& l = s.logic;
   Json root(cJSON_CreateObject(), cJSON_Delete);
@@ -75,6 +62,9 @@ void WebService::status() {
   cJSON_AddNumberToObject(root.get(), "api_version", 1);
   cJSON_AddStringToObject(root.get(), "mode", l.mode == ControlMode::Manual ? "manual" : "auto");
   cJSON_AddStringToObject(root.get(), "access_mode", "open_lan");
+  auto channel=cJSON_AddObjectToObject(root.get(),"control_channel");
+  cJSON_AddBoolToObject(channel,"ready",fastServer_!=nullptr);
+  cJSON_AddNumberToObject(channel,"port",81);
   cJSON_AddNumberToObject(root.get(), "uptime_ms", millis());
   cJSON_AddStringToObject(root.get(), "owner", l.owner == Owner::Manual ? "manual" : l.owner == Owner::Program ? "program" : "none");
   cJSON_AddNumberToObject(root.get(), "session", l.session);
@@ -160,8 +150,18 @@ void WebService::status() {
   cJSON_AddNumberToObject(arms,"acceleration_dps2",l.armSettings.acceleration);
   cJSON_AddNumberToObject(arms,"target_left",l.target.armLeft);
   cJSON_AddNumberToObject(arms,"target_right",l.target.armRight);
-  cJSON_AddBoolToObject(arms,"moving",l.hasCommand && (std::fabs(l.target.armLeft-l.output.armLeft)>.05f || std::fabs(l.target.armRight-l.output.armRight)>.05f));
+  cJSON_AddBoolToObject(arms,"moving",l.hasCommand && (std::fabs(l.effectiveArmLeft-l.output.armLeft)>.05f || std::fabs(l.effectiveArmRight-l.output.armRight)>.05f));
   cJSON_AddBoolToObject(arms,"wheel_channels_swapped",Config::swapMotorSides);
+  cJSON_AddNumberToObject(arms,"effective_left",l.effectiveArmLeft);
+  cJSON_AddNumberToObject(arms,"effective_right",l.effectiveArmRight);
+  cJSON_AddNumberToObject(arms,"min_left",l.armPolicy.leftMin);
+  cJSON_AddNumberToObject(arms,"max_left",l.armPolicy.leftMax);
+  cJSON_AddNumberToObject(arms,"min_right",l.armPolicy.rightMin);
+  cJSON_AddNumberToObject(arms,"max_right",l.armPolicy.rightMax);
+  cJSON_AddBoolToObject(arms,"dynamic",l.armPolicy.dynamic);
+  cJSON_AddBoolToObject(arms,"dynamic_active",l.dynamicActive);
+  cJSON_AddNumberToObject(arms,"amplitude_deg",l.armPolicy.amplitude);
+  cJSON_AddNumberToObject(arms,"period_ms",l.armPolicy.periodMs);
   cJSON* out = cJSON_AddObjectToObject(root.get(), "commanded_output");
   cJSON_AddNumberToObject(out, "left", l.output.left); cJSON_AddNumberToObject(out, "right", l.output.right);
   cJSON_AddNumberToObject(out, "arm_left", l.output.armLeft); cJSON_AddNumberToObject(out, "arm_right", l.output.armRight);
@@ -177,10 +177,7 @@ void WebService::status() {
   cJSON_AddNumberToObject(pwm, "right_active_hz", s.pwm.rightHz);
   cJSON_AddNumberToObject(pwm, "arm_left_pulse_angle", s.pwm.armLeftPulseAngle);
   cJSON_AddNumberToObject(pwm, "arm_right_pulse_angle", s.pwm.armRightPulseAngle);
-  server_.sendHeader("Cache-Control", "no-store");
-  char* json = cJSON_PrintUnformatted(root.get());
-  if (!json) { error(503, "out_of_memory"); return; }
-  server_.send(200, "application/json", json); cJSON_free(json);
+  return cJSON_PrintUnformatted(root.get());
 }
 void WebService::mode() {
   auto root = parse(server_);
@@ -208,7 +205,7 @@ void WebService::command() {
       !number(root.get(), "arm_left", c.armLeft) || !number(root.get(), "arm_right", c.armRight) ||
       !cJSON_IsBool(item(root.get(), "laser"))) { error(400, "invalid_command"); return; }
   c.laser = cJSON_IsTrue(item(root.get(), "laser"));
-  if (!ControlLogic::valid(c)) { error(400, "out_of_range"); return; }
+  if (!ControlLogic::valid(c) || !control_.snapshot().logic.armPolicy.allows(c.armLeft,c.armRight)) { error(400, "out_of_range"); return; }
   if (!control_.command(c)) { error(409, "session_or_sequence_rejected"); return; }
   server_.send(200, "application/json", "{\"ok\":true}");
 }

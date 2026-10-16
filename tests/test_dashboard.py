@@ -28,6 +28,10 @@ class DashboardTests(unittest.TestCase):
     def setUp(self):
         self.page = self.browser.new_page(viewport={"width": 1100, "height": 1100})
         self.calls = []
+        self.urls = []
+        self.fast_channel = False
+        self.drop_status = False
+        self.arm_policy=dict(min_left=0,max_left=180,min_right=0,max_right=180,dynamic=False,amplitude_deg=8,period_ms=2400)
         self.session = 0
         self.mode = "manual"
         self.reject = False
@@ -39,7 +43,7 @@ class DashboardTests(unittest.TestCase):
         self.reject_checks = False
         self.errors = []
         self.page.on("pageerror", lambda e: self.errors.append(str(e)))
-        self.page.route("http://robot/**", self.route)
+        self.page.route("http://robot*/**", self.route)
         self.page.goto("http://robot/")
         self.page.wait_for_function("document.getElementById('version').textContent===" + json.dumps(VERSION))
 
@@ -49,13 +53,21 @@ class DashboardTests(unittest.TestCase):
 
     def route(self, route):
         req = route.request
+        cors={"Access-Control-Allow-Origin":"http://robot","Access-Control-Allow-Headers":"Content-Type","Access-Control-Allow-Methods":"GET, POST, OPTIONS","Access-Control-Max-Age":"600"}
+        if req.method=='OPTIONS':
+            route.fulfill(status=204,headers=cors)
+            return
         if req.url == "http://robot/":
             route.fulfill(status=200, content_type="text/html", body=HTML)
             return
         self.assertNotIn("authorization", req.headers)
         path = req.url.split("/api/v1", 1)[1]
+        self.urls.append(req.url)
         body = json.loads(req.post_data) if req.post_data and "application/json" in req.headers.get("content-type", "") else None
         self.calls.append((path, body))
+        if self.drop_status and path=='/status':
+            route.abort('failed')
+            return
         if self.offline:
             route.abort("failed")
             return
@@ -83,6 +95,9 @@ class DashboardTests(unittest.TestCase):
             result=dict(presets=presets,categories=categories)
         elif path == "/arms/settings":
             result = {"ok":True}
+        elif path == "/arms/policy":
+            self.arm_policy=body
+            result={"ok":True}
         elif path == "/eyes/check":
             code = 503 if self.reject_checks else 202
             result = {"error": "eye_bus_unavailable"} if self.reject_checks else {"ok": True, "queued": True}
@@ -95,12 +110,51 @@ class DashboardTests(unittest.TestCase):
                 result = {"ok": True}
         elif path == "/status":
             result = dict(firmware_version=VERSION, build_time_utc="2026-10-12T01:02:03Z", hardware=self.hardware, uptime_ms=112147, sta_connected=True, sta_ssid="HuaweiJIN", mode=self.mode, sta_ip="192.168.1.34", session=self.session, reason="stop", arduino_ota=False,
+                          control_channel=dict(ready=self.fast_channel,port=81),arm_motion=dict(speed_dps=60,acceleration_dps2=240,**self.arm_policy),
                           eyes=dict(**self.eye_settings,task_ready=True,check=dict(mode="animate",target="both",scanned=112,scan_complete=True,found_addresses=[60],left_probe_code=2,right_probe_code=0,remaining_ms=0), active_expression="curious", reaction="turn_left", left_online=True, right_online=False,
                                     left=dict(x=48,y=32,width=50,height=40),right=dict(x=48,y=32,width=50,height=30)),
                           commanded_output=dict(left=0, right=0, arm_left=90, arm_right=90, laser=False))
         else:
             result = {"ok": True}
-        route.fulfill(status=code, content_type="application/json", body=json.dumps(result))
+        route.fulfill(status=code, headers=cors,content_type="application/json", body=json.dumps(result))
+
+    def test_slider_target_survives_release_and_poll(self):
+        self.page.locator('#armLeft').fill('42')
+        self.page.wait_for_function('controller.session===42&&!controller.pending')
+        self.page.evaluate('async()=>{await controller.stop();await refresh();}')
+        self.assertEqual(self.page.locator('#armLeft').input_value(),'42')
+        self.assertEqual(self.page.locator('#armLeftNumber').input_value(),'42')
+        self.assertIn('90.0°',self.page.locator('#armLeftActual').inner_text())
+
+    def test_limits_ui_applies_and_bounds_sliders(self):
+        self.page.get_by_text('Batas sudut & mode dinamis',exact=True).click()
+        for id,value in [('armMinLeft','20'),('armMaxLeft','140'),('armMinRight','30'),('armMaxRight','150')]:
+            self.page.locator('#'+id).fill(value)
+        self.page.locator('#armDynamic').check()
+        self.page.locator('#saveArmPolicy').click()
+        self.page.wait_for_function("document.getElementById('armPolicyMessage').textContent.includes('diterapkan')")
+        self.assertTrue(self.arm_policy['dynamic'])
+        self.assertEqual(self.page.locator('#armLeft').get_attribute('min'),'20')
+        self.assertEqual(self.page.locator('#armRight').get_attribute('max'),'150')
+        self.assertFalse(any(p=='/command' for p,_ in self.calls))
+
+    def test_fast_control_origin_and_port(self):
+        self.fast_channel=True
+        self.page.evaluate('refresh()')
+        self.page.wait_for_function('fastControlReady')
+        self.page.locator('#armRight').fill('80')
+        self.page.wait_for_function('controller.session===42&&!controller.pending')
+        self.assertTrue(any(u=='http://robot:81/api/v1/command' for u in self.urls))
+        self.assertTrue(any(u=='http://robot:81/api/v1/control/acquire' for u in self.urls))
+
+    def test_failed_status_does_not_release_fresh_control(self):
+        self.acquire()
+        self.page.wait_for_function('controller.lastAck>0&&!controller.pending')
+        self.drop_status=True
+        self.page.evaluate('refresh()')
+        self.page.wait_for_timeout(60)
+        self.assertEqual(self.page.evaluate('controller.session'),42)
+        self.assertTrue(self.page.evaluate('connected'))
 
     def test_arm_motion_profile_and_sharingan(self):
         self.page.get_by_text('Kehalusan gerak tangan',exact=True).click()

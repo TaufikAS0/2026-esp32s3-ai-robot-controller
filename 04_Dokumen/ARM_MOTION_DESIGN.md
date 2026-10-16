@@ -1,5 +1,10 @@
 # Arm movement design — v0.8.0
 
+Current v0.10.0 overrides: [SERVO_CONTROL_V010.md](SERVO_CONTROL_V010.md).
+Natural60/240; Lembut25/60; Lincah90/360, RAM min/max and optional bounded
+forward/reverse dynamic offsets in the existing control task. No dynamic gestures
+at idle; stop/expiry still freezes immediately. Earlier paragraphs are historical.
+
 v0.9.0 clarification: with pulses disabled, the first complete accepted command
 seeds the requested arm reference before PWM enable, rather than sweeping from
 boot's assumed90 degrees. It must be an accepted setup pose; software still cannot

@@ -1,5 +1,11 @@
 # AI Robot Controller Rules
 
+v0.10.0 servo follow-up: read `04_Dokumen/SERVO_CONTROL_V010.md` and the latest
+verification. Natural60/240, per-arm RAM limits and optional forward/reverse
+dynamic hands; dynamic OFF at boot. Never let a dynamic gesture write wheels.
+HTTP81 isolates control from dashboard/OTA80; do not extend500 ms expiry.
+The old24-hour run failed partially; monitor PAUSED, no automatic replacement.
+
 v0.9.0 continuation: read `04_Dokumen/SOAK.md` and the latest VERIFICATION entry.
 One durable zero-wheel runner only; monitor checkpoints, never auto-restart an
 actuator producer or flash unattended. First command after disabled pulses seeds

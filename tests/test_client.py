@@ -44,6 +44,15 @@ class ClientTests(unittest.TestCase):
         self.client.acquire()
         with self.assertRaises(RuntimeError): self.client.set_arm_motion()
 
+    def test_arm_limits_dynamic_policy(self):
+        self.client.set_arm_policy(min_left=20,max_left=140,dynamic=True)
+        self.assertIn(('/arms/policy',dict(min_left=20,max_left=140,min_right=0,max_right=180,dynamic=True,amplitude_deg=8,period_ms=2400)),self.calls)
+        with self.assertRaises(ValueError):self.client.set_arm_policy(min_left=140,max_left=20)
+        with self.assertRaises(ValueError):self.client.set_arm_policy(dynamic=1)
+        with self.assertRaises(ValueError):self.client.set_arm_policy(period_ms=1000.5)
+        self.client.acquire()
+        with self.assertRaises(RuntimeError):self.client.set_arm_policy()
+
     def test_eye_modes_and_catalog(self):
         source=(pathlib.Path(__file__).resolve().parents[1]/"02_Firmware/robot_controller/eye_catalog.h").read_text()
         ids=re.findall(r'X\(\w+,"([^"]+)"',source)

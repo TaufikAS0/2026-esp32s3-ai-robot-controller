@@ -99,7 +99,7 @@ class RobotClient:
             raise ValueError("laser must be boolean")
         self._set(laser=enabled)
 
-    def set_arm_motion(self, speed_dps=45, acceleration_dps2=120):
+    def set_arm_motion(self, speed_dps=60, acceleration_dps2=240):
         """Configure while no controller owns a lease; does not move arms."""
         speed=self._number(speed_dps,5,120)
         acceleration=self._number(acceleration_dps2,20,600)
@@ -107,6 +107,19 @@ class RobotClient:
             if self._session:
                 raise RuntimeError("release control before arm settings")
         return self._request('/arms/settings',dict(speed_dps=speed,acceleration_dps2=acceleration))
+
+    def set_arm_policy(self, *, min_left=0, max_left=180, min_right=0, max_right=180,
+                       dynamic=False, amplitude_deg=8, period_ms=2400):
+        """RAM-only bounds/dynamic policy; requires released ownership and in-range reference."""
+        bounds={k:self._number(v,0,180) for k,v in dict(min_left=min_left,max_left=max_left,min_right=min_right,max_right=max_right).items()}
+        if bounds['min_left']>=bounds['max_left'] or bounds['min_right']>=bounds['max_right']:
+            raise ValueError('minimum must be less than maximum')
+        if type(dynamic) is not bool or type(period_ms) is not int or not 1000<=period_ms<=10000:
+            raise ValueError('invalid dynamic policy')
+        amplitude=self._number(amplitude_deg,0,30)
+        with self._lock:
+            if self._session: raise RuntimeError('release control before arm policy')
+        return self._request('/arms/policy',dict(**bounds,dynamic=dynamic,amplitude_deg=amplitude,period_ms=period_ms))
 
     def set_eyes(self, *, automatic=True, expression="happy", brightness=160,
                  tempo=1.0, blink=True, swap=False, enabled=True,

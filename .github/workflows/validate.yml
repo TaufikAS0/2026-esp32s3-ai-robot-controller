@@ -20,6 +20,8 @@ jobs:
         run: |
           g++ -std=c++17 -Wall -Wextra -Werror tests/test_control.cpp -o /tmp/test-control
           /tmp/test-control
+          g++ -std=c++17 -Wall -Wextra -Werror tests/test_arm_policy.cpp -o /tmp/test-arm-policy
+          /tmp/test-arm-policy
           g++ -std=c++17 -Wall -Wextra -Werror -Itests/fakes tests/test_driver.cpp 02_Firmware/robot_controller/actuator_driver.cpp -o /tmp/test-driver
           /tmp/test-driver
           g++ -std=c++17 -Wall -Wextra -Werror tests/test_eyes.cpp -o /tmp/test-eyes

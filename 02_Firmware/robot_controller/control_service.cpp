@@ -66,6 +66,11 @@ bool ControlService::configureArms(const ArmMotionSettings& settings) {
   const bool ok=logic_.configureArms(settings);
   portEXIT_CRITICAL(&mux_);return ok;
 }
+bool ControlService::configureArmPolicy(const ArmPolicy& policy) {
+  portENTER_CRITICAL(&mux_);
+  const bool ok=logic_.configureArmPolicy(policy);
+  portEXIT_CRITICAL(&mux_);return ok;
+}
 bool ControlService::setMode(ControlMode mode) {
   portENTER_CRITICAL(&mux_);
   bool ok = logic_.setMode(mode);
