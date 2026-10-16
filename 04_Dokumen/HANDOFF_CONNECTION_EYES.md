@@ -2,6 +2,8 @@
 
 ## Latest source — v0.10.0
 
+App OTA and bounded live verification are complete: exact v0.10.0/buildUTC2026-10-16T17:04:24Z/MAC confirmed,34 zero-wheel commands with no unexpected request failures (p95~94 ms,p99/worst~109 ms), reference+2 degrees/return, HTTP80 partial-header overlap with HTTP81 control, CORS/policy checks and final scoped release. Laser off, wheels0, dynamicOFF, reference held99.0164/102.635. Real desktop/mobile dashboard inspection passed with no POST requests. Raw evidence stays ignored underbuild/{ota,live,browser}-v010-result.json; see VERIFICATION for exact limits. This is short-run evidence, not24-hour acceptance or physical angle feedback.
+
 Servo/UI/HTTP81 fixes, per-arm RAM min/max and optional bounded dynamic hands are implemented. Read SERVO_CONTROL_V010.md and the latest VERIFICATION entry for build/OTA/live evidence. Natural60/240; dynamic OFF at boot. Tests: six native suites and64 Python/browser tests passed. Firmware buildUTC2026-10-16T17:04:24Z (2026-10-17 00:04:24 WIB), app1,179,616 bytes. No physical wheel test is authorized; do not restart the failed old soak automatically.
 
 ## Interrupted run, servo follow-up
