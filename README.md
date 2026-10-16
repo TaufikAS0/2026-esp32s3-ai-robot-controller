@@ -1,5 +1,13 @@
 # AI Robot Controller
 
+Current source **v0.9.0** fixes Fox/Kurama highlight clipping, adds six distinct
+Sharingan designs in their own category (52 total eye presets), reduces repeated
+native raster work and reports network/reset/OLED budgets. It adds a guarded
+[zero-wheel24-hour soak runner](04_Dokumen/SOAK.md). Connection stability remains
+under investigation; see the latest [verification](04_Dokumen/VERIFICATION.md)
+for actual build/upload/smoke/soak state. Launch is not24-hour completion.
+The older v0.8.0 handoff below records the original unresolved baseline.
+
 **Open issues / next AI:** read the [exhibition connection and eyes handoff](04_Dokumen/HANDOFF_CONNECTION_EYES.md). v0.8.0 has reported intermittent timeout (especially servo/laser), a Kurama highlight artifact and only one Sharingan design. Those fixes and the requested automated24-hour zero-wheel soak are pending; this is not an exhibition stability certification.
 
 v0.8.0 adds smoother arm setpoints with **Lembut/Natural/Lincah** profiles (default45°/s,120°/s²), corrects reported reversed wheel steering, and expands eyes to47 presets including Sharingan/Rinnegan and animal pupils. See [arm motion design and research](04_Dokumen/ARM_MOTION_DESIGN.md). This controls commanded trajectories; physical smoothness/direction need observation. Stop/timeout cancels arm travel at its current reference. Both OLED180° mounting defaults retained.
@@ -11,7 +19,7 @@ v0.7.0 keeps **Reactive/Playful as one rounded-box character** and separates22 b
 v0.6.0 adds **41 eye expressions / 10 categories**, Reactive/Playful/Showcase/Manual policies, energy selection and separate winks. Open **Mata & kepribadian**, choose category/preset or animation policy, then **Terapkan ke robot**. **Periksa LCD / OLED** provides a full I2C scan and five-second visual tests. The supplied0x78/0x7A write addresses map to Wire0x3C/0x3D; use scanner results rather than assuming both modules have different addresses. See [eye design](04_Dokumen/EYES_DESIGN.md) and [API](04_Dokumen/API.md).
 
 
-Firmware **v0.8.0** for ESP32-S3 N16R8: two DC motors, two servo hands, and a laser, controlled through a local Indonesian dashboard or HTTP JSON API. A laptop AI can call the included Python client; no AI engine is embedded in this firmware.
+Firmware **v0.9.0** for ESP32-S3 N16R8: two DC motors, two servo hands, and a laser, controlled through a local Indonesian dashboard or HTTP JSON API. A laptop AI can call the included Python client; no AI engine is embedded in this firmware.
 
 **No encoder or other feedback:** output status is commanded PWM/angle, never measured motion. Hardware power design and autonomous navigation are outside this version.
 

@@ -53,6 +53,7 @@ void EyeService::task(void* argument) {
   const uint8_t addresses[] = {Config::eyeLeftAddress,Config::eyeRightAddress};
   TickType_t wake = xTaskGetTickCount();
   for (;;) {
+    const uint32_t startedUs=micros();
     const auto settings = self.snapshot().settings;
     const auto control = self.control_.snapshot();
     const uint32_t now = millis();
@@ -144,11 +145,17 @@ void EyeService::task(void* argument) {
       if (!ok) { online[i]=false; ++errors; retry[i]=now+5000; }
     }
     ++frames;
+    const uint32_t workUs=micros()-startedUs;
     portENTER_CRITICAL(&self.mux_);
     self.state_.check=check;
     self.state_.frame=frame; self.state_.leftOnline=online[0]; self.state_.rightOnline=online[1];
     self.state_.errors=errors; self.state_.frames=frames;
+    self.state_.workUs=workUs;
+    self.state_.maxWorkUs=std::max(self.state_.maxWorkUs,workUs);
+    if(workUs>=Config::eyeFrameMs*1000) ++self.state_.overruns;
     portEXIT_CRITICAL(&self.mux_);
+    // Missed frames are dropped. Never replay a backlog against Wi-Fi on core0.
+    if(workUs>=Config::eyeFrameMs*1000) wake=xTaskGetTickCount();
     vTaskDelayUntil(&wake,pdMS_TO_TICKS(Config::eyeFrameMs));
   }
 }

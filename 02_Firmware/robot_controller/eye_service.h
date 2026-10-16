@@ -21,6 +21,7 @@ struct EyeSnapshot {
   EyeFrame frame;
   bool taskReady = false, leftOnline = false, rightOnline = false;
   uint32_t errors = 0, frames = 0;
+  uint32_t workUs = 0, maxWorkUs = 0, overruns = 0;
   EyeCheckSnapshot check;
 };
 class EyeService {

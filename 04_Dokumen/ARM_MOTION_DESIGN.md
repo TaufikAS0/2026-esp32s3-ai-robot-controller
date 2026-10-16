@@ -1,5 +1,12 @@
 # Arm movement design — v0.8.0
 
+v0.9.0 clarification: with pulses disabled, the first complete accepted command
+seeds the requested arm reference before PWM enable, rather than sweeping from
+boot's assumed90 degrees. It must be an accepted setup pose; software still cannot
+know physical position. All following targets use the existing limits. The soak
+uses the pre-OTA accepted reference and at most three degrees inward variation.
+This adds no NVS reference storage, homing or idle gesture.
+
 The previous ControlLogic assigned arm targets directly to the output at each10 ms tick. Large target changes therefore produced immediate PWM setpoint jumps. The new ArmMotion interpolator limits setpoint speed and acceleration, slows before arrival, and replans from its current commanded position/velocity when a target changes. Identical100 ms command heartbeats do not restart interpolation.
 
 ## Profiles and contract

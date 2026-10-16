@@ -74,7 +74,13 @@ class DashboardTests(unittest.TestCase):
             code = 409
             result = {"error": "session_or_sequence_rejected"}
         elif path == "/eyes/catalog":
-            result = dict(presets=[{'id': 'neutral', 'label': 'Netral', 'category': 'curious', 'shape': 'solid', 'family': 'box', 'width': 56, 'height': 36}, {'id': 'happy', 'label': 'Senang', 'category': 'happy', 'shape': 'happy', 'family': 'box', 'width': 56, 'height': 24}, {'id': 'curious', 'label': 'Penasaran', 'category': 'curious', 'shape': 'solid', 'family': 'box', 'width': 50, 'height': 40}, {'id': 'sleepy', 'label': 'Mengantuk', 'category': 'rest', 'shape': 'solid', 'family': 'box', 'width': 56, 'height': 12}, {'id': 'angry', 'label': 'Fokus', 'category': 'focus', 'shape': 'focus', 'family': 'box', 'width': 56, 'height': 26}, {'id': 'surprised', 'label': 'Terkejut', 'category': 'surprise', 'shape': 'solid', 'family': 'box', 'width': 46, 'height': 48}, {'id': 'love', 'label': 'Sayang', 'category': 'love', 'shape': 'heart', 'family': 'special', 'width': 54, 'height': 42}, {'id': 'laugh', 'label': 'Tertawa', 'category': 'happy', 'shape': 'happy', 'family': 'box', 'width': 62, 'height': 32}, {'id': 'excited', 'label': 'Antusias', 'category': 'happy', 'shape': 'star', 'family': 'special', 'width': 58, 'height': 46}, {'id': 'giggle', 'label': 'Cekikikan', 'category': 'happy', 'shape': 'happy', 'family': 'box', 'width': 48, 'height': 28}, {'id': 'love_wink', 'label': 'Kedip sayang', 'category': 'love', 'shape': 'heart', 'family': 'special', 'width': 54, 'height': 42}, {'id': 'shy', 'label': 'Malu-malu', 'category': 'love', 'shape': 'solid', 'family': 'box', 'width': 44, 'height': 30}, {'id': 'sparkle', 'label': 'Berbinar', 'category': 'love', 'shape': 'star', 'family': 'special', 'width': 54, 'height': 44}, {'id': 'skeptical', 'label': 'Ragu', 'category': 'curious', 'shape': 'solid', 'family': 'box', 'width': 56, 'height': 28}, {'id': 'side_eye', 'label': 'Melirik diam-diam', 'category': 'curious', 'shape': 'googly', 'family': 'special', 'width': 54, 'height': 34}, {'id': 'thinking', 'label': 'Berpikir', 'category': 'curious', 'shape': 'googly', 'family': 'special', 'width': 52, 'height': 36}, {'id': 'determined', 'label': 'Bertekad', 'category': 'focus', 'shape': 'focus', 'family': 'box', 'width': 64, 'height': 24}, {'id': 'sneaky', 'label': 'Usil', 'category': 'focus', 'shape': 'focus', 'family': 'box', 'width': 58, 'height': 18}, {'id': 'shocked', 'label': 'Kaget besar', 'category': 'surprise', 'shape': 'ring', 'family': 'special', 'width': 52, 'height': 50}, {'id': 'panic', 'label': 'Panik lucu', 'category': 'surprise', 'shape': 'googly', 'family': 'special', 'width': 48, 'height': 46}, {'id': 'dozing', 'label': 'Terlelap', 'category': 'rest', 'shape': 'solid', 'family': 'box', 'width': 58, 'height': 6}, {'id': 'zen', 'label': 'Tenang', 'category': 'rest', 'shape': 'happy', 'family': 'box', 'width': 52, 'height': 16}, {'id': 'bored', 'label': 'Bosan', 'category': 'rest', 'shape': 'solid', 'family': 'box', 'width': 58, 'height': 17}, {'id': 'sad', 'label': 'Sedih', 'category': 'sad', 'shape': 'sad', 'family': 'box', 'width': 52, 'height': 34}, {'id': 'cry', 'label': 'Menangis', 'category': 'sad', 'shape': 'sad', 'family': 'box', 'width': 52, 'height': 34}, {'id': 'pleading', 'label': 'Memohon', 'category': 'sad', 'shape': 'googly', 'family': 'special', 'width': 60, 'height': 46}, {'id': 'wink_left', 'label': 'Kedip kiri', 'category': 'wink', 'shape': 'solid', 'family': 'box', 'width': 56, 'height': 36}, {'id': 'wink_right', 'label': 'Kedip kanan', 'category': 'wink', 'shape': 'solid', 'family': 'box', 'width': 56, 'height': 36}, {'id': 'double_blink', 'label': 'Kedip ganda', 'category': 'wink', 'shape': 'solid', 'family': 'box', 'width': 56, 'height': 36}, {'id': 'alternating', 'label': 'Kedip bergantian', 'category': 'wink', 'shape': 'solid', 'family': 'box', 'width': 56, 'height': 36}, {'id': 'googly', 'label': 'Googly', 'category': 'wild', 'shape': 'googly', 'family': 'special', 'width': 58, 'height': 44}, {'id': 'dizzy', 'label': 'Pusing lucu', 'category': 'wild', 'shape': 'spiral', 'family': 'special', 'width': 56, 'height': 44}, {'id': 'derp', 'label': 'Konyol', 'category': 'wild', 'shape': 'googly', 'family': 'special', 'width': 56, 'height': 40}, {'id': 'chaos', 'label': 'Kacau ceria', 'category': 'wild', 'shape': 'googly', 'family': 'special', 'width': 60, 'height': 44}, {'id': 'spiral', 'label': 'Hipnotis', 'category': 'wild', 'shape': 'spiral', 'family': 'special', 'width': 56, 'height': 46}, {'id': 'party', 'label': 'Pesta', 'category': 'wild', 'shape': 'star', 'family': 'special', 'width': 58, 'height': 46}, {'id': 'stars', 'label': 'Mata bintang', 'category': 'digital', 'shape': 'star', 'family': 'special', 'width': 56, 'height': 48}, {'id': 'dollars', 'label': 'Mata dolar', 'category': 'digital', 'shape': 'dollar', 'family': 'special', 'width': 48, 'height': 46}, {'id': 'loading', 'label': 'Gaya loading', 'category': 'digital', 'shape': 'ring', 'family': 'special', 'width': 50, 'height': 46}, {'id': 'glitch', 'label': 'Glitch', 'category': 'digital', 'shape': 'solid', 'family': 'box', 'width': 60, 'height': 38}, {'id': 'robot_error', 'label': 'Gaya error', 'category': 'digital', 'shape': 'cross', 'family': 'special', 'width': 50, 'height': 44}, {'id': 'sharingan', 'label': 'Sharingan', 'category': 'shinobi', 'shape': 'sharingan', 'family': 'special', 'width': 52, 'height': 50}, {'id': 'rinnegan', 'label': 'Rinnegan', 'category': 'shinobi', 'shape': 'rinnegan', 'family': 'special', 'width': 54, 'height': 50}, {'id': 'cat', 'label': 'Kucing', 'category': 'shinobi', 'shape': 'cat', 'family': 'special', 'width': 58, 'height': 40}, {'id': 'fox', 'label': 'Rubah / Kurama', 'category': 'shinobi', 'shape': 'fox', 'family': 'special', 'width': 62, 'height': 38}, {'id': 'snake', 'label': 'Ular', 'category': 'shinobi', 'shape': 'snake', 'family': 'special', 'width': 60, 'height': 32}, {'id': 'toad', 'label': 'Katak', 'category': 'shinobi', 'shape': 'toad', 'family': 'special', 'width': 60, 'height': 42}],categories=[{'id': 'all', 'label': 'Semua'}, {'id': 'happy', 'label': 'Ceria'}, {'id': 'love', 'label': 'Sayang'}, {'id': 'curious', 'label': 'Penasaran'}, {'id': 'focus', 'label': 'Fokus'}, {'id': 'surprise', 'label': 'Terkejut'}, {'id': 'rest', 'label': 'Santai'}, {'id': 'sad', 'label': 'Sedih'}, {'id': 'wink', 'label': 'Kedip'}, {'id': 'wild', 'label': 'Liar'}, {'id': 'digital', 'label': 'Digital'}, {'id': 'shinobi', 'label': 'Hewan & shinobi'}])
+            source=(ROOT / "02_Firmware/robot_controller/eye_catalog.h").read_text()
+            entries=re.findall(r'X\(\w+,"([^"]+)","([^"]+)",(\w+),(\w+),(\d+),(\d+)\)',source)
+            presets=[dict(id=id,label=label,category=category.lower(),shape=shape.lower(),
+                     family='box' if shape in ('Solid','Happy','Focus','Sad') else 'special',
+                     width=int(w),height=int(h)) for id,label,category,shape,w,h in entries]
+            categories=[dict(id=c,label=c) for c in ['all']+list(dict.fromkeys(p['category'] for p in presets))]
+            result=dict(presets=presets,categories=categories)
         elif path == "/arms/settings":
             result = {"ok":True}
         elif path == "/eyes/check":
@@ -103,13 +109,64 @@ class DashboardTests(unittest.TestCase):
         self.page.wait_for_function("document.getElementById('armMotionMessage').textContent.includes('diterapkan')")
         self.assertIn(('/arms/settings',{'speed_dps':25,'acceleration_dps2':60}),self.calls)
         self.page.locator('[data-eye-family="special"]').click()
-        self.page.locator('[data-category="shinobi"]').click()
+        self.page.locator('[data-category="sharingan"]').click()
         self.page.locator('[data-expression="sharingan"]').click()
         self.page.wait_for_timeout(150)
         self.page.locator('#saveEyes').click()
         self.page.wait_for_function("!eyeBusy&&!eyeDirty")
         self.assertEqual(self.eye_settings['expression'],'sharingan')
         self.assertFalse(any(p in ('/command','/control/acquire') for p,_ in self.calls))
+
+    def test_sharingan_variants_and_fox_silhouette(self):
+        result=self.page.evaluate('''() => {
+          const ids=['sharingan_1','sharingan_2','sharingan','mangekyo_pinwheel','mangekyo_flower','mangekyo_star'];
+          const sheet=document.createElement('canvas');sheet.width=768;sheet.height=256;sheet.id='regressionSheet';
+          sheet.style.cssText='position:fixed;top:0;left:0;z-index:99999;background:black';document.body.append(sheet);
+          const ctx=sheet.getContext('2d'),canvas=document.createElement('canvas');canvas.width=128;canvas.height=64;
+          let minDifference=8192;const frames=[];
+          for(let phase=0;phase<4;phase++){
+            const row=[];
+            for(let i=0;i<ids.length;i++){
+              paintEye(canvas,{x:64,y:32,width:52,height:50,phase:phase*.61},ids[i],true,true,255);
+              ctx.drawImage(canvas,i*128,phase*64);
+              const data=canvas.getContext('2d').getImageData(0,0,128,64).data;
+              row.push(Array.from({length:8192},(_,k)=>data[k*4]>0?1:0));
+            }
+            for(let a=0;a<6;a++)for(let b=a+1;b<6;b++)minDifference=Math.min(minDifference,row[a].reduce((n,v,k)=>n+(v!==row[b][k]),0));
+            frames.push(row);
+          }
+          let outside=0;
+          for(const left of [false,true])for(let phase=0;phase<100;phase++){
+            const p={x:64+Math.sin(phase*.3)*8,y:32,width:62,height:38,phase:phase*.17};
+            paintEye(canvas,p,'fox',left,true,255);
+            const data=canvas.getContext('2d').getImageData(0,0,128,64).data;
+            for(let y=0;y<64;y++)for(let x=0;x<128;x++)if(data[(y*128+x)*4]>0){
+              const dx=(x-p.x)/31,dy=(y-p.y)/19;
+              if(dx*dx+dy*dy>=1.00001||dy<=(left?.55*dx:-.55*dx)-.40001)outside++;
+            }
+          }
+          return {minDifference,outside,frames};
+        }''')
+        self.assertGreater(result['minDifference'],50)
+        self.assertEqual(result['outside'],0)
+        (ROOT/'build').mkdir(exist_ok=True)
+        self.page.locator('#regressionSheet').screenshot(path=str(ROOT/'build/sharingan-browser.png'))
+        self.page.evaluate('''() => {
+          const sheet=document.getElementById('regressionSheet');sheet.width=256;sheet.height=256;
+          const ctx=sheet.getContext('2d'),c=document.createElement('canvas');c.width=128;c.height=64;
+          for(let phase=0;phase<4;phase++)for(let side=0;side<2;side++){
+            paintEye(c,{x:64,y:32,width:62,height:38,phase:phase*.61},'fox',side===0,true,255);
+            ctx.drawImage(c,side*128,phase*64);
+          }
+        }''')
+        self.page.locator('#regressionSheet').screenshot(path=str(ROOT/'build/fox-browser.png'))
+        native=ROOT/'build/sharingan-native.pgm'
+        if native.exists():
+            data=native.read_bytes().split(b'\n',3)[3]
+            for phase,row in enumerate(result['frames']):
+                for col,pixels in enumerate(row):
+                    difference=sum(bool(data[(phase*64+y)*768+col*128+x])!=bool(pixels[y*128+x]) for y in range(64) for x in range(128))
+                    self.assertLess(difference,8)
 
     def test_rotation_is_independent_from_swap(self):
         self.page.locator('#eyeRotateLeft').uncheck()

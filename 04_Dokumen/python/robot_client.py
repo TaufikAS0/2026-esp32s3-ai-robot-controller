@@ -114,14 +114,14 @@ class RobotClient:
         """Cosmetic settings only: never refresh the motor producer target/lease."""
         if any(type(v) is not bool for v in (automatic, blink, swap, enabled)):
             raise ValueError("eye switches must be boolean")
-        if expression not in ('neutral', 'happy', 'curious', 'sleepy', 'angry', 'surprised', 'love', 'laugh', 'excited', 'giggle', 'love_wink', 'shy', 'sparkle', 'skeptical', 'side_eye', 'thinking', 'determined', 'sneaky', 'shocked', 'panic', 'dozing', 'zen', 'bored', 'sad', 'cry', 'pleading', 'wink_left', 'wink_right', 'double_blink', 'alternating', 'googly', 'dizzy', 'derp', 'chaos', 'spiral', 'party', 'stars', 'dollars', 'loading', 'glitch', 'robot_error', 'sharingan', 'rinnegan', 'cat', 'fox', 'snake', 'toad'):
+        if expression not in ('neutral', 'happy', 'curious', 'sleepy', 'angry', 'surprised', 'love', 'laugh', 'excited', 'giggle', 'love_wink', 'shy', 'sparkle', 'skeptical', 'side_eye', 'thinking', 'determined', 'sneaky', 'shocked', 'panic', 'dozing', 'zen', 'bored', 'sad', 'cry', 'pleading', 'wink_left', 'wink_right', 'double_blink', 'alternating', 'googly', 'dizzy', 'derp', 'chaos', 'spiral', 'party', 'stars', 'dollars', 'loading', 'glitch', 'robot_error', 'sharingan', 'rinnegan', 'cat', 'fox', 'snake', 'toad', 'sharingan_1', 'sharingan_2', 'mangekyo_pinwheel', 'mangekyo_flower', 'mangekyo_star'):
             raise ValueError("unknown eye expression")
         if type(brightness) is not int or not 1 <= brightness <= 255:
             raise ValueError("brightness must be integer 1..255")
         tempo = self._number(tempo, 0.5, 2.0)
         body = dict(enabled=enabled, automatic=automatic, blink=blink,
                     swap=swap, expression=expression, brightness=brightness, tempo=tempo)
-        if category not in ("all","happy","love","curious","focus","surprise","rest","sad","wink","wild","digital","shinobi"):
+        if category not in ("all","happy","love","curious","focus","surprise","rest","sad","wink","wild","digital","shinobi","sharingan"):
             raise ValueError("unknown eye category")
         if type(energy) is not int or not 1 <= energy <= 3:
             raise ValueError("energy must be integer 1..3")

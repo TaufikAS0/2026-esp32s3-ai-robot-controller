@@ -44,19 +44,25 @@
   X(Loading,"loading","Gaya loading",Digital,Ring,50,46) \
   X(Glitch,"glitch","Glitch",Digital,Solid,60,38) \
   X(RobotError,"robot_error","Gaya error",Digital,Cross,50,44) \
-  X(Sharingan,"sharingan","Sharingan",Shinobi,Sharingan,52,50) \
+  X(Sharingan,"sharingan","Sharingan 3 tomoe",Sharingan,Sharingan,52,50) \
   X(Rinnegan,"rinnegan","Rinnegan",Shinobi,Rinnegan,54,50) \
   X(Cat,"cat","Kucing",Shinobi,Cat,58,40) \
   X(Fox,"fox","Rubah / Kurama",Shinobi,Fox,62,38) \
   X(Snake,"snake","Ular",Shinobi,Snake,60,32) \
-  X(Toad,"toad","Katak",Shinobi,Toad,60,42)
+  X(Toad,"toad","Katak",Shinobi,Toad,60,42) \
+  X(SharinganOne,"sharingan_1","Sharingan 1 tomoe",Sharingan,Sharingan,52,50) \
+  X(SharinganTwo,"sharingan_2","Sharingan 2 tomoe",Sharingan,Sharingan,52,50) \
+  X(MangekyoPinwheel,"mangekyo_pinwheel","Mangekyo pinwheel",Sharingan,Sharingan,52,50) \
+  X(MangekyoFlower,"mangekyo_flower","Mangekyo flower",Sharingan,Sharingan,52,50) \
+  X(MangekyoStar,"mangekyo_star","Mangekyo star",Sharingan,Sharingan,52,50)
 enum class Expression {
 #define EYE_ENUM(symbol,id,label,category,shape,w,h) symbol,
   EYE_CATALOG(EYE_ENUM)
 #undef EYE_ENUM
   Count
 };
-enum class EyeCategory { All, Happy, Love, Curious, Focus, Surprise, Rest, Sad, Wink, Wild, Digital, Shinobi };
+enum class EyeCategory { All, Happy, Love, Curious, Focus, Surprise, Rest, Sad, Wink, Wild, Digital, Shinobi, Sharingan, Count };
+inline constexpr unsigned kEyeCategoryCount=static_cast<unsigned>(EyeCategory::Count);
 enum class EyeShape { Solid, Happy, Heart, Focus, Sad, Star, Dollar, Spiral, Cross, Ring, Googly, Sharingan, Rinnegan, Cat, Fox, Snake, Toad };
 enum class EyePlayMode { Reactive, Playful, Showcase, Manual };
 struct EyeCatalogEntry { const char* id; const char* label; EyeCategory category; EyeShape shape; float width, height; };
@@ -76,18 +82,18 @@ inline bool parseExpression(const char* s, Expression& e) {
   return false;
 }
 inline const char* eyeCategoryId(EyeCategory c) {
-  static const char* names[]={"all","happy","love","curious","focus","surprise","rest","sad","wink","wild","digital","shinobi"};
+  static const char* names[]={"all","happy","love","curious","focus","surprise","rest","sad","wink","wild","digital","shinobi","sharingan"};
   return names[static_cast<unsigned>(c)];
 }
 inline const char* eyeCategoryLabel(EyeCategory c) {
-  static const char* names[]={"Semua","Ceria","Sayang","Penasaran","Fokus","Terkejut","Santai","Sedih","Kedip","Liar","Digital","Hewan & shinobi"};
+  static const char* names[]={"Semua","Ceria","Sayang","Penasaran","Fokus","Terkejut","Santai","Sedih","Kedip","Liar","Digital","Hewan & shinobi","Sharingan"};
   return names[static_cast<unsigned>(c)];
 }
 inline const char* eyePlayName(EyePlayMode m) {
   static const char* names[]={"reactive","playful","showcase","manual"}; return names[static_cast<unsigned>(m)];
 }
 inline bool parseEyeCategory(const char* s, EyeCategory& c) {
-  for(unsigned i=0;i<12;++i) if(strcmp(s,eyeCategoryId(static_cast<EyeCategory>(i)))==0) { c=static_cast<EyeCategory>(i); return true; }
+  for(unsigned i=0;i<kEyeCategoryCount;++i) if(strcmp(s,eyeCategoryId(static_cast<EyeCategory>(i)))==0) { c=static_cast<EyeCategory>(i); return true; }
   return false;
 }
 inline bool parseEyePlay(const char* s, EyePlayMode& m) {

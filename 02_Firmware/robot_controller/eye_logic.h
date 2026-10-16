@@ -16,7 +16,7 @@ struct EyeSettings {
   float tempo = 1;
   static bool valid(const EyeSettings& s) {
     return static_cast<unsigned>(s.expression) < kEyeExpressionCount &&
-      static_cast<unsigned>(s.playMode)<4 && static_cast<unsigned>(s.category)<12 && s.energy>=1 && s.energy<=3 && s.brightness > 0 &&
+      static_cast<unsigned>(s.playMode)<4 && static_cast<unsigned>(s.category)<kEyeCategoryCount && s.energy>=1 && s.energy<=3 && s.brightness > 0 &&
       std::isfinite(s.tempo) && s.tempo >= .5f && s.tempo <= 2;
   }
 };

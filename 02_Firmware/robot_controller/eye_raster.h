@@ -1,5 +1,6 @@
 #pragma once
 #include <cstring>
+#include <algorithm>
 #include "eye_logic.h"
 // SSD1306 page-format framebuffer. All drawing clips to the 128x64 panel.
 class EyeRaster {
@@ -9,16 +10,31 @@ class EyeRaster {
   void dot(int x, int y) { if (x >= 0 && x < 128 && y >= 0 && y < 64) pixels[x + (y / 8) * 128] |= uint8_t(1 << (y % 8)); }
   void eye(const EyePose& p, Expression expression, bool left) {
     clear();
-    for (int y = 0; y < 64; ++y) for (int x = 0; x < 128; ++x) {
-      float dx = (x - p.x) / (p.width * .5f), dy = (y - p.y) / (p.height * .5f);
+    if (!(p.width>0 && p.height>0)) return;
+    const auto shape=eyeEntry(expression).shape;
+    const float invW=2/p.width, invH=2/p.height;
+    const bool radial=shape==EyeShape::Star || shape==EyeShape::Ring || shape==EyeShape::Spiral || shape==EyeShape::Sharingan || shape==EyeShape::Rinnegan;
+    const bool angular=shape==EyeShape::Star || shape==EyeShape::Spiral || (shape==EyeShape::Ring && expression==Expression::Loading) ||
+      (shape==EyeShape::Sharingan && expression>=Expression::MangekyoPinwheel);
+    const unsigned tomoe=expression==Expression::SharinganOne ? 1 : expression==Expression::SharinganTwo ? 2 : 3;
+    float tx[3]{},ty[3]{},tailX[3]{},tailY[3]{};
+    if(shape==EyeShape::Sharingan && !angular) for(unsigned t=0;t<tomoe;++t) {
+      const float theta=p.phase*.9f+t*6.2831853f/tomoe;
+      tx[t]=.6f*std::cos(theta); ty[t]=.6f*std::sin(theta);
+      tailX[t]=tx[t]-.19f*std::sin(theta); tailY[t]=ty[t]+.19f*std::cos(theta);
+    }
+    const float pulse=.015f*std::sin(p.phase*2);
+    const float pupil=.10f+.04f*(1+std::sin(p.phase*1.4f));
+    const int x0=std::max(0,int(std::floor(p.x-p.width*.65f))),x1=std::min(127,int(std::ceil(p.x+p.width*.65f)));
+    const int y0=std::max(0,int(std::floor(p.y-p.height*.65f))),y1=std::min(63,int(std::ceil(p.y+p.height*.65f)));
+    for (int y = y0; y <= y1; ++y) for (int x = x0; x <= x1; ++x) {
+      float dx = (x - p.x) * invW, dy = (y - p.y) * invH;
       bool on = false;
       if (p.height <= 4) on = std::fabs(dx) < 1 && std::fabs(dy) < 1;
       else {
-        const auto shape=eyeEntry(expression).shape;
         if(std::fabs(dx)>1.3f || std::fabs(dy)>1.3f) continue;
-        const bool radial=shape==EyeShape::Star || shape==EyeShape::Ring || shape==EyeShape::Spiral || shape==EyeShape::Sharingan || shape==EyeShape::Rinnegan;
         const float r=radial ? std::sqrt(dx*dx+dy*dy) : 0;
-        const float angle=radial ? std::atan2(dy,dx) : 0;
+        const float angle=angular ? std::atan2(dy,dx) : 0;
         on = dx*dx*dx*dx + dy*dy*dy*dy <= 1;
         if(shape==EyeShape::Heart) {
           const float yy=-dy*1.2f,xx=dx*1.15f,a=xx*xx+yy*yy-1;
@@ -37,29 +53,31 @@ class EyeRaster {
         }
         if(shape==EyeShape::Sharingan) {
           on=(r<1 && r>.86f) || (r<.62f && r>.56f) || r<.19f;
-          for(unsigned t=0;t<3;++t) {
-            const float theta=p.phase*.9f+t*2.0943951f;
-            const float tx=.6f*std::cos(theta),ty=.6f*std::sin(theta);
-            const float ux=dx-tx,uy=dy-ty;
+          for(unsigned t=0;!angular && t<tomoe;++t) {
+            const float ux=dx-tx[t],uy=dy-ty[t];
             if(ux*ux+uy*uy<.028f) on=true;
-            const float tailX=tx-.19f*std::sin(theta),tailY=ty+.19f*std::cos(theta);
-            if((dx-tailX)*(dx-tailX)+(dy-tailY)*(dy-tailY)<.012f) on=true;
+            if((dx-tailX[t])*(dx-tailX[t])+(dy-tailY[t])*(dy-tailY[t])<.012f) on=true;
+          }
+          if(angular) {
+            const float a=angle-p.phase*.7f;
+            if(expression==Expression::MangekyoPinwheel) on=(r<1 && r>.86f) || r<.18f || (r<.8f && r>.25f && std::sin(3*a+r*5)>.35f);
+            if(expression==Expression::MangekyoFlower) on=(r<1 && r>.86f) || r<.18f || (r<.75f && std::fabs(r-(.48f+.18f*std::cos(6*a)))<.09f);
+            if(expression==Expression::MangekyoStar) on=(r<1 && r>.86f) || r<.18f || (r<.76f && r>.27f && r<.48f+.27f*std::cos(5*a));
           }
         }
         if(shape==EyeShape::Rinnegan) {
-          const float pulse=.015f*std::sin(p.phase*2);
           on=r<.13f;
           for(unsigned ring=1;ring<=4;++ring) if(std::fabs(r-(ring*.23f+pulse))<.035f) on=true;
         }
         if(shape==EyeShape::Cat || shape==EyeShape::Fox || shape==EyeShape::Snake || shape==EyeShape::Toad) {
-          const float pupil=.10f+.04f*(1+std::sin(p.phase*1.4f));
           on=dx*dx+dy*dy<1;
           if(shape==EyeShape::Fox) on=on && dy>(left?.55f*dx:-.55f*dx)-.4f;
           if(shape==EyeShape::Snake) on=on && dy>-.6f+.3f*std::fabs(dx);
           const bool pupilOff=shape==EyeShape::Toad ? (std::fabs(dx)<.72f && std::fabs(dy)<.18f) :
             (std::fabs(dx)<(shape==EyeShape::Snake ? .07f : pupil)*(1-.5f*std::fabs(dy)) && std::fabs(dy)<.85f);
-          if(pupilOff) on=false;
-          if((dx+.35f)*(dx+.35f)+(dy+.3f)*(dy+.3f)<.012f) on=true;
+          const float hx=dx+(left?.35f:-.35f);
+          const bool highlight=hx*hx+(dy+.3f)*(dy+.3f)<.012f;
+          on=on && (!pupilOff || highlight);
         }
         if(expression==Expression::Glitch && (y+int(p.phase*20))%11<3) on=false;
         if(expression==Expression::Cry && std::fabs(dx)>.72f && std::fabs(dx)<.9f && dy>.35f) on=true;

@@ -102,6 +102,12 @@ class ControlLogic {
     lastTick_=now;
     expire(now);
     if (!hasCommand || maintenance) return;
+    // With pulses off, 90 degrees is only a boot reference. The first complete
+    // command explicitly seeds the pulse reference; do not sweep through 90.
+    // The caller must supply an accepted pose; no physical position is sensed.
+    if(!output.servoEnabled) {
+      armsLeft_.hold(target.armLeft); armsRight_.hold(target.armRight);
+    }
     output.left = left_.step(target.left, now);
     output.right = right_.step(target.right, now);
     output.armLeft = armsLeft_.step(target.armLeft,dt,armSettings);

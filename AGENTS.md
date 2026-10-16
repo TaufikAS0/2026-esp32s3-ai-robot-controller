@@ -1,5 +1,11 @@
 # AI Robot Controller Rules
 
+v0.9.0 continuation: read `04_Dokumen/SOAK.md` and the latest VERIFICATION entry.
+One durable zero-wheel runner only; monitor checkpoints, never auto-restart an
+actuator producer or flash unattended. First command after disabled pulses seeds
+the supplied accepted arm reference directly; boot90 is not a physical position.
+Sharingan has its own category;52 presets/22 box/30 special. Keep original IDs.
+
 Before the next change, read `04_Dokumen/HANDOFF_CONNECTION_EYES.md`: open exhibition timeout/servo+laser disconnect, Kurama clipping and Sharingan work. User prohibits wheel motion during tests (all wheel commands zero); servo and laser test scope, 24-hour soak and continuation automation instructions are in that handoff. Publishing the handoff does not mean those fixes or the soak are complete.
 
 Current eyes work v0.7.0: read 04_Dokumen/EYES_DESIGN.md and latest VERIFICATION.md before changing OLEDs. eye_catalog.h is the single preset catalog; web loads it via /eyes/catalog. Keep diagnostic I2C in EyeService and keep cosmetic requests separate from actuator sessions. Do not infer two physical devices from one scan ACK; no automatic address remap.

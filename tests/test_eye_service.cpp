@@ -7,6 +7,7 @@ FakeWire Wire;
 namespace {
 struct EndTask {};
 uint32_t clockMs = 0;
+uint32_t fakeWorkMs = 0;
 unsigned ticks = 0, limit = 0, snapshotCalls = 0;
 void (*callback)(void*) = nullptr;
 void* argument = nullptr;
@@ -20,6 +21,7 @@ std::vector<Transfer> transfers;
 std::array<std::vector<uint8_t>, 128> images;
 Output output;
 void reset() {
+  fakeWorkMs=0;
   busReady = true; dataFailure = false; maintenance = false; failedAddress = extraAddress = -1;
   changeRotation = false;
   snapshotCalls = 0; transfers.clear(); for (auto& image : images) image.clear();
@@ -61,6 +63,7 @@ void vTaskDelayUntil(TickType_t* wake, TickType_t period) {
   if (++ticks >= limit) throw EndTask{};
 }
 ControlSnapshot ControlService::snapshot() {
+  clockMs+=fakeWorkMs;
   ++snapshotCalls;
   if(changeRotation && snapshotCalls==2) {
     EyeSettings settings; settings.rotateLeft=false; settings.rotateRight=true;
@@ -70,6 +73,11 @@ ControlSnapshot ControlService::snapshot() {
 }
 int main() {
   ControlService control;
+  reset();fakeWorkMs=120;
+  EyeService overloaded(control);run(overloaded,3);
+  assert(overloaded.snapshot().overruns==3);
+  assert(overloaded.snapshot().workUs==120000 && overloaded.snapshot().maxWorkUs==120000);
+  assert(clockMs==5540); // Every overrun gets a new delay; no catch-up burst.
   reset(); output.left = -1; output.right = 1;
   EyeService normal(control); run(normal,2);
   assert(normal.snapshot().leftOnline && normal.snapshot().rightOnline);

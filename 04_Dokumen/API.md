@@ -1,5 +1,28 @@
 # HTTP API v1
 
+### v0.9.0 additive telemetry and presets
+
+Status adds `sta_mac`, `wifi_connect_count` (GOT_IP events, including first boot
+connection), `wifi_disconnect_count`, `wifi_disconnect_reason` (raw
+ESP-IDF Wi-Fi reason), and `reset_reason` (esp_reset_reason numeric enum). Counts
+and minima are since boot. `eyes.work_us` is the last eye iteration's elapsed
+microseconds including I2C, `max_work_us` its maximum and `overruns` the number
+reaching the60 ms frame budget. These are work durations, not CPU utilization or
+physical pixel measurements. Overdue frames are dropped rather than replayed.
+
+Catalog now has52 presets:22 box/30 special and13 selectors including All.
+Category `sharingan` contains existing `sharingan` (3 tomoe), `sharingan_1`,
+`sharingan_2`, `mangekyo_pinwheel`, `mangekyo_flower`, `mangekyo_star`.
+Original IDs and7/10/12-field schemas remain compatible. Reactive/Playful stay box.
+Both180-degree mounting defaults and logical swap are preserved.
+
+When servo pulses are disabled (boot/maintenance), the first accepted complete
+command seeds its requested arm reference directly; it no longer begins from
+assumed90 degrees. Callers must supply a previously accepted/setup pose. This is
+not homing or position measurement and may jump if the physical pose is different.
+After enable, ordinary targets remain speed/acceleration limited. Stop and500 ms
+expiry still cancel travel and invalidate the session. No NVS/pin/network changes.
+
 ### v0.8.0 arms, steering and eyes
 
 `POST /api/v1/arms/settings` requires exactly `{"speed_dps":45,"acceleration_dps2":120}`. Finite numeric speed5..120 and acceleration20..600.400 rejects malformed/range/type errors;409 rejects active control ownership or maintenance. RAM-only; boot45/120. No control session acquired/renewed, no motion from configuration alone. Python `set_arm_motion(25,60)` uses the endpoint before acquire.

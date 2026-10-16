@@ -47,7 +47,7 @@ class ClientTests(unittest.TestCase):
     def test_eye_modes_and_catalog(self):
         source=(pathlib.Path(__file__).resolve().parents[1]/"02_Firmware/robot_controller/eye_catalog.h").read_text()
         ids=re.findall(r'X\(\w+,"([^"]+)"',source)
-        self.assertEqual(len(ids),47)
+        self.assertEqual(len(ids),52)
         for expression in ids:
             self.client.set_eyes(play_mode="manual",expression=expression)
         self.client.set_eyes(play_mode="showcase", category="wink", energy=3)

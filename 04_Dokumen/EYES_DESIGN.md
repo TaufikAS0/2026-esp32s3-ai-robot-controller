@@ -1,4 +1,14 @@
-# Dual OLED eyes — v0.7.0
+# Dual OLED eyes — v0.9.0
+
+v0.9.0: Fox/animal highlights are mirrored and intersected with the intended
+ellipse/lid silhouette, never painted outside it. Native and browser regressions
+compare both Fox eyes across100 phases and six Sharingan variants across4 phases.
+52 presets,22 box/30 special;13 selectors including All. Separate Sharingan:
+1/2/3 tomoe and Mangekyo pinwheel/flower/star, with original `sharingan` retained.
+Native raster precomputes tomoe geometry, bounds work and avoids unused angle
+evaluation. EyeService reports last/max work microseconds and60 ms overruns;
+overdue work is dropped instead of catching up. I2C still has one owner off the
+actuator task. Earlier version sections below are historical design context.
 
 Confirmed by user 2026-10-16: SSD1306, SDA GPIO8, SCL GPIO9, two 128x64 modules. Physical right: 7-bit0x3C (8-bit write0x78); physical left:7-bit0x3D (write0x7A). Both displays share the same bus. The module address must be selected in hardware; the software swap only exchanges images.
 

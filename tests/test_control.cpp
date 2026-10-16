@@ -5,6 +5,12 @@
 int main() {
   ControlLogic c;
   assert(!c.output.servoEnabled && c.output.left == 0 && !c.output.laser);
+  ControlLogic seed;
+  assert(seed.acquire(Owner::Manual,777,0));
+  Command initial; initial.session=777; initial.sequence=1;
+  initial.armLeft=2; initial.armRight=71;
+  assert(seed.command(initial,1)); seed.tick(10);
+  assert(seed.output.armLeft==2 && seed.output.armRight==71);
   assert(c.mode == ControlMode::Manual);
   assert(!c.acquire(Owner::Program, 42, 0));
   assert(c.setMode(ControlMode::Auto));
@@ -21,7 +27,7 @@ int main() {
   cmd.session = 42; cmd.armLeft = -1; assert(!c.command(cmd, 104));
   c.tick(501);
   assert(c.owner == Owner::None && c.output.left == 0 && !c.output.laser);
-  assert(c.output.armRight > 90 && c.output.armRight < 180 && c.output.servoEnabled);
+  assert(c.output.armRight == 180 && c.output.servoEnabled);
   cmd.armLeft = 90; assert(!c.command(cmd, 502));
   assert(c.acquire(Owner::Program, 44, 510));
   assert(c.setMode(ControlMode::Manual));
@@ -71,8 +77,9 @@ int main() {
   for(unsigned i=0;i<700;++i) arm.step(10,.01f,limits);
   assert(arm.position==10 && arm.velocity==0);
   ControlLogic smooth; assert(smooth.acquire(Owner::Manual,99,0));
-  Command pose{99,1,0,0,170,10,false};assert(smooth.command(pose,1));
-  for(unsigned t=10;t<400;t+=10) {
+  Command pose{99,1,0,0,90,90,false};assert(smooth.command(pose,1)); smooth.tick(10);
+  pose.sequence=2;pose.armLeft=170;pose.armRight=10;assert(smooth.command(pose,11));
+  for(unsigned t=20;t<400;t+=10) {
     smooth.tick(t);
     if(t%100==0){++pose.sequence;assert(smooth.command(pose,t));}
   }

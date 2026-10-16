@@ -18,6 +18,7 @@ using portMUX_TYPE = int;
 constexpr int pdPASS = 1;
 inline uint32_t pdMS_TO_TICKS(uint32_t n) { return n; }
 uint32_t millis();
+inline uint32_t micros() { return millis()*1000; }
 TickType_t xTaskGetTickCount();
 int xTaskCreatePinnedToCore(void (*fn)(void*), const char*, uint32_t, void*, int, void*, int);
 void vTaskDelayUntil(TickType_t*, TickType_t);

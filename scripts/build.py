@@ -43,6 +43,8 @@ def check_artifacts():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--cli", default=shutil.which("arduino-cli"))
+    parser.add_argument("--jobs", type=int, default=2, help="Bound compiler parallelism on lab laptops")
+    parser.add_argument("--incremental", action="store_true", help="Reuse library/core objects; regenerate and verify firmware identity")
     args = parser.parse_args()
     check_network_policy(ROOT)
     check_policy(ROOT)
@@ -57,8 +59,17 @@ if __name__ == "__main__":
     BUILD.mkdir(exist_ok=True)
     metadata = generate(SKETCH)
     print(f"Build identity: {metadata}", flush=True)
-    subprocess.run([args.cli, "compile", "--clean", "--fqbn", FQBN,
+    import hashlib
+    def source_hashes():
+        return {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in SKETCH.iterdir()
+                if p.suffix in ('.h', '.cpp', '.ino', '.csv')}
+    inputs = source_hashes()
+    subprocess.run([args.cli, "compile", *([] if args.incremental else ["--clean"]), "--jobs", str(args.jobs), "--fqbn", FQBN,
                     "--build-property", "upload.maximum_size=6291456",
                     "--output-dir", str(BUILD), str(SKETCH)], check=True)
     check_artifacts()
-    write_manifest(BUILD, verify(BUILD / "robot_controller.ino.bin", metadata))
+    if source_hashes() != inputs:
+        raise RuntimeError('Firmware source changed during build; artifact is not publishable')
+    manifest=verify(BUILD / "robot_controller.ino.bin", metadata)
+    manifest.update(source_sha256=inputs, clean_build=not args.incremental)
+    write_manifest(BUILD, manifest)

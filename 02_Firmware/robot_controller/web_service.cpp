@@ -4,6 +4,7 @@
 #include "web_ui.h"
 #include <Update.h>
 #include <esp_ota_ops.h>
+#include <esp_system.h>
 #include <cJSON.h>
 #include <memory>
 namespace {
@@ -86,6 +87,11 @@ void WebService::status() {
   cJSON_AddStringToObject(root.get(), "sta_target_ssid", NetworkDefaults::stationSsid);
   cJSON_AddStringToObject(root.get(), "sta_ssid", WiFi.SSID().c_str());
   cJSON_AddStringToObject(root.get(), "sta_ip", WiFi.localIP().toString().c_str());
+  cJSON_AddStringToObject(root.get(), "sta_mac", WiFi.macAddress().c_str());
+  cJSON_AddNumberToObject(root.get(), "wifi_disconnect_count", network_.disconnectCount());
+  cJSON_AddNumberToObject(root.get(), "wifi_connect_count", network_.connectCount());
+  cJSON_AddNumberToObject(root.get(), "wifi_disconnect_reason", network_.disconnectReason());
+  cJSON_AddNumberToObject(root.get(), "reset_reason", esp_reset_reason());
   cJSON_AddBoolToObject(root.get(), "ap_active", network_.apActive);
   cJSON_AddStringToObject(root.get(), "ap_ip", WiFi.softAPIP().toString().c_str());
   cJSON* hardware = cJSON_AddObjectToObject(root.get(), "hardware");
@@ -122,6 +128,9 @@ void WebService::status() {
   cJSON_AddBoolToObject(e,"right_online",eye.rightOnline);
   cJSON_AddNumberToObject(e,"errors",eye.errors);
   cJSON_AddNumberToObject(e,"frames",eye.frames);
+  cJSON_AddNumberToObject(e,"work_us",eye.workUs);
+  cJSON_AddNumberToObject(e,"max_work_us",eye.maxWorkUs);
+  cJSON_AddNumberToObject(e,"overruns",eye.overruns);
   cJSON_AddNumberToObject(e,"sda",Config::eyeSda);
   cJSON_AddNumberToObject(e,"scl",Config::eyeScl);
   cJSON_AddNumberToObject(e,"left_address",Config::eyeLeftAddress);
@@ -323,7 +332,7 @@ void WebService::eyeCheck() {
 void WebService::eyeCatalog() {
   Json root(cJSON_CreateObject(),cJSON_Delete);
   auto categories=cJSON_AddArrayToObject(root.get(),"categories");
-  for(unsigned i=0;i<12;++i) {
+  for(unsigned i=0;i<kEyeCategoryCount;++i) {
     auto c=cJSON_CreateObject(); cJSON_AddItemToArray(categories,c);
     cJSON_AddStringToObject(c,"id",eyeCategoryId(static_cast<EyeCategory>(i)));
     cJSON_AddStringToObject(c,"label",eyeCategoryLabel(static_cast<EyeCategory>(i)));

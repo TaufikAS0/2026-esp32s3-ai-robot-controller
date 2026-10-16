@@ -1,3 +1,25 @@
+# Continuation status — v0.9.0, 2026-10-16
+
+Issue#2 has been consumed on the testing laptop. Feature branch remains feature/initial-robot-controller; PR#1 targets develop and must remain unmerged. Read the latest VERIFICATION entry and SOAK.md before further work. The original handoff is preserved below as historical problem definition.
+
+Implemented and tested: Fox clipping/mirroring, six distinct Sharingan designs/category (52 presets), native raster precomputation/clipping, dropped OLED catch-up work, network/reset/OLED telemetry and guarded durable soak runner. First command after disabled pulses seeds an explicitly accepted reference instead of traversing assumed90 degrees; subsequent rate limits remain. No wheel tests, pin/NVS/partition/profile/access change or500 ms timeout extension. Five native suites,12 client/7 policy/2 identity/10 soak tests and28 Chromium simulations passed. Native/browser contact sheets inspected; physical pixels remain unobserved.
+
+App-only OTA verifiedv0.9.0/buildUTC2026-10-16T13:10:42Z (20:10:42 WIB), application1,138,640 bytes, SHA256314a75148b86bb16051a2a414a259cdb9b4e22e0b0cdbeb518f6bbc138c133c4. Boot identity/idle outputs/HTML verified at192.168.1.66, MACe0:72:a1:fd:0d:88 via Ethernet192.168.1.122. Source snapshot and regenerated binary identity matched; final build reused core/library objects (see VERIFICATION for exact build evidence).
+
+Smoke144.188 s completed all10 scenarios:527 zero-wheel commands,0 command failures,commandp95=48 ms/p99=78 ms,worst ACK gap234 ms. Normal non-slow-client requests721/0 failures. Intentional partial-header slow client caused2 status/recovery timeouts; recovered without radio disconnect/reboot. Producer expiry verified laser off/session invalidation. Thus normal short-run improved, but synchronous slow-client stalls remain a known limitation and causation of the original intermittent outages is still unproven. No exhibition-ready claim.
+
+**ONE24-hour process is RUNNING on the testing laptop. Do not start another.**
+
+- StartUTC2026-10-16T13:17:17.4144055Z =20:17:17 WIB; planned deadline around2026-10-17 20:17:18 WIB, plus cleanup, if uninterrupted.
+- Initial PID1620; verify command line/start time in ignoredbuild/soak-24h-v090.launch.json, never trust PID alone.
+- Durable state: build/soak-24h-v090/checkpoint.json, events.jsonl and requests.csv; stdout/stderr use same output prefix.500 ms expiry and zero-wheel boundary guard remain enforced.
+- Codex heartbeat pantau-soak-robot-24-jam-tanpa-roda is ACTIVE every30 minutes on the continuation chat. It only supervises the existing job, reports actionable failure/completion, and must pause on terminal state. No auto-restart, target resumption or unattended flashing.
+- Cancel by creatingbuild/soak-24h-v090/stop.flag. Runner releases its own session, restores settings when unowned, and verifies final zero wheels/laser off; loss of connectivity leaves final physical state unverified.
+
+Next: inspect durable evidence after24 actual hours; report full/partial duration, failures including induced ones, per-scenario and command percentiles/worst gaps, RF/reset/heap/OLED telemetry and recovery. Then pause monitoring and update report/PR. Do not interrupt a healthy soak to flash a speculative fix. Physical pixels, mechanical response, supply/current/brownout measurements and exhibition RF conditions remain unknown.
+
+---
+
 # Handoff: exhibition connection stability and eye rendering
 
 Updated 2026-10-16 (UTC+7). This is an **open problem**, not a completed fix.

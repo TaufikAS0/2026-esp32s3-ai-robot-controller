@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.9.0 — 2026-10-16
+
+- Clip and mirror animal-eye highlights inside their ellipse/lid silhouette in native and browser renderers; regression covers both Fox eyes across100 phases.
+- Add separate Sharingan category: retain `sharingan` (3 tomoe), add1/2 tomoe and distinct Mangekyo pinwheel/flower/star.52 presets,22 box/30 special,13 category selectors. Catalog, Python and preview remain aligned.
+- Precompute tomoe geometry/per-frame constants, bound native raster loops, avoid unused atan2, and drop overdue OLED work instead of catching up against core0 Wi-Fi. Add OLED work_us/max_work_us/overruns and network MAC/disconnect/reset telemetry. These changes are hypotheses to measure, not a proven RF/power fix.
+- First complete command with disabled servo pulses now seeds its explicit requested reference, avoiding a transient path through assumed90 degrees after OTA. Subsequent targets remain speed/acceleration limited. A supplied target is not measured position; use an accepted setup pose.
+- Add guarded standard-library Python24-hour runner, JSONL/CSV/checkpoints, seeded scenarios, bounded recovery, scoped cancellation, single-process lock and durable Windows launcher. Every wheel command is zero; includes small slow servo, laser and combined cases. Codex heartbeat monitors the actual process.
+- Preserve500 ms expiry, sessions/sequences, single actuator writer, both mounting rotations, swap, lab network/open access, pins, partitions and selective NVS migration. Build supports bounded compiler jobs and explicit incremental library/core reuse while regenerating identity and rejecting source changes during compilation.
+- Build, smoke, device and24-hour results are recorded separately in VERIFICATION;24-hour completion is never inferred from launch.
+
 ## v0.8.0 — 2026-10-16
 
 - Smooth arm reference motion in the existing control task: speed/acceleration limits with braking, retargeting without heartbeat restarts, and stop/timeout hold at the current setpoint. Default45°/s and120°/s²; no jerk-limit or measured-position claim.

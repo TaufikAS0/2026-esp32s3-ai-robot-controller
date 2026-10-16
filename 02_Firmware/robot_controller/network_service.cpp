@@ -4,6 +4,7 @@
 void NetworkService::begin() {
   // Do not enable a default AP before its lab credentials are configured.
   WiFi.onEvent([this](WiFiEvent_t event, WiFiEventInfo_t info) {
+    if(event==ARDUINO_EVENT_WIFI_STA_GOT_IP) connectCount_.fetch_add(1);
     if (event == ARDUINO_EVENT_WIFI_STA_DISCONNECTED) {
       lastDisconnectReason_.store(info.wifi_sta_disconnected.reason);
       disconnectCount_.fetch_add(1);
