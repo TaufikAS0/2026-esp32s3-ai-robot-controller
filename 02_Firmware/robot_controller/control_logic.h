@@ -2,6 +2,7 @@
 #include <cmath>
 #include <stdint.h>
 #include "config.h"
+#include "arm_motion.h"
 
 enum class ControlMode { Manual, Auto };
 enum class Owner { None, Manual, Program };
@@ -46,6 +47,11 @@ class ControlLogic {
   bool maintenance = false, hasCommand = false;
   Output output;
   Command target;
+  ArmMotionSettings armSettings;
+  bool configureArms(const ArmMotionSettings& s) {
+    if(maintenance || !ArmMotionSettings::valid(s) || owner!=Owner::None) return false;
+    armSettings=s; return true;
+  }
 
   static bool valid(const Command& c) {
     return c.sequence > 0 && std::isfinite(c.left) && std::isfinite(c.right) &&
@@ -86,18 +92,24 @@ class ControlLogic {
     target.left = target.right = 0; target.laser = false;
     output.left = output.right = 0; output.laser = false;
     if (disableServos) output.servoEnabled = false;
-    left_.reset(); right_.reset(); reason = why;
+    left_.reset(); right_.reset(); armsLeft_.hold(output.armLeft); armsRight_.hold(output.armRight);
+    target.armLeft=output.armLeft;target.armRight=output.armRight; reason = why;
   }
   void beginMaintenance() { maintenance = true; stop("ota", true); }
   void endMaintenance() { maintenance = false; stop("ota_finished", true); }
   void tick(uint32_t now) {
+    const float dt=lastTick_ ? std::fmin(float(uint32_t(now-lastTick_)),float(Config::tickMs))*.001f : Config::tickMs*.001f;
+    lastTick_=now;
     expire(now);
     if (!hasCommand || maintenance) return;
     output.left = left_.step(target.left, now);
     output.right = right_.step(target.right, now);
-    output.armLeft = target.armLeft; output.armRight = target.armRight;
+    output.armLeft = armsLeft_.step(target.armLeft,dt,armSettings);
+    output.armRight = armsRight_.step(target.armRight,dt,armSettings);
     output.servoEnabled = true; output.laser = target.laser;
   }
  private:
   MotorRamp left_, right_;
+  ArmMotion armsLeft_,armsRight_;
+  uint32_t lastTick_=0;
 };

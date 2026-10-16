@@ -1,5 +1,10 @@
 # AI Robot Controller Rules
 
+Before the next change, read `04_Dokumen/HANDOFF_CONNECTION_EYES.md`: open exhibition timeout/servo+laser disconnect, Kurama clipping and Sharingan work. User prohibits wheel motion during tests (all wheel commands zero); servo and laser test scope, 24-hour soak and continuation automation instructions are in that handoff. Publishing the handoff does not mean those fixes or the soak are complete.
+
+Current eyes work v0.7.0: read 04_Dokumen/EYES_DESIGN.md and latest VERIFICATION.md before changing OLEDs. eye_catalog.h is the single preset catalog; web loads it via /eyes/catalog. Keep diagnostic I2C in EyeService and keep cosmetic requests separate from actuator sessions. Do not infer two physical devices from one scan ACK; no automatic address remap.
+
+
 - Read README and 04_Dokumen/API.md before changing control behavior.
 - Before planning, connectivity changes, build/upload, read the sibling vault's 01_Rules/Rules_Kredensial_WiFi.md and 04_Profiles/WiFi/WiFi_HuaweiJIN.md. Locate the vault if checkout is elsewhere; never infer network defaults from legacy baselines. Report the rule files read.
 - Internal lab policy: STA HuaweiJIN, AP password 12345678. Centralized source lab defaults are explicitly authorized; migrate old STA/AP NVS values preserving unrelated keys; the approved open-access migration removes only obsolete apiToken/otaPassword keys. The build's network-policy check must pass.
@@ -32,8 +37,27 @@ For a standalone checkout without the private sibling vault, the approved lab de
 - Auto/Manual are explicit runtime modes, boot Manual. Mode changes stop/invalidate sessions; never silently switch mode during acquire. Python engines explicitly select Auto.
 - Left hand commands are logical 0–180; driver pulse angle is 180 minus left angle. PWM status is LEDC readback, never measured wheel movement. Keep Wi-Fi modem sleep disabled for the lab latency profile.
 
-- Wheel polarity is mapped only in the actuator driver: invertLeftMotor=true, invertRightMotor=false. Preserve logical forward signs in API/dashboard/ramp; choose PWM frequency readback from the mapped physical active input.
+- Wheel polarity is mapped only in the actuator driver: invertLeftMotor=false, invertRightMotor=true. Preserve logical forward signs in API/dashboard/ramp; choose PWM frequency readback from the mapped physical active input.
 
 ## Aturan identitas build dan pemberitahuan perubahan — 2026-10-12
 
 Sebelum perubahan firmware, build/upload, atau push, AI wajib membaca `01_Rules/Rules_Versioning.md` dan `01_Rules/Rules_Change_Notifications.md` di vault (selain urutan baca yang sudah ada). Baca kedua file penuh pada awal tugas; sebutkan aturan yang dibaca dalam laporan. Semua perubahan firmware wajib dicatat di changelog/handoff dan diberitahukan kepada pengguna: versi sebelum/sesudah, timestamp build dengan zona waktu, perilaku/API/pin/NVS yang berubah, hasil tes, serta apakah perangkat sudah diupload. Jangan mengklaim timestamp sebagai jam perangkat atau uptime. Identitas versi + waktu build wajib terlihat pada serial, API, dashboard/display yang tersedia; metadata build dibuat ulang saat build, bukan ditulis manual. Build gate harus menolak metadata hilang/tidak cocok. AI tidak boleh melewati aturan ini karena mengingat sesi lama. Aturan baru/perubahan kebijakan wajib ditautkan dari halaman awal dan AGENTS/template agar terbaca oleh AI berikutnya.
+
+## Dual eyes v0.5.0
+- Read 04_Dokumen/EYES_DESIGN.md before modifying eye behavior, bus mapping, or the Eye Studio UI.
+- SSD1306 confirmed, shared Wire SDA8/SCL9, physical left0x3D/right0x3C. Supplied 0x7A/0x78 are 8-bit write addresses, not Arduino Wire addresses.
+- Only EyeService task owns I2C. Never perform OLED transfers inside the 10 ms actuator task or hold its spinlock during bus work.
+- Eye settings are volatile, independent of motor ownership, and must never renew a motor lease or Python producer freshness. Preserve swap option and report missing OLEDs honestly.
+- Run tests/test_eyes.cpp along with existing native/control/client/dashboard/build checks. OLED shape simulation and I2C ACK do not prove visible display correctness.
+
+## Eye family and mounting decision — 2026-10-16
+- User requires one consistent rounded-box eye character during Reactive/Playful. isBoxEye() in eye_catalog.h is authoritative; all idle and actuator reactions must satisfy it. Symbols/cartoon shapes belong to a separate chooser family and are explicit Manual/Showcase options.
+- Never advertise41 different base shapes: several presets intentionally share a character and differ by movement/lids. Use actual rendered thumbnails and motion descriptions; do not replace them with repeated generic text icons.
+- Physical OLED rotation is independent for each address, separate from logical swap. Installation defaults rotateLeft/rotateRight=true (both mounted upside down). All eye settings are volatile; retain rotation on legacy7/10-field requests. No NVS schema change in v0.7.0.
+- Test runtime orientation packets, family-constrained reactions, UI12-field schema, preview rotation and producer freshness before build/OTA. ACK is transfer evidence, not an observed image. Record intermittent ACK honestly.
+
+## v0.8.0 arm and wheel contract
+- Read04_Dokumen/ARM_MOTION_DESIGN.md before modifying actuator trajectories. ArmMotion limits setpoint speed/acceleration in the single control task; no new output/timer owners. Do not claim jerk-limited planning or known physical boot position.
+- Stop/expiry immediately freezes arm reference and cancels pending travel. Repeated valid targets cannot restart easing. Producer/lease freshness remains independent from settings requests. No autonomous idle arm gestures.
+- Physical swapMotorSides=true corrects observed reversed turning without flipping equal-wheel forward/back signs. Polarity remains leftfalse/righttrue on the GPIO groups. Servo mapping remains left180-angle/rightangle. Verify both API and web use the same central driver mapping.
+-47 eye presets,22 box/25 special; shinobi category is explicitly Manual/Showcase only through family filtering. Preserve both180-degree mounting defaults. No additional NVS keys.

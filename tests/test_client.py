@@ -4,6 +4,7 @@ import time
 import unittest
 from unittest.mock import patch
 import io
+import re
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / "04_Dokumen" / "python"))
 from robot_client import RobotClient
 
@@ -22,6 +23,60 @@ class ClientTests(unittest.TestCase):
         if path == "/command" and self.fail:
             raise OSError("offline")
         return {"session": 123} if path == "/control/acquire" else {"ok": True}
+
+    def test_eye_rotation_schema(self):
+        self.client.set_eyes(rotate_left=True,rotate_right=False)
+        body=self.calls[-1][1]
+        self.assertEqual(len(body),12)
+        self.assertTrue(body['rotate_left'])
+        self.assertFalse(body['rotate_right'])
+        with patch.object(self.client,'status',return_value={'eyes':{'rotate_left':True,'rotate_right':False}}):
+            self.client.set_eyes(rotate_left=False)
+        self.assertFalse(self.calls[-1][1]['rotate_left'])
+        self.assertFalse(self.calls[-1][1]['rotate_right'])
+        with self.assertRaises(ValueError): self.client.set_eyes(rotate_left=180)
+
+    def test_arm_motion_configuration(self):
+        self.client.set_arm_motion(25,60)
+        self.assertIn(('/arms/settings',dict(speed_dps=25,acceleration_dps2=60)),self.calls)
+        with self.assertRaises(ValueError): self.client.set_arm_motion(True,60)
+        with self.assertRaises(ValueError): self.client.set_arm_motion(45,0)
+        self.client.acquire()
+        with self.assertRaises(RuntimeError): self.client.set_arm_motion()
+
+    def test_eye_modes_and_catalog(self):
+        source=(pathlib.Path(__file__).resolve().parents[1]/"02_Firmware/robot_controller/eye_catalog.h").read_text()
+        ids=re.findall(r'X\(\w+,"([^"]+)"',source)
+        self.assertEqual(len(ids),47)
+        for expression in ids:
+            self.client.set_eyes(play_mode="manual",expression=expression)
+        self.client.set_eyes(play_mode="showcase", category="wink", energy=3)
+        body=[b for p,b in self.calls if p=="/eyes"][-1]
+        self.assertTrue(body["automatic"])
+        self.assertEqual(body["play_mode"],"showcase")
+        self.client.set_eyes(category="wild")
+        self.assertEqual(self.calls[-1][1]["category"],"wild")
+        self.assertEqual(self.calls[-1][1]["play_mode"],"reactive")
+        self.client.set_eyes(play_mode="manual", expression="wink_right")
+        self.assertFalse(self.calls[-1][1]["automatic"])
+        for args in [dict(play_mode="oops"),dict(play_mode="manual",energy=True),dict(play_mode="showcase",category="oops")]:
+            with self.assertRaises(ValueError): self.client.set_eyes(**args)
+
+    def test_eyes_do_not_refresh_producer(self):
+        self.client.acquire()
+        self.client.drive(0.4, 0.4)
+        for _ in range(5):
+            self.client.set_eyes(expression="love", swap=True)
+            time.sleep(.06)
+        time.sleep(.1)
+        self.assertTrue(any(p == "/control/release" for p, _ in self.calls))
+        self.assertTrue(any(p == "/eyes" and b["swap"] for p, b in self.calls))
+        with self.assertRaises(ValueError):
+            self.client.set_eyes(brightness=True)
+        with self.assertRaises(ValueError):
+            self.client.set_eyes(tempo=float("nan"))
+        with self.assertRaises(ValueError):
+            self.client.set_eyes(expression="unknown")
 
     def test_explicit_mode(self):
         self.client.set_mode("auto")

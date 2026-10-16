@@ -1,5 +1,46 @@
 # HTTP API v1
 
+### v0.8.0 arms, steering and eyes
+
+`POST /api/v1/arms/settings` requires exactly `{"speed_dps":45,"acceleration_dps2":120}`. Finite numeric speed5..120 and acceleration20..600.400 rejects malformed/range/type errors;409 rejects active control ownership or maintenance. RAM-only; boot45/120. No control session acquired/renewed, no motion from configuration alone. Python `set_arm_motion(25,60)` uses the endpoint before acquire.
+
+Status adds `arm_motion`: speed_dps, acceleration_dps2, target_left/right (requested logical angles), moving (reference trajectory still unfinished), wheel_channels_swapped=true. `commanded_output.arm_left/right` now reports the interpolated reference, not the final requested destination. No physical feedback exists. Command JSON shape remains unchanged; repeated targets do not restart interpolation. Keep a fresh valid command every100 ms while a gesture is intended. Stop/release/timeout holds current reference and cancels remaining travel. OTA disables pulses. First enable can still jump from an unknown physical startup angle.
+
+Logical wheel commands remain left/right in robot coordinates. Driver now swaps target sides before polarity to correct user's reported reversed turning. +/+ and -/- unchanged. Raw pwm.left* fields still refer to physical GPIO12/13 and right* GPIO10/11; do not interpret them as a measured logical wheel location. Existing servo mirroring unchanged.
+
+Eye catalog adds category shinobi (Hewan & shinobi) and six IDs: sharingan,rinnegan,cat,fox,snake,toad.47 presets/22 box/25 special;11 non-All categories and12 total category selectors. Manual/Showcase can select them; Reactive/Playful remain box-only. OLEDs are monochrome; symbols are stylized graphics, not sensor values. Existing eye schemas7/10/12 fields preserved.
+
+See ARM_MOTION_DESIGN.md for trajectory bounds, timing, startup assumptions and research sources.
+
+
+### Eyes additions in v0.7.0
+
+Catalog entries add `family`: `box` or `special` (22/19 presets). Reactive and Playful always choose box-family expressions, regardless of the saved manual preset. Motor and hand reactions also remain box-family; hand-low is now shy. Showcase cycles the selected category across both families; Manual can select any ID. Family tabs filter browsing locally, independently of category rotation; selecting an expression switches to Manual. Main web preview is a local animation informed by1 Hz status, not a recording of physical OLED frames.
+
+POST /eyes accepts exactly7 legacy fields,10 v0.6 fields, or12 fields: the10-field form plus boolean `rotate_left` and `rotate_right`. Both must be supplied in the12-field form. Rejected schema/types never partially apply. Seven/ten-field clients retain the current rotation. Status exposes both booleans. Defaults are true/true for the current upside-down mounting; these are RAM settings and reset to those defaults on reboot. No NVS keys added.
+
+Rotation applies to physical addresses left0x3D/right0x3C, after logical swap. It is a true180-degree turn (both axes), not only a vertical mirror. It also affects boot identity and all diagnostic patterns. The controller changes segment/COM mapping: normal A1/C8, rotated A0/C0; framebuffer commands remain unchanged. UI previews rotate panel data too; physically mounting the module upside down restores the upright view.
+
+Python: `robot.set_eyes(play_mode="reactive", rotate_left=True, rotate_right=True)`. If only one rotation is supplied, the client reads status to preserve the other. Cosmetic settings still do not acquire/extend a motor session or producer target freshness.
+
+
+### Eyes additions in v0.6.0
+
+`GET /api/v1/eyes/catalog` returns `presets` (`id,label,category,shape,width,height`) and `categories` (`id,label`), sourced from the firmware catalog. There are41 presets and10 categories plus `all`.
+
+`POST /api/v1/eyes` accepts the original seven fields or exactly ten fields with these additions:
+
+```json
+{"enabled":true,"automatic":true,"blink":true,"swap":false,"expression":"googly","brightness":160,"tempo":1,"play_mode":"playful","category":"wild","energy":3}
+```
+
+`play_mode`: reactive/playful/showcase/manual; `automatic` must be false only for manual. `category`: all/happy/love/curious/focus/surprise/rest/sad/wink/wild/digital. `energy`: integer1..3. Invalid schemas, duplicates, ranges or inconsistent mode reject atomically with400; maintenance409. Legacy seven-field requests retain category/energy and select manual when automatic=false; switching automatic back on restores reactive if previously manual. Settings are RAM-only. Python `set_eyes(play_mode="showcase",category="wink",energy=3)` derives automatic from the mode. Supplying a nondefault category/energy without play_mode infers reactive or manual from automatic; default seven-field calls stay compatible.
+
+`POST /api/v1/eyes/check` requires exactly `{"mode":"scan","target":"both"}`. Modes scan/reinit/white/checker/identity/animate; targets both/left/right. Returns202 queued,400 invalid,409 maintenance,503 bus task unavailable. Scan always covers the full bus; target selects the timed pattern destination. Latest request wins. Patterns expire after5 seconds, with settings restored. No actuator session is acquired or renewed.
+
+Status `eyes` adds play_mode/category/energy and pose pupilX/pupilY/phase. `eyes.check` reports mode,target,request,remaining_ms,scan_complete,scanned,last_scan_ms,left_probe_code,right_probe_code,found_addresses. Addresses are decimal7-bit values; last_scan_ms is uptime, not a wall clock. Raw probe codes0 ACK,2 address NACK,5 timeout,255 untested. See EYES_DESIGN.md for address collision and physical-verification limits.
+
+
 Base URL: `http://<device-ip>/api/v1`. All API routes are open on the local network: no token or OTA password. Control sessions arbitrate ownership; they do not authenticate a person. Status reports `access_mode: "open_lan"`. JSON requests require `Content-Type: application/json`. Control bodies reject missing, extra, duplicate, wrongly typed, non-finite, or out-of-range fields. Maximum parsed JSON body is 1024 bytes; this is application validation, not a streaming HTTP memory limit. The dashboard also requires no token.
 
 ## Mode
@@ -62,3 +103,19 @@ Logical positive means configured forward for both wheels. The driver inverts th
 ## Hardware telemetry v0.4.0
 
 `GET /status` adds a `hardware` object (API v1 remains compatible): `chip_model` string, `cpu_freq_mhz`, `heap_size_bytes`, `free_heap_bytes`, `min_free_heap_bytes` (since boot), `psram_size_bytes`, `free_psram_bytes`, `flash_size_bytes`, `application_bytes`, `ota_slot_bytes`, and `wifi_rssi_dbm` (null when STA is disconnected). Memory sizes are allocator-reported bytes; zero PSRAM means unavailable. App size and running OTA slot size are cached at boot, with app image verification done only once. CPU frequency is not CPU utilization. No CPU usage, measured wheel motion, temperature or filesystem telemetry is provided. Dashboard HTTP latency measures a status request round trip including parsing; it is not ICMP ping.
+
+## Dual OLED eyes (legacy seven-field form)
+
+`POST /eyes` accepts this complete legacy object or the ten-field form documented above:
+
+```json
+{"enabled":true,"automatic":true,"blink":true,"swap":false,"expression":"happy","brightness":160,"tempo":1.0}
+```
+
+Four switches are JSON booleans; expression is a catalog ID from GET /eyes/catalog (the original seven IDs remain valid); brightness integer1..255; tempo finite0.5..2.0. Unknown/missing/extra/duplicate fields or invalid values return400. Maintenance returns409. Accepted response200 means settings stored in RAM, not confirmed display pixels. Settings are volatile and independent of motor Manual/Auto mode, session and heartbeat. No lease required; this endpoint must never renew motor or client producer freshness. Other clients on the lab LAN can change cosmetic settings. Manual expressions still blink if enabled. Automatic reactions derive from ramped commanded output; arm angles are logical, not pulse-mirrored.
+
+GET /status adds `eyes`: the seven settings, active_expression, reaction, task_ready, left_online/right_online (physical panels' last successful I2C transfer), errors (failed transfers), frames (animation iterations, not successful physical frames), sda/scl, left_address61/right_address60 (7-bit), and logical left/right poses with x/y/width/height in128x64 coordinates. `swap` exchanges which logical image is drawn on each physical address. Pose preview is illustrative; polling is slower than device animation. GPIO/LEDC control and APIv1 command schema remain unchanged.
+
+Wheel polarity correction: v0.5.0 uses invertLeftMotor=false, invertRightMotor=true. Logical +/+ forward drives GPIO12/11; -/- reverse drives13/10. The v0.3.2 mapping above is historical.
+
+Python: `robot.set_eyes(automatic=False, expression="love", brightness=160, tempo=1.0, blink=True, swap=False, enabled=True)` works without acquiring motor control. Eye changes never extend an old drive target.

@@ -99,6 +99,48 @@ class RobotClient:
             raise ValueError("laser must be boolean")
         self._set(laser=enabled)
 
+    def set_arm_motion(self, speed_dps=45, acceleration_dps2=120):
+        """Configure while no controller owns a lease; does not move arms."""
+        speed=self._number(speed_dps,5,120)
+        acceleration=self._number(acceleration_dps2,20,600)
+        with self._lock:
+            if self._session:
+                raise RuntimeError("release control before arm settings")
+        return self._request('/arms/settings',dict(speed_dps=speed,acceleration_dps2=acceleration))
+
+    def set_eyes(self, *, automatic=True, expression="happy", brightness=160,
+                 tempo=1.0, blink=True, swap=False, enabled=True,
+                 play_mode=None, category="all", energy=2, rotate_left=None, rotate_right=None):
+        """Cosmetic settings only: never refresh the motor producer target/lease."""
+        if any(type(v) is not bool for v in (automatic, blink, swap, enabled)):
+            raise ValueError("eye switches must be boolean")
+        if expression not in ('neutral', 'happy', 'curious', 'sleepy', 'angry', 'surprised', 'love', 'laugh', 'excited', 'giggle', 'love_wink', 'shy', 'sparkle', 'skeptical', 'side_eye', 'thinking', 'determined', 'sneaky', 'shocked', 'panic', 'dozing', 'zen', 'bored', 'sad', 'cry', 'pleading', 'wink_left', 'wink_right', 'double_blink', 'alternating', 'googly', 'dizzy', 'derp', 'chaos', 'spiral', 'party', 'stars', 'dollars', 'loading', 'glitch', 'robot_error', 'sharingan', 'rinnegan', 'cat', 'fox', 'snake', 'toad'):
+            raise ValueError("unknown eye expression")
+        if type(brightness) is not int or not 1 <= brightness <= 255:
+            raise ValueError("brightness must be integer 1..255")
+        tempo = self._number(tempo, 0.5, 2.0)
+        body = dict(enabled=enabled, automatic=automatic, blink=blink,
+                    swap=swap, expression=expression, brightness=brightness, tempo=tempo)
+        if category not in ("all","happy","love","curious","focus","surprise","rest","sad","wink","wild","digital","shinobi"):
+            raise ValueError("unknown eye category")
+        if type(energy) is not int or not 1 <= energy <= 3:
+            raise ValueError("energy must be integer 1..3")
+        oriented = rotate_left is not None or rotate_right is not None
+        if any(v is not None and type(v) is not bool for v in (rotate_left, rotate_right)):
+            raise ValueError("rotation switches must be boolean")
+        if play_mode is not None or category != "all" or energy != 2 or oriented:
+            if play_mode is None:
+                play_mode = "reactive" if automatic else "manual"
+            if play_mode not in ("reactive", "playful", "showcase", "manual"):
+                raise ValueError("unknown eye play mode")
+            body.update(play_mode=play_mode, category=category, energy=energy,
+                        automatic=play_mode != "manual")
+        if oriented:
+            current = self.status()["eyes"] if rotate_left is None or rotate_right is None else {}
+            body.update(rotate_left=current["rotate_left"] if rotate_left is None else rotate_left,
+                        rotate_right=current["rotate_right"] if rotate_right is None else rotate_right)
+        return self._request("/eyes", body)
+
     def _invalidate(self, session):
         with self._lock:
             if self._session == session:

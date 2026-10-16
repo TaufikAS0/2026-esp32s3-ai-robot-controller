@@ -56,6 +56,10 @@ void WebService::begin() {
     if (!control_.stop("stop")) { error(503, "task_unresponsive"); return; }
     server_.send(200, "application/json", "{\"ok\":true}");
   });
+  server_.on("/api/v1/arms/settings", HTTP_POST, [this]() { armSettings(); });
+  server_.on("/api/v1/eyes/catalog", HTTP_GET, [this]() { eyeCatalog(); });
+  server_.on("/api/v1/eyes/check", HTTP_POST, [this]() { eyeCheck(); });
+  server_.on("/api/v1/eyes", HTTP_POST, [this]() { eyes(); });
   server_.on("/api/v1/settings", HTTP_POST, [this]() { settings(); });
   server_.on("/api/v1/update", HTTP_POST, [this]() { finishUpload(); }, [this]() { upload(); });
   server_.onNotFound([this]() { error(404, "not_found"); });
@@ -97,6 +101,58 @@ void WebService::status() {
   cJSON_AddNumberToObject(hardware, "ota_slot_bytes", otaSlotBytes_);
   if (WiFi.status() == WL_CONNECTED) cJSON_AddNumberToObject(hardware, "wifi_rssi_dbm", WiFi.RSSI());
   else cJSON_AddNullToObject(hardware, "wifi_rssi_dbm");
+  const auto eye = eyes_.snapshot();
+  cJSON* e = cJSON_AddObjectToObject(root.get(), "eyes");
+  cJSON_AddBoolToObject(e,"enabled",eye.settings.enabled);
+  cJSON_AddBoolToObject(e,"automatic",eye.settings.automatic);
+  cJSON_AddBoolToObject(e,"blink",eye.settings.blink);
+  cJSON_AddBoolToObject(e,"swap",eye.settings.swap);
+  cJSON_AddBoolToObject(e,"rotate_left",eye.settings.rotateLeft);
+  cJSON_AddBoolToObject(e,"rotate_right",eye.settings.rotateRight);
+  cJSON_AddNumberToObject(e,"brightness",eye.settings.brightness);
+  cJSON_AddNumberToObject(e,"tempo",eye.settings.tempo);
+  cJSON_AddStringToObject(e,"expression",expressionName(eye.settings.expression));
+  cJSON_AddStringToObject(e,"play_mode",eyePlayName(eye.settings.playMode));
+  cJSON_AddStringToObject(e,"category",eyeCategoryId(eye.settings.category));
+  cJSON_AddNumberToObject(e,"energy",eye.settings.energy);
+  cJSON_AddStringToObject(e,"active_expression",expressionName(eye.frame.expression));
+  cJSON_AddStringToObject(e,"reaction",eye.frame.reaction);
+  cJSON_AddBoolToObject(e,"task_ready",eye.taskReady);
+  cJSON_AddBoolToObject(e,"left_online",eye.leftOnline);
+  cJSON_AddBoolToObject(e,"right_online",eye.rightOnline);
+  cJSON_AddNumberToObject(e,"errors",eye.errors);
+  cJSON_AddNumberToObject(e,"frames",eye.frames);
+  cJSON_AddNumberToObject(e,"sda",Config::eyeSda);
+  cJSON_AddNumberToObject(e,"scl",Config::eyeScl);
+  cJSON_AddNumberToObject(e,"left_address",Config::eyeLeftAddress);
+  cJSON_AddNumberToObject(e,"right_address",Config::eyeRightAddress);
+  cJSON* check=cJSON_AddObjectToObject(e,"check");
+  cJSON_AddStringToObject(check,"mode",eyeCheckName(eye.check.mode));
+  cJSON_AddStringToObject(check,"target",eye.check.target==EyeTarget::Both ? "both" : eye.check.target==EyeTarget::Left ? "left" : "right");
+  cJSON_AddNumberToObject(check,"request",eye.check.request);
+  cJSON_AddNumberToObject(check,"remaining_ms",eye.check.remainingMs);
+  cJSON_AddBoolToObject(check,"scan_complete",eye.check.scanComplete);
+  cJSON_AddNumberToObject(check,"scanned",eye.check.scanned);
+  cJSON_AddNumberToObject(check,"last_scan_ms",eye.check.lastScanMs);
+  cJSON_AddNumberToObject(check,"left_probe_code",eye.check.leftProbe);
+  cJSON_AddNumberToObject(check,"right_probe_code",eye.check.rightProbe);
+  cJSON* found=cJSON_AddArrayToObject(check,"found_addresses");
+  for(unsigned a=8;a<120;++a) if(eye.check.found[a/8] & (1<<(a%8))) cJSON_AddItemToArray(found,cJSON_CreateNumber(a));
+  for (unsigned i=0;i<2;++i) {
+    const auto& pose = i ? eye.frame.right : eye.frame.left;
+    cJSON* p = cJSON_AddObjectToObject(e,i ? "right" : "left");
+    cJSON_AddNumberToObject(p,"x",pose.x); cJSON_AddNumberToObject(p,"y",pose.y);
+    cJSON_AddNumberToObject(p,"pupilX",pose.pupilX); cJSON_AddNumberToObject(p,"pupilY",pose.pupilY);
+    cJSON_AddNumberToObject(p,"phase",pose.phase);
+    cJSON_AddNumberToObject(p,"width",pose.width); cJSON_AddNumberToObject(p,"height",pose.height);
+  }
+  auto arms=cJSON_AddObjectToObject(root.get(),"arm_motion");
+  cJSON_AddNumberToObject(arms,"speed_dps",l.armSettings.speed);
+  cJSON_AddNumberToObject(arms,"acceleration_dps2",l.armSettings.acceleration);
+  cJSON_AddNumberToObject(arms,"target_left",l.target.armLeft);
+  cJSON_AddNumberToObject(arms,"target_right",l.target.armRight);
+  cJSON_AddBoolToObject(arms,"moving",l.hasCommand && (std::fabs(l.target.armLeft-l.output.armLeft)>.05f || std::fabs(l.target.armRight-l.output.armRight)>.05f));
+  cJSON_AddBoolToObject(arms,"wheel_channels_swapped",Config::swapMotorSides);
   cJSON* out = cJSON_AddObjectToObject(root.get(), "commanded_output");
   cJSON_AddNumberToObject(out, "left", l.output.left); cJSON_AddNumberToObject(out, "right", l.output.right);
   cJSON_AddNumberToObject(out, "arm_left", l.output.armLeft); cJSON_AddNumberToObject(out, "arm_right", l.output.armRight);
@@ -205,4 +261,94 @@ void WebService::update() {
     Update.abort(); webOta_ = false; uploadFailed_ = true; control_.endMaintenance();
   }
   if (restartAt_ && int32_t(millis() - restartAt_) >= 0) ESP.restart();
+}
+
+void WebService::eyes() {
+  auto root = parse(server_);
+  EyeSettings s=eyes_.snapshot().settings; float brightness;
+  const bool oriented=fields(root.get(), {"enabled","automatic","blink","swap","expression","brightness","tempo","play_mode","category","energy","rotate_left","rotate_right"});
+  const bool modern=oriented || fields(root.get(), {"enabled","automatic","blink","swap","expression","brightness","tempo","play_mode","category","energy"});
+  if ((!modern && !fields(root.get(), {"enabled","automatic","blink","swap","expression","brightness","tempo"})) ||
+      !cJSON_IsBool(item(root.get(),"enabled")) || !cJSON_IsBool(item(root.get(),"automatic")) ||
+      !cJSON_IsBool(item(root.get(),"blink")) || !cJSON_IsBool(item(root.get(),"swap")) ||
+      !cJSON_IsString(item(root.get(),"expression")) ||
+      !parseExpression(item(root.get(),"expression")->valuestring,s.expression) ||
+      !number(root.get(),"brightness",brightness) || brightness<1 || brightness>255 ||
+      std::floor(brightness)!=brightness || !number(root.get(),"tempo",s.tempo)) {
+    error(400,"invalid_eye_settings"); return;
+  }
+  if (control_.snapshot().logic.maintenance) { error(409,"maintenance"); return; }
+  s.enabled=cJSON_IsTrue(item(root.get(),"enabled"));
+  s.automatic=cJSON_IsTrue(item(root.get(),"automatic"));
+  s.blink=cJSON_IsTrue(item(root.get(),"blink")); s.swap=cJSON_IsTrue(item(root.get(),"swap"));
+  s.brightness=uint8_t(brightness);
+  if(modern) {
+    uint32_t energy;
+    if(!cJSON_IsString(item(root.get(),"play_mode")) || !cJSON_IsString(item(root.get(),"category")) ||
+       !parseEyePlay(item(root.get(),"play_mode")->valuestring,s.playMode) ||
+       !parseEyeCategory(item(root.get(),"category")->valuestring,s.category) ||
+       !integer(root.get(),"energy",energy) || energy>3 || s.automatic==(s.playMode==EyePlayMode::Manual)) {
+      error(400,"invalid_eye_settings"); return;
+    }
+    s.energy=uint8_t(energy);
+  } else if(!s.automatic) s.playMode=EyePlayMode::Manual;
+  else if(s.playMode==EyePlayMode::Manual) s.playMode=EyePlayMode::Reactive;
+
+  if(oriented) {
+    if(!cJSON_IsBool(item(root.get(),"rotate_left")) || !cJSON_IsBool(item(root.get(),"rotate_right"))) {
+      error(400,"invalid_eye_settings"); return;
+    }
+    s.rotateLeft=cJSON_IsTrue(item(root.get(),"rotate_left"));
+    s.rotateRight=cJSON_IsTrue(item(root.get(),"rotate_right"));
+  }
+  if (!eyes_.configure(s)) { error(400,"invalid_eye_settings"); return; }
+  server_.send(200,"application/json","{\"ok\":true}");
+}
+
+void WebService::eyeCheck() {
+  auto root=parse(server_);
+  if(!fields(root.get(),{"mode","target"}) || !cJSON_IsString(item(root.get(),"mode")) ||
+      !cJSON_IsString(item(root.get(),"target"))) { error(400,"invalid_eye_check"); return; }
+  const String mode=item(root.get(),"mode")->valuestring;
+  const String target=item(root.get(),"target")->valuestring;
+  unsigned m=0; for(;m<6;++m) if(mode==eyeCheckName(static_cast<EyeCheckMode>(m))) break;
+  if(m==6 || (target!="both" && target!="left" && target!="right")) { error(400,"invalid_eye_check"); return; }
+  if(control_.snapshot().logic.maintenance) { error(409,"maintenance"); return; }
+  const auto t=target=="both" ? EyeTarget::Both : target=="left" ? EyeTarget::Left : EyeTarget::Right;
+  if(!eyes_.snapshot().taskReady) { error(503,"eye_bus_unavailable"); return; }
+  eyes_.check(static_cast<EyeCheckMode>(m),t);
+  server_.send(202,"application/json","{\"ok\":true,\"queued\":true}");
+}
+
+void WebService::eyeCatalog() {
+  Json root(cJSON_CreateObject(),cJSON_Delete);
+  auto categories=cJSON_AddArrayToObject(root.get(),"categories");
+  for(unsigned i=0;i<12;++i) {
+    auto c=cJSON_CreateObject(); cJSON_AddItemToArray(categories,c);
+    cJSON_AddStringToObject(c,"id",eyeCategoryId(static_cast<EyeCategory>(i)));
+    cJSON_AddStringToObject(c,"label",eyeCategoryLabel(static_cast<EyeCategory>(i)));
+  }
+  static const char* shapes[]={"solid","happy","heart","focus","sad","star","dollar","spiral","cross","ring","googly","sharingan","rinnegan","cat","fox","snake","toad"};
+  auto presets=cJSON_AddArrayToObject(root.get(),"presets");
+  for(const auto& entry:kEyeCatalog) {
+    auto e=cJSON_CreateObject(); cJSON_AddItemToArray(presets,e);
+    cJSON_AddStringToObject(e,"id",entry.id); cJSON_AddStringToObject(e,"label",entry.label);
+    cJSON_AddStringToObject(e,"category",eyeCategoryId(entry.category));
+    cJSON_AddStringToObject(e,"shape",shapes[static_cast<unsigned>(entry.shape)]);
+    const auto index=static_cast<Expression>(&entry-kEyeCatalog);
+    cJSON_AddStringToObject(e,"family",isBoxEye(index) ? "box" : "special");
+    cJSON_AddNumberToObject(e,"width",entry.width); cJSON_AddNumberToObject(e,"height",entry.height);
+  }
+  char* json=cJSON_PrintUnformatted(root.get());
+  if(!json) { error(503,"allocation_failed"); return; }
+  server_.send(200,"application/json",json); cJSON_free(json);
+}
+
+void WebService::armSettings() {
+  auto root=parse(server_); ArmMotionSettings settings;
+  if(!fields(root.get(),{"speed_dps","acceleration_dps2"}) ||
+     !number(root.get(),"speed_dps",settings.speed) || !number(root.get(),"acceleration_dps2",settings.acceleration) ||
+     !ArmMotionSettings::valid(settings)) { error(400,"invalid_arm_settings");return; }
+  if(!control_.configureArms(settings)) { error(409,"release_control_before_arm_settings");return; }
+  server_.send(200,"application/json","{\"ok\":true}");
 }

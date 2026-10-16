@@ -8,5 +8,6 @@ class App {
   ControlService control_;
   NetworkService network_;
   OtaService ota_;
-  WebService web_{control_, network_, ota_};
+  EyeService eyes_{control_};
+  WebService web_{control_, network_, ota_, eyes_};
 };

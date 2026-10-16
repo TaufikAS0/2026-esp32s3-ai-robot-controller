@@ -61,6 +61,11 @@ bool ControlService::acquire(Owner owner, uint32_t& session) {
   if (!awaitApplied(gen)) { stop("task_unresponsive"); return false; }
   session = id; return true;
 }
+bool ControlService::configureArms(const ArmMotionSettings& settings) {
+  portENTER_CRITICAL(&mux_);
+  const bool ok=logic_.configureArms(settings);
+  portEXIT_CRITICAL(&mux_);return ok;
+}
 bool ControlService::setMode(ControlMode mode) {
   portENTER_CRITICAL(&mux_);
   bool ok = logic_.setMode(mode);

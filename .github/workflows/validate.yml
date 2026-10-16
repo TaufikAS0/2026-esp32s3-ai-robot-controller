@@ -22,6 +22,11 @@ jobs:
           /tmp/test-control
           g++ -std=c++17 -Wall -Wextra -Werror -Itests/fakes tests/test_driver.cpp 02_Firmware/robot_controller/actuator_driver.cpp -o /tmp/test-driver
           /tmp/test-driver
+          g++ -std=c++17 -Wall -Wextra -Werror tests/test_eyes.cpp -o /tmp/test-eyes
+          /tmp/test-eyes
+          python -c "from pathlib import Path; import sys; sys.path.insert(0,'scripts'); from build_metadata import generate; generate(Path('02_Firmware/robot_controller'))"
+          g++ -std=c++17 -Wall -Wextra -Werror -DROBOT_EYE_TEST -Itests/fakes tests/test_eye_service.cpp 02_Firmware/robot_controller/eye_service.cpp -o /tmp/test-eye-service
+          /tmp/test-eye-service
           python -m unittest discover -s tests -p 'test_client.py' -v
           python -m unittest discover -s tests -p 'test_network_policy.py' -v
           python -m unittest discover -s tests -p 'test_build_metadata.py' -v

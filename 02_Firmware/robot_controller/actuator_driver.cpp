@@ -29,8 +29,10 @@ uint32_t ActuatorDriver::servoDuty(float angle) {
 }
 bool ActuatorDriver::write(const Output& out) {
   if (!ready_) return false;
-  const float left = Config::invertLeftMotor ? -out.left : out.left;
-  const float right = Config::invertRightMotor ? -out.right : out.right;
+  const float mappedLeft = Config::swapMotorSides ? out.right : out.left;
+  const float mappedRight = Config::swapMotorSides ? out.left : out.right;
+  const float left = Config::invertLeftMotor ? -mappedLeft : mappedLeft;
+  const float right = Config::invertRightMotor ? -mappedRight : mappedRight;
   bool ok = motor(Config::left1, Config::left2, left);
   ok = motor(Config::right1, Config::right2, right) && ok;
   state_.armLeftPulseAngle = Config::invertLeftArm ? 180 - out.armLeft : out.armLeft;

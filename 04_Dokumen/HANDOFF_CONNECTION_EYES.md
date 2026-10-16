@@ -1,0 +1,63 @@
+# Handoff: exhibition connection stability and eye rendering
+
+Updated 2026-10-16 (UTC+7). This is an **open problem**, not a completed fix.
+
+User confirmed: execute on **the other laptop**, already powered on24/7; do not start a duplicate runner or automation on the laptop publishing this handoff. The Codex on that other laptop must consume this GitHub prompt, verify it can actually reach the robot's lab network, then prepare/run the automation itself. Merely staying powered on does not establish LAN reachability.
+
+## Copy-ready prompt for the next Codex on the testing laptop
+
+Continue this repository on `feature/initial-robot-controller`, PR to `develop`; do not merge or touch `main`. Read `AGENTS.md`, README, API.md, VERIFICATION.md, EYES_DESIGN.md, ARM_MOTION_DESIGN.md and this handoff first. Locate/read the actual firmware vault when available using AGENTS' mandatory sequence; standalone approved lab policies are documented in the repository. Audit current branch, remote, working tree and live firmware identity before changes. Preserve existing work.
+
+The user needs this robot for an exhibition. Implement and verify the following, then push reviewed/tested changes to the feature branch and update its PR. Be explicit about what passed and what remains unknown. Do not claim an exhibition-ready connection from compilation or a few successful requests.
+
+### Non-negotiable actuation scope
+
+- **Do not move the robot's wheels. Every test command must have left=0 and right=0.** Never run the existing moving `example.py`. Add an enforced zero-wheel assertion to the soak runner; no nonzero-wheel scenario or wheel-direction physical test is authorized in this handoff.
+- Servo tests are authorized. Use small, slow movements near the current accepted pose, within configured limits; avoid unsolicited full-travel sweeps. The boot reference is not a measured physical position. Begin with a short supervised setup where possible.
+- User specifically reports disconnections when servo and laser operate. Include laser-only and servo-plus-laser scenarios, keep wheels zero, and end each scenario with laser off. Do not add autonomous aiming or wheel motion.
+- On failure, conflicting owner, maintenance, loss of freshness or cancellation: stop producing commands, attempt stop/release, and leave wheels zero/laser off. Firmware's 500 ms expiry remains mandatory; no reconnect may silently resume the previous motion/laser target.
+- Keep single actuator output ownership, producer freshness, session/sequence validation, both OLED mounting rotations and logical/physical eye swap semantics intact. Do not mask failures by extending the stale-command timeout.
+
+### 1. Diagnose and improve connection stability
+
+Facts: the installed baseline is v0.8.0, build `2026-10-16T12:13:15Z` (19:13:15 UTC+7), last verified at `http://192.168.1.66/`. IP can change; rediscover/verify device identity instead of assuming. Robot is ESP32-S3 N16R8, two SSD1306 displays, SDA8/SCL9; Wire addresses left0x3D/right0x3C. Device MAC last verified `e0:72:a1:fd:0d:88`.
+
+On 2026-10-16, 16 sequential status requests with a 2-second deadline yielded15 successes/1 timeout. Observed latencies in ms:94,1078,94,1969,219,219,31,94,63,79,63,1984,109,2047,94,78 (2047 was the timed-out attempt). A successful status sample reported RSSI-72 dBm, modem sleep disabled, free heap232572, uptime930074 ms, both OLEDs online/errors0, Shinobi Showcase active. User separately reports intermittent disappearance and more trouble while servos/laser run. Raw logs are local ignored artifacts, not shipped source.
+
+These observations establish latency failures, **not** the cause of radio disconnects. Compare idle/OLED disabled/reactive/Sharingan-heavy rendering with actuator/laser cases. Measure before changing code and record RSSI, uptime/reset, reconnect/disconnect reason/count, heap minima, request latency/loss, HTTP concurrency and OLED work duration. Add useful bounded telemetry if missing; avoid heavy per-request flash work or log flooding.
+
+Source review leads, not proven root causes:
+
+- `eye_raster.h` recomputes expensive per-pixel floats/trigonometry; Sharingan computes tomoe positions inside the pixel loop, and radial detection currently invokes atan2 even for shapes that do not use angle. Reduce repeated work, clip raster bounds and precompute per-frame constants, preserving rendering correctness.
+- Eye task is priority1/core0; Wi-Fi also uses core0. Measure budget/overruns and avoid catch-up loops monopolizing CPU. Keep I2C off the actuator task.
+- Dashboard runs status polling, catalog loads and command fetches concurrently against synchronous WebServer. Study the **pinned core3.3.10 implementation**, actual browser traffic and slow clients before blaming keep-alive. Prioritize command freshness without letting queued old commands replay later.
+- Laptop previously had simultaneous Ethernet/Wi-Fi routes in the same subnet; this is a possible test confounder. Record interface/route used, avoid attributing every timeout to firmware, and do not change routers/routes/security without scope.
+- Servo/laser load may reveal a supply/reset problem; that is a hypothesis. A healthy uptime across an outage differs from reboot/brownout. Record reset reason on boot and distinguish confirmed evidence from assumptions. Software cannot prove supply stability.
+
+Lab STA remains HuaweiJIN and AP12345678; authorized source defaults already exist. Open LAN API/OTA is intentional. Preserve NVS migration: update differing lab STA/AP values; remove only apiToken/otaPassword; keep other keys. No arbitrary network/profile/partition changes.
+
+### 2. Fix Kurama and add real Sharingan choices
+
+Kurama/Fox has an identified raster defect: the highlight is unconditionally painted after ellipse/lid clipping in both C++ and JS. It can create a disconnected pixel island above the right lid. Fix the clipping/mirroring coherently in native renderer and preview. Regression-test both eyes across phases, verify no lit pixels outside the intended silhouette, and visually inspect actual native bitmap and browser output. ACK does not prove the physical OLED image.
+
+Sharingan currently has just one3-tomoe preset. Add a tidy separate Sharingan category/subgroup with **visibly different** designs:1/2/3-tomoe and several distinct stylized Mangekyo pinwheel/flower/star variants, for example. Existing sharingan ID stays compatible. Do not merely rename identical thumbnails or vary speed alone. Monochrome128x64 readability matters; compare pairs across animation phases. Keep reactive/playful on the existing rounded-box character; these special eyes belong to explicit Manual/Showcase. Catalog is the source of truth; update validation, Python accepted IDs, previews, thumbnails, native/browser tests and docs together.
+
+### 3. Prepare and actually run an automated 24-hour soak
+
+User explicitly wants the next AI to design its own scenarios and use automation for an all-day test. **Do not claim it ran until an accessible lab laptop actually executes it.** Remote GitHub CI cannot reach this private LAN and is not a substitute for the device soak. If the testing laptop has left the lab, prepare the runner/automation and report blocked device execution honestly; do not hammer guessed IPs all day.
+
+Build a reproducible Python runner with URL/config arguments (no machine-specific paths), scenario seed/config, precise monotonic timing, JSONL/CSV logs, summary percentiles and checkpoints. Enforce the zero-wheel guard before every command. Log version/build identity and network/device uptime for each scenario. Log failures as failures, not discarded retries. A crashed/stalled producer must expire, rather than let a background heartbeat perpetuate stale targets. Do not fight a human/controller session. Provide clean cancellation and final stop/off behavior.
+
+Design a bounded24-hour matrix including idle, reactive OLEDs, heavy Sharingan/Showcase, HTTP/browser-like concurrency, servo-only, laser-only, and combined servo+laser. Include repetition, recovery after request loss and slow-client tests. Test intentional network outages only with an isolated/explicit method; no router reboot or disruptive shared-network changes. OTA interruptions belong in a controlled maintenance scenario, not random unattended flashing. Start with a short smoke run and inspect output before the full soak.
+
+On the actual testing laptop, use its Codex automation capability: prefer a heartbeat attached to its continuation chat, inspecting durable runner progress/checkpoints periodically (for example every30 minutes) and notifying only actionable failures or completion. Launch one durable runner; automation monitors/resumes supervision rather than spawning duplicate24-hour jobs. Keep messages quiet while unchanged. End the soak after24 hours of real execution, summarize complete/partial duration and stop/disable its monitoring schedule. If automation tools are unavailable, state that and provide an explicit local scheduler/launch alternative instead of claiming a schedule exists.
+
+Suggested provisional exhibition target: normal loaded-control p95 response<150 ms and p99<300 ms, no command gap reaching500 ms, no unexpected reboot or stale-target resume, and24 hours without unexplained disconnects. These are targets to assess with the user and evidence, not a guarantee. Report sample counts, worst gaps, scenario durations, failures, retries, disconnect/reboot counts and recovery times; show both percentile and worst-case failures. RF conditions at the exhibition can differ from the lab. Do not call the result universally reliable.
+
+### Delivery and acceptance
+
+Use a new semver for firmware behavior/new presets, generate actual UTC build metadata, run native control/driver/eye/service tests, Python client/expiry/network/identity tests, Chromium dashboard simulations and pinned ESP32-S3 build/size/partition gates. OTA only the app binary when the verified robot is reachable; stop/maintenance/pulses-off first and verify identity plus idle outputs after reboot. Record separate build, simulation, short live test and24-hour soak results. Push feature branch; keep PR to develop unmerged. Update this handoff, changelog and verification report with exact next steps, artifact identity and honest limits.
+
+## Handoff publication status
+
+The current publication ships the previously built/tested v0.8.0 source plus this handoff. **No new firmware fix for the above timeout, Kurama or expanded Sharingan work has been implemented in this publication. No24-hour runner/automation is running as a result of publishing this prompt.** This task must be started on the continuation laptop/chat; creating a GitHub issue does not launch Codex by itself.

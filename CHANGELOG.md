@@ -1,5 +1,40 @@
 # Changelog
 
+## v0.8.0 — 2026-10-16
+
+- Smooth arm reference motion in the existing control task: speed/acceleration limits with braking, retargeting without heartbeat restarts, and stop/timeout hold at the current setpoint. Default45°/s and120°/s²; no jerk-limit or measured-position claim.
+- Add RAM-only /api/v1/arms/settings and web Gentle/Natural/Lively profiles, plus Python set_arm_motion(). Reject settings during an active lease/maintenance. Status exposes settings, requested destinations and reference-moving flag.
+- Correct reported reversed left/right turning centrally by swapping wheel targets before existing channel polarities. Equal-wheel forward/reverse and servo mirroring remain unchanged.
+- Add Sharingan, Rinnegan, cat, fox/Kurama, snake and toad eye styles in a separate Hewan & shinobi category.47 presets total:22 box and25 special. Reactive/Playful remain box-only.
+- Preserve both180-degree OLED mounting defaults, access/Wi-Fi/NVS policy and OTA partitions. Physical motion/appearance and OTA acceptance recorded separately.
+
+
+## v0.7.0 — 2026-10-16
+
+- Keep Reactive/Playful in one rounded-box eye family:22 compatible expressions. Separate19 symbol/cartoon presets in the chooser; Manual and Showcase retain access to all41 IDs. Low-angle hand reaction uses shy box eyes instead of switching to hearts.
+- Replace repeated text icons with rendered two-eye thumbnails, motion captions and hover/focus animation. Main preview now animates continuously instead of holding one-second pose snapshots. Strengthen laughter/giggle/skeptical/thinking/bored and other pose differences.
+- Add independent physical left/right OLED180-degree mounting rotation, separate from logical swap, applied at initialization and runtime, including splash and diagnostics. Both rotation defaults are true for the user's upside-down installation.
+- Extend /eyes to accept12-field settings while preserving7/10-field clients and their existing orientation; add status rotate_left/rotate_right and catalog family metadata. Python accepts optional rotation booleans.
+- No actuator, pin, network, partition or NVS migration change. Eye settings remain volatile; rotation resets to the installation default (both180 degrees) on reboot.
+
+
+## v0.6.0 — 2026-10-16
+
+- Expand to 41 expressions in 10 categories, including separate left/right winks, double/alternating blink, Googly pupils, stars, hearts, spirals, dollars, glitch and comic error/loading styles.
+- Add reactive, playful, showcase and manual animation policies; category rotation and three energy levels. Idle now rotates expressions instead of becoming permanently sleepy.
+- Add firmware-owned GET /api/v1/eyes/catalog; grouped Eye Studio, local draft preview and extended cosmetic settings. Legacy seven-field clients remain accepted.
+- Add queued OLED scan/reinit/white/checker/identity diagnostics; 100 kHz scan of 7-bit addresses8..119, raw expected-address probe codes and five-second test expiry. All I2C stays outside HTTP and actuator tasks.
+- Preserve motor/servo polarity, pins, control sessions, 500 ms timeout, Wi-Fi, open LAN access, partitions and NVS migration. Eyes remain volatile. Build/OTA evidence is recorded separately in VERIFICATION.md.
+
+
+## v0.5.0 — 2026-10-16
+
+- Correct reversed forward/back by flipping both motor driver polarities; forward now uses GPIO12/11, reverse13/10. Logical command signs, ramp and steering stay consistent.
+- Add dual SSD1306 128x64 eyes on SDA8/SCL9, left0x3D/right0x3C, with logical display swap.
+- Add independent eye animation task, seven expressions, motion/arm/laser reactions, natural blink, idle glances/winks/sleepiness, boot version/build identity, missing-display retry and OTA pause.
+- Add Eye Studio preview/settings and POST /api/v1/eyes plus additive eyes status and Python set_eyes(). Cosmetic requests do not renew motor control or producer freshness.
+- Eye settings are volatile; network/access/NVS schema remain unchanged.
+
 ## v0.4.0 — 2026-10-12
 
 - Adapt supplied Stitch design into a bundled responsive dark/cyan dashboard with sidebar navigation, robot banner, control/arm panels, system telemetry, JSON status and OTA.

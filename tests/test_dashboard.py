@@ -33,6 +33,10 @@ class DashboardTests(unittest.TestCase):
         self.reject = False
         self.offline = False
         self.hardware = dict(chip_model="ESP32-S3", cpu_freq_mhz=240, free_heap_bytes=245760, heap_size_bytes=327680, min_free_heap_bytes=220000, psram_size_bytes=8388608, free_psram_bytes=8000000, application_bytes=1050000, ota_slot_bytes=6291456, flash_size_bytes=16777216, wifi_rssi_dbm=-55)
+        self.eye_settings = dict(enabled=True, automatic=True, blink=True, swap=False,
+                                 expression="happy", brightness=160, tempo=1,play_mode="reactive",category="all",energy=2,rotate_left=True,rotate_right=True)
+        self.reject_eyes = False
+        self.reject_checks = False
         self.errors = []
         self.page.on("pageerror", lambda e: self.errors.append(str(e)))
         self.page.route("http://robot/**", self.route)
@@ -69,12 +73,149 @@ class DashboardTests(unittest.TestCase):
         elif path == "/command" and self.reject:
             code = 409
             result = {"error": "session_or_sequence_rejected"}
+        elif path == "/eyes/catalog":
+            result = dict(presets=[{'id': 'neutral', 'label': 'Netral', 'category': 'curious', 'shape': 'solid', 'family': 'box', 'width': 56, 'height': 36}, {'id': 'happy', 'label': 'Senang', 'category': 'happy', 'shape': 'happy', 'family': 'box', 'width': 56, 'height': 24}, {'id': 'curious', 'label': 'Penasaran', 'category': 'curious', 'shape': 'solid', 'family': 'box', 'width': 50, 'height': 40}, {'id': 'sleepy', 'label': 'Mengantuk', 'category': 'rest', 'shape': 'solid', 'family': 'box', 'width': 56, 'height': 12}, {'id': 'angry', 'label': 'Fokus', 'category': 'focus', 'shape': 'focus', 'family': 'box', 'width': 56, 'height': 26}, {'id': 'surprised', 'label': 'Terkejut', 'category': 'surprise', 'shape': 'solid', 'family': 'box', 'width': 46, 'height': 48}, {'id': 'love', 'label': 'Sayang', 'category': 'love', 'shape': 'heart', 'family': 'special', 'width': 54, 'height': 42}, {'id': 'laugh', 'label': 'Tertawa', 'category': 'happy', 'shape': 'happy', 'family': 'box', 'width': 62, 'height': 32}, {'id': 'excited', 'label': 'Antusias', 'category': 'happy', 'shape': 'star', 'family': 'special', 'width': 58, 'height': 46}, {'id': 'giggle', 'label': 'Cekikikan', 'category': 'happy', 'shape': 'happy', 'family': 'box', 'width': 48, 'height': 28}, {'id': 'love_wink', 'label': 'Kedip sayang', 'category': 'love', 'shape': 'heart', 'family': 'special', 'width': 54, 'height': 42}, {'id': 'shy', 'label': 'Malu-malu', 'category': 'love', 'shape': 'solid', 'family': 'box', 'width': 44, 'height': 30}, {'id': 'sparkle', 'label': 'Berbinar', 'category': 'love', 'shape': 'star', 'family': 'special', 'width': 54, 'height': 44}, {'id': 'skeptical', 'label': 'Ragu', 'category': 'curious', 'shape': 'solid', 'family': 'box', 'width': 56, 'height': 28}, {'id': 'side_eye', 'label': 'Melirik diam-diam', 'category': 'curious', 'shape': 'googly', 'family': 'special', 'width': 54, 'height': 34}, {'id': 'thinking', 'label': 'Berpikir', 'category': 'curious', 'shape': 'googly', 'family': 'special', 'width': 52, 'height': 36}, {'id': 'determined', 'label': 'Bertekad', 'category': 'focus', 'shape': 'focus', 'family': 'box', 'width': 64, 'height': 24}, {'id': 'sneaky', 'label': 'Usil', 'category': 'focus', 'shape': 'focus', 'family': 'box', 'width': 58, 'height': 18}, {'id': 'shocked', 'label': 'Kaget besar', 'category': 'surprise', 'shape': 'ring', 'family': 'special', 'width': 52, 'height': 50}, {'id': 'panic', 'label': 'Panik lucu', 'category': 'surprise', 'shape': 'googly', 'family': 'special', 'width': 48, 'height': 46}, {'id': 'dozing', 'label': 'Terlelap', 'category': 'rest', 'shape': 'solid', 'family': 'box', 'width': 58, 'height': 6}, {'id': 'zen', 'label': 'Tenang', 'category': 'rest', 'shape': 'happy', 'family': 'box', 'width': 52, 'height': 16}, {'id': 'bored', 'label': 'Bosan', 'category': 'rest', 'shape': 'solid', 'family': 'box', 'width': 58, 'height': 17}, {'id': 'sad', 'label': 'Sedih', 'category': 'sad', 'shape': 'sad', 'family': 'box', 'width': 52, 'height': 34}, {'id': 'cry', 'label': 'Menangis', 'category': 'sad', 'shape': 'sad', 'family': 'box', 'width': 52, 'height': 34}, {'id': 'pleading', 'label': 'Memohon', 'category': 'sad', 'shape': 'googly', 'family': 'special', 'width': 60, 'height': 46}, {'id': 'wink_left', 'label': 'Kedip kiri', 'category': 'wink', 'shape': 'solid', 'family': 'box', 'width': 56, 'height': 36}, {'id': 'wink_right', 'label': 'Kedip kanan', 'category': 'wink', 'shape': 'solid', 'family': 'box', 'width': 56, 'height': 36}, {'id': 'double_blink', 'label': 'Kedip ganda', 'category': 'wink', 'shape': 'solid', 'family': 'box', 'width': 56, 'height': 36}, {'id': 'alternating', 'label': 'Kedip bergantian', 'category': 'wink', 'shape': 'solid', 'family': 'box', 'width': 56, 'height': 36}, {'id': 'googly', 'label': 'Googly', 'category': 'wild', 'shape': 'googly', 'family': 'special', 'width': 58, 'height': 44}, {'id': 'dizzy', 'label': 'Pusing lucu', 'category': 'wild', 'shape': 'spiral', 'family': 'special', 'width': 56, 'height': 44}, {'id': 'derp', 'label': 'Konyol', 'category': 'wild', 'shape': 'googly', 'family': 'special', 'width': 56, 'height': 40}, {'id': 'chaos', 'label': 'Kacau ceria', 'category': 'wild', 'shape': 'googly', 'family': 'special', 'width': 60, 'height': 44}, {'id': 'spiral', 'label': 'Hipnotis', 'category': 'wild', 'shape': 'spiral', 'family': 'special', 'width': 56, 'height': 46}, {'id': 'party', 'label': 'Pesta', 'category': 'wild', 'shape': 'star', 'family': 'special', 'width': 58, 'height': 46}, {'id': 'stars', 'label': 'Mata bintang', 'category': 'digital', 'shape': 'star', 'family': 'special', 'width': 56, 'height': 48}, {'id': 'dollars', 'label': 'Mata dolar', 'category': 'digital', 'shape': 'dollar', 'family': 'special', 'width': 48, 'height': 46}, {'id': 'loading', 'label': 'Gaya loading', 'category': 'digital', 'shape': 'ring', 'family': 'special', 'width': 50, 'height': 46}, {'id': 'glitch', 'label': 'Glitch', 'category': 'digital', 'shape': 'solid', 'family': 'box', 'width': 60, 'height': 38}, {'id': 'robot_error', 'label': 'Gaya error', 'category': 'digital', 'shape': 'cross', 'family': 'special', 'width': 50, 'height': 44}, {'id': 'sharingan', 'label': 'Sharingan', 'category': 'shinobi', 'shape': 'sharingan', 'family': 'special', 'width': 52, 'height': 50}, {'id': 'rinnegan', 'label': 'Rinnegan', 'category': 'shinobi', 'shape': 'rinnegan', 'family': 'special', 'width': 54, 'height': 50}, {'id': 'cat', 'label': 'Kucing', 'category': 'shinobi', 'shape': 'cat', 'family': 'special', 'width': 58, 'height': 40}, {'id': 'fox', 'label': 'Rubah / Kurama', 'category': 'shinobi', 'shape': 'fox', 'family': 'special', 'width': 62, 'height': 38}, {'id': 'snake', 'label': 'Ular', 'category': 'shinobi', 'shape': 'snake', 'family': 'special', 'width': 60, 'height': 32}, {'id': 'toad', 'label': 'Katak', 'category': 'shinobi', 'shape': 'toad', 'family': 'special', 'width': 60, 'height': 42}],categories=[{'id': 'all', 'label': 'Semua'}, {'id': 'happy', 'label': 'Ceria'}, {'id': 'love', 'label': 'Sayang'}, {'id': 'curious', 'label': 'Penasaran'}, {'id': 'focus', 'label': 'Fokus'}, {'id': 'surprise', 'label': 'Terkejut'}, {'id': 'rest', 'label': 'Santai'}, {'id': 'sad', 'label': 'Sedih'}, {'id': 'wink', 'label': 'Kedip'}, {'id': 'wild', 'label': 'Liar'}, {'id': 'digital', 'label': 'Digital'}, {'id': 'shinobi', 'label': 'Hewan & shinobi'}])
+        elif path == "/arms/settings":
+            result = {"ok":True}
+        elif path == "/eyes/check":
+            code = 503 if self.reject_checks else 202
+            result = {"error": "eye_bus_unavailable"} if self.reject_checks else {"ok": True, "queued": True}
+        elif path == "/eyes":
+            if self.reject_eyes:
+                code = 400
+                result = {"error": "invalid_eye_settings"}
+            else:
+                self.eye_settings = body
+                result = {"ok": True}
         elif path == "/status":
             result = dict(firmware_version=VERSION, build_time_utc="2026-10-12T01:02:03Z", hardware=self.hardware, uptime_ms=112147, sta_connected=True, sta_ssid="HuaweiJIN", mode=self.mode, sta_ip="192.168.1.34", session=self.session, reason="stop", arduino_ota=False,
+                          eyes=dict(**self.eye_settings,task_ready=True,check=dict(mode="animate",target="both",scanned=112,scan_complete=True,found_addresses=[60],left_probe_code=2,right_probe_code=0,remaining_ms=0), active_expression="curious", reaction="turn_left", left_online=True, right_online=False,
+                                    left=dict(x=48,y=32,width=50,height=40),right=dict(x=48,y=32,width=50,height=30)),
                           commanded_output=dict(left=0, right=0, arm_left=90, arm_right=90, laser=False))
         else:
             result = {"ok": True}
         route.fulfill(status=code, content_type="application/json", body=json.dumps(result))
+
+    def test_arm_motion_profile_and_sharingan(self):
+        self.page.get_by_text('Kehalusan gerak tangan',exact=True).click()
+        self.page.locator('#armMotionProfile').select_option('gentle')
+        self.page.locator('#saveArmMotion').click()
+        self.page.wait_for_function("document.getElementById('armMotionMessage').textContent.includes('diterapkan')")
+        self.assertIn(('/arms/settings',{'speed_dps':25,'acceleration_dps2':60}),self.calls)
+        self.page.locator('[data-eye-family="special"]').click()
+        self.page.locator('[data-category="shinobi"]').click()
+        self.page.locator('[data-expression="sharingan"]').click()
+        self.page.wait_for_timeout(150)
+        self.page.locator('#saveEyes').click()
+        self.page.wait_for_function("!eyeBusy&&!eyeDirty")
+        self.assertEqual(self.eye_settings['expression'],'sharingan')
+        self.assertFalse(any(p in ('/command','/control/acquire') for p,_ in self.calls))
+
+    def test_rotation_is_independent_from_swap(self):
+        self.page.locator('#eyeRotateLeft').uncheck()
+        self.page.locator('#eyeRotateRight').check()
+        self.page.locator('#eyeSwap').check()
+        self.page.locator('#saveEyes').click()
+        self.page.wait_for_function("!eyeBusy&&!eyeDirty")
+        self.assertFalse(self.eye_settings['rotate_left'])
+        self.assertTrue(self.eye_settings['rotate_right'])
+        self.assertTrue(self.eye_settings['swap'])
+        self.page.wait_for_timeout(150)
+        self.assertEqual(self.page.locator('#eyeLeftCanvas').evaluate('e=>e.style.transform'),'none')
+        self.assertEqual(self.page.locator('#eyeRightCanvas').evaluate('e=>e.style.transform'),'rotate(180deg)')
+        self.assertFalse(any(p in ('/command','/control/acquire') for p,_ in self.calls))
+
+    def test_families_and_real_thumbnails(self):
+        self.page.wait_for_selector('[data-expression="wink_left"] canvas')
+        happy=self.page.locator('[data-expression="happy"] canvas').evaluate('e=>e.toDataURL()')
+        laugh=self.page.locator('[data-expression="laugh"] canvas').evaluate('e=>e.toDataURL()')
+        self.assertNotEqual(happy,laugh)
+        self.assertEqual(self.page.locator('[data-expression="love"]').count(),0)
+        self.assertGreater(self.page.locator('[data-expression] canvas').count(),20)
+        self.page.locator('[data-eye-family="special"]').click()
+        self.assertEqual(self.page.locator('[data-expression="love"]').count(),1)
+        self.assertEqual(self.page.locator('[data-expression="neutral"]').count(),0)
+        self.page.locator('#eyePlayMode').select_option('reactive')
+        self.assertEqual(self.page.locator('[data-expression="love"]').count(),0)
+        self.assertGreater(self.page.locator('[data-expression="wink_left"] canvas').count(),0)
+
+    def test_catalog_categories_modes_and_winks(self):
+        self.page.wait_for_selector('[data-expression="wink_left"]')
+        self.assertLess(self.page.locator('[data-expression]').count(),41)
+        self.assertGreater(self.page.locator('[data-expression]').count(),20)
+        self.page.locator('[data-category="wink"]').click()
+        self.assertEqual(self.page.locator('[data-expression]').count(),4)
+        self.page.locator('[data-expression="wink_left"]').click()
+        self.page.locator('#saveEyes').click()
+        self.page.wait_for_function("!eyeBusy&&!eyeDirty")
+        self.assertEqual(self.eye_settings['play_mode'],'manual')
+        self.assertFalse(self.eye_settings['automatic'])
+        self.page.locator('#eyePlayMode').select_option('showcase')
+        self.page.locator('#eyeEnergy').fill('3')
+        self.page.locator('#eyeEnergy').dispatch_event('input')
+        self.page.locator('#saveEyes').click()
+        self.page.wait_for_function("!eyeBusy&&!eyeDirty")
+        self.assertEqual(self.eye_settings['category'],'wink')
+        self.assertEqual(self.eye_settings['play_mode'],'showcase')
+        self.assertEqual(self.eye_settings['energy'],3)
+        self.assertFalse(any(p in ('/command','/control/acquire') for p,_ in self.calls))
+
+    def test_oled_check_has_address_results_without_motor_lease(self):
+        self.page.locator('#eyes-panel .eye-diag summary').click()
+        self.assertIn('0x3C',self.page.locator('#eyeCheckResult').inner_text())
+        self.page.locator('#eyeCheckTarget').select_option('left')
+        self.page.locator('[data-eye-check="white"]').click()
+        self.page.wait_for_function("!eyeCheckBusy")
+        self.assertIn(('/eyes/check',{'mode':'white','target':'left'}),self.calls)
+        self.assertFalse(any(p in ('/command','/control/acquire') for p,_ in self.calls))
+
+    def test_oled_check_rejection_retains_controls(self):
+        self.reject_checks = True
+        self.page.locator('#eyes-panel .eye-diag summary').click()
+        self.page.locator('[data-eye-check="scan"]').click()
+        self.page.wait_for_function("document.getElementById('eyeCheckMessage').textContent.includes('Tes gagal')")
+        self.assertIn('eye_bus_unavailable', self.page.locator('#eyeCheckMessage').inner_text())
+        self.assertFalse(self.page.locator('[data-eye-check="scan"]').is_disabled())
+
+    def test_eye_settings_swap_and_no_motor_lease(self):
+        self.page.locator('[data-eye-family="special"]').click()
+        self.page.locator('[data-expression="love"]').click()
+        self.page.locator('#eyeSwap').check()
+        self.page.locator('#eyeBrightness').fill("120")
+        self.page.locator('#eyeBrightness').dispatch_event("input")
+        self.page.locator('#saveEyes').click()
+        self.page.wait_for_function("document.getElementById('eyeMessage').textContent.includes('Diterapkan')")
+        body = [body for path, body in self.calls if path == "/eyes"][-1]
+        self.assertFalse(body["automatic"])
+        self.assertTrue(body["swap"])
+        self.assertEqual(body["expression"], "love")
+        self.assertEqual(body["brightness"], 120)
+        self.assertFalse(any(path in ("/command", "/control/acquire") for path, _ in self.calls))
+
+    def test_eye_draft_survives_poll_and_error(self):
+        self.page.locator('[data-expression="sleepy"]').click()
+        self.page.evaluate("refresh()")
+        self.page.wait_for_timeout(200)
+        self.assertTrue(self.page.locator('[data-expression="sleepy"]').evaluate("e=>e.classList.contains('selected')"))
+        self.reject_eyes = True
+        self.page.locator('#saveEyes').click()
+        self.page.wait_for_function("document.getElementById('eyeMessage').textContent.includes('Gagal')")
+        self.assertTrue(self.page.evaluate("eyeDirty"))
+        self.page.locator('#resetEyes').click()
+        self.assertFalse(self.page.evaluate("eyeDirty"))
+
+    def test_eye_missing_panel_and_mobile_layout(self):
+        self.assertIn("ACK I²C",self.page.locator('#eyeLeftStatus').inner_text())
+        self.assertIn("tidak terdeteksi",self.page.locator('#eyeRightStatus').inner_text())
+        self.page.set_viewport_size({"width":390,"height":844})
+        self.assertTrue(self.page.evaluate("document.documentElement.scrollWidth<=innerWidth"))
+        self.page.locator('[data-eye-family="special"]').click()
+        self.page.locator('[data-expression="love"]').click()
+        self.page.wait_for_timeout(200)
+        self.assertTrue(self.page.locator('#eyeLeftCanvas').evaluate("e=>e.getContext('2d').getImageData(0,0,128,64).data.some(v=>v>0)"))
+        self.page.evaluate("renderEyeStatus(undefined,false)")
+        self.assertTrue(self.page.locator('#saveEyes').is_disabled())
+        self.assertIn("BELUM MENDUKUNG",self.page.locator('#eyeLive').inner_text())
 
     def test_telemetry_values_and_offline_label(self):
         self.assertEqual(self.page.locator("#heapMetric").inner_text(), "240.0 KiB / 320.0 KiB")

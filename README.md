@@ -1,6 +1,17 @@
 # AI Robot Controller
 
-Firmware **v0.4.0** for ESP32-S3 N16R8: two DC motors, two servo hands, and a laser, controlled through a local Indonesian dashboard or HTTP JSON API. A laptop AI can call the included Python client; no AI engine is embedded in this firmware.
+**Open issues / next AI:** read the [exhibition connection and eyes handoff](04_Dokumen/HANDOFF_CONNECTION_EYES.md). v0.8.0 has reported intermittent timeout (especially servo/laser), a Kurama highlight artifact and only one Sharingan design. Those fixes and the requested automated24-hour zero-wheel soak are pending; this is not an exhibition stability certification.
+
+v0.8.0 adds smoother arm setpoints with **Lembut/Natural/Lincah** profiles (default45°/s,120°/s²), corrects reported reversed wheel steering, and expands eyes to47 presets including Sharingan/Rinnegan and animal pupils. See [arm motion design and research](04_Dokumen/ARM_MOTION_DESIGN.md). This controls commanded trajectories; physical smoothness/direction need observation. Stop/timeout cancels arm travel at its current reference. Both OLED180° mounting defaults retained.
+
+
+v0.7.0 keeps **Reactive/Playful as one rounded-box character** and separates22 box presets from19 symbol/cartoon presets. Eye Studio now shows rendered thumbnails and motion notes. **Putar OLED kiri/kanan180°** corrects upside-down mounting independently of swap; both are enabled by default for this robot. Settings remain per boot. Existing7/10-field eye clients still work; new clients can set both rotation booleans.
+
+
+v0.6.0 adds **41 eye expressions / 10 categories**, Reactive/Playful/Showcase/Manual policies, energy selection and separate winks. Open **Mata & kepribadian**, choose category/preset or animation policy, then **Terapkan ke robot**. **Periksa LCD / OLED** provides a full I2C scan and five-second visual tests. The supplied0x78/0x7A write addresses map to Wire0x3C/0x3D; use scanner results rather than assuming both modules have different addresses. See [eye design](04_Dokumen/EYES_DESIGN.md) and [API](04_Dokumen/API.md).
+
+
+Firmware **v0.8.0** for ESP32-S3 N16R8: two DC motors, two servo hands, and a laser, controlled through a local Indonesian dashboard or HTTP JSON API. A laptop AI can call the included Python client; no AI engine is embedded in this firmware.
 
 **No encoder or other feedback:** output status is commanded PWM/angle, never measured motion. Hardware power design and autonomous navigation are outside this version.
 
@@ -43,7 +54,7 @@ arduino-cli upload --fqbn esp32:esp32:esp32s3:FlashSize=16M,PSRAM=opi,PartitionS
 4. On the router, use the assigned device IP. The dashboard connects and retries automatically. Select Manual to use buttons/sliders; pressing an actuator control acquires the manual session automatically. Release stops motion and invalidates the session. Auto is for the laptop engine/API and disables dashboard actuator controls. Changing mode stops output and invalidates the session. Boot mode is Manual.
 5. Servo sliders use 0–180 degrees. Initial commanded angle is 90 degrees on the first complete command; boot itself generates no servo pulses. Servo pulse defaults are 500–2500 microseconds and are centralized in config.h.
 
-Motor sign convention: positive is the configured forward polarity. Left motor polarity is inverted in config.h to match the right wheel on this robot. Positive commands activate GPIO 13 (left) and GPIO 10 (right); negative commands activate GPIO 12 and GPIO 11. There is no speed measurement. PWM is 20 kHz / 10 bits; servo PWM is 50 Hz / 14 bits on separate LEDC timers.
+Motor sign convention: positive is the configured forward polarity. Forward/back was corrected in v0.5.0 by flipping both physical motor polarities: invertLeftMotor=false and invertRightMotor=true. Positive commands activate GPIO 12 (left) and GPIO 11 (right); negative commands activate GPIO 13 and GPIO 10. Logical API signs and differential steering are unchanged. There is no speed measurement. PWM is 20 kHz / 10 bits; servo PWM is 50 Hz / 14 bits on separate LEDC timers.
 
 ## Laptop client
 
@@ -77,6 +88,8 @@ The client heartbeat sends every 100 ms, but a stale producer target expires aft
 ```text
 g++ -std=c++17 -Wall -Wextra -Werror tests/test_control.cpp -o test-control
 ./test-control
+g++ -std=c++17 -Wall -Wextra -Werror tests/test_eyes.cpp -o build/test-eyes
+./build/test-eyes
 python -m unittest discover -s tests -p test_client.py -v
 python -m unittest discover -s tests -p test_network_policy.py -v
 python -m unittest discover -s tests -p test_build_metadata.py -v
@@ -113,3 +126,15 @@ Wi-Fi recovery retries a stalled/disconnected STA attempt every 30 seconds while
 ## Dashboard v0.4.0
 
 The embedded dark/cyan dashboard adapts the supplied Stitch ESP32 web dashboard export. Navigation anchors lead to control, real system telemetry, OTA, Wi-Fi settings and JSON status. All CSS, icons and scripts ship in firmware; no Tailwind CDN or external fonts are required. CPU frequency is configuration, HTTP response time is browser-to-status latency, and memory values come from ESP32 APIs. No CPU-load/temperature/LittleFS sensor data is invented. Status remains HTTP polling every 1 second; actuator command refresh remains 100 ms with the same 500 ms device timeout. The wheels use MX1508 DC drive, not steppers. Available telemetry is separate from unmeasured wheel motion/arm position.
+
+## Dual OLED eyes v0.7.0
+
+Confirmed SSD1306 128x64 on shared I2C: SDA GPIO8, SCL GPIO9. Right address 0x3C, left 0x3D (the supplied 8-bit write addresses 0x78/0x7A shifted right once). Both modules must actually have different hardware addresses; firmware cannot change a fixed-address module. Connect both SDA/SCL lines to the shared bus and common ground; use 3.3 V I2C logic. Eye Studio can swap logical eye images without rewiring.
+
+The dashboard offers reactive/playful/showcase/manual expression modes, 41 presets in 10 categories, brightness, tempo, natural blink and display enable. These eye modes are independent of Manual/Auto motor ownership. Select a preset to preview locally, then **Terapkan ke robot**. Settings are volatile and reset at reboot; NVS is unchanged. Eye settings never acquire/refresh a motor lease. `RobotClient.set_eyes(automatic=False, expression="love", swap=True)` uses the same API without extending producer freshness.
+
+Eyes react to configured forward/reverse, turning, logical arm angles and laser state; idle behavior includes glances, blinks, winks and category-based rotation. They reflect commanded output, not sensed motion. A separate low-priority task owns Wire and SSD1306 framebuffers; I2C failures do not run inside the 10 ms actuator task. Missing displays retry every 5 seconds, fail fast per frame and appear in status. OLEDs show firmware version/build UTC for the first four seconds after boot, then animate. During OTA, eye bus work pauses. Preview is illustrative (1-second pose status and animated local draft), not a physical screen readback.
+
+See [eye design and wiring](04_Dokumen/EYES_DESIGN.md). No additional firmware libraries are required.
+
+The CI also compiles the real EyeService with fake Wire/RTOS boundaries (`tests/test_eye_service.cpp`) to check full 1024-byte panels, image swap, failed-transfer early abort, retry timing, bus init failure and maintenance suppression. Generate build metadata (or run scripts/build.py) before that boundary test; CI generates it explicitly before testing and regenerates it at actual firmware build start. These fakes do not establish physical timing or pixel correctness.
