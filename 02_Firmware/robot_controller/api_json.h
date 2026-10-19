@@ -1,11 +1,22 @@
 #pragma once
 #include <cJSON.h>
 #include <memory>
+#include <initializer_list>
 #include <cmath>
 #include <stdint.h>
 #include <cstring>
 namespace ApiJson {
 using Json=std::unique_ptr<cJSON,decltype(&cJSON_Delete)>;
+inline bool boundedDepth(const char* text,unsigned limit=16) {
+  unsigned depth=0;bool quoted=false,escaped=false;
+  for(const char* p=text;*p;++p) {
+    if(quoted){if(escaped)escaped=false;else if(*p=='\\')escaped=true;else if(*p=='"')quoted=false;}
+    else if(*p=='"')quoted=true;
+    else if(*p=='{'||*p=='['){if(++depth>limit)return false;}
+    else if(*p=='}'||*p==']'){if(!depth)return false;--depth;}
+  }
+  return !depth&&!quoted;
+}
 inline bool fields(cJSON* root,std::initializer_list<const char*> names) {
   if(!cJSON_IsObject(root)||cJSON_GetArraySize(root)!=int(names.size())) return false;
   for(const char* name:names) {

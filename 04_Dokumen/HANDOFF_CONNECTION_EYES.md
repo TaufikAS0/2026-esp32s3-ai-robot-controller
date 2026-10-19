@@ -1,4 +1,28 @@
-# Continuation status — v0.12.0 saved Wi-Fi and failover
+# Continuation status — v0.14.0 editable table demo
+
+v0.14.0 implemented and app-only OTA verified at192.168.1.22, expected
+MACe0:72:a1:fd:0d:88/buildUTC2026-10-19T20:42:42Z (20 October03:42:42 WIB).
+Read DEMO_V014.md and current VERIFICATION entry before continuing. User wants
+table dimensions/reach editable in web and will enter estimates later; fields
+remain blank, no fabricated physical geometry or calibration was persisted.
+Simulation uses private virtual control; real onboard demo requires explicit
+Auto, valid measured configuration/calibration, fresh hand confirmation and Zero.
+Closing browser does not stop real demo. Global Stop remains unconditional;
+demo Stop requires current run_id. Never resume a session/pose after reboot/fault.
+
+90 Python/browser and10 native suites PASS; planner/service sanitizers PASS;
+clean core3.3.10 build/app1,230,672 bytes/source hashes/OTA slots PASS. Live no-motion
+API:35 normal samples/0 failure,p95~62 ms,p99/worst~63 ms; six expected rejection
+cases. Two postboot timeouts before recovery retained. HTTP80/81 demo and read-only
+TCPhello/status work. Live desktop/mobile UI inspected, no POST/JS error/overflow.
+Final checked Manual/unowned, all wheel duties0/laserOFF/pulsesdisabled, demoidle,
+Zeroinvalid and realStartdisabled. No actual actuator command/calibration/demo
+run this delivery. User fills size, establishes safe hand pose/limits, measures
+forward/CW/CCW one-second tests on fenced table, then repositions/Set Zero before
+real Start. Physical drift/containment remain unverified. Old soak stays partial,
+monitor paused, no automatic restart. Build/time is compiler identity, not clock.
+
+## Historical v0.12.0 saved Wi-Fi and failover
 
 Latest source adds scan/5 saved priority profiles/failover and always-active
 recovery AP, under new explicit user policy replacing fixed-SSID-only behavior.

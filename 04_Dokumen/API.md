@@ -1,5 +1,16 @@
 # HTTP API v1
 
+### v0.14.0 onboard demo
+
+[DEMO_V014.md](DEMO_V014.md) defines GET/demo, POST/demo/config, /zero, /start,
+/stop, /calibration/start and /calibration/result. Config/Zero do not move the
+robot; simulation never takes a real lease. Real demo/calibration explicitly use
+Auto with internal transport `demo`; external HTTP/TCP cannot drive/release that
+lease. Existing global Stop and mode/network/OTA cancellation remain. HTTP81
+offers GET/demo and POST/demo/stop; TCPv1 command bodies unchanged. New NVS demoV1
+stores config/gains only. Pose is estimated, not measured; real tests need a
+fenced table, operator-provided geometry and accepted hand calibration.
+
 ### v0.13.0 strongest saved Wi-Fi and clear connection status
 
 [WIFI_V013.md](WIFI_V013.md) supersedes v0.12 stored-order selection. GET/wifi adds

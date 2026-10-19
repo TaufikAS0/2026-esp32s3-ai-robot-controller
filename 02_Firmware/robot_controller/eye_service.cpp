@@ -54,8 +54,12 @@ void EyeService::task(void* argument) {
   TickType_t wake = xTaskGetTickCount();
   for (;;) {
     const uint32_t startedUs=micros();
-    const auto settings = self.snapshot().settings;
+    auto settings = self.snapshot().settings;
     const auto control = self.control_.snapshot();
+    if(control.logic.demoOwned&&control.logic.demoEye) {
+      settings.automatic=false;settings.playMode=EyePlayMode::Manual;
+      settings.expression=control.logic.demoEye==1?Expression::Happy:control.logic.demoEye==2?Expression::WinkLeft:Expression::Curious;
+    }
     const uint32_t now = millis();
     portENTER_CRITICAL(&self.mux_);
     const auto requestId=self.requested_;

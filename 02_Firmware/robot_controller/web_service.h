@@ -4,10 +4,11 @@
 #include "ota_service.h"
 #include "eye_service.h"
 #include "tcp_service.h"
+#include "demo_service.h"
 class WebService {
  public:
-  WebService(ControlService& control, NetworkService& network, OtaService& ota, EyeService& eyes, TcpService& tcp)
-    : control_(control), network_(network), ota_(ota), eyes_(eyes), tcp_(tcp) {}
+  WebService(ControlService& control, NetworkService& network, OtaService& ota, EyeService& eyes, TcpService& tcp,DemoService& demo)
+    : control_(control), network_(network), ota_(ota), eyes_(eyes), tcp_(tcp),demo_(demo) {}
   void begin();
   void update();
  private:
@@ -21,6 +22,7 @@ class WebService {
   OtaService& ota_;
   EyeService& eyes_;
   TcpService& tcp_;
+  DemoService& demo_;
   bool uploadOk_ = false, uploadFailed_ = false, webOta_ = false;
   bool uploadComplete_ = false;
   uint32_t uploadAt_ = 0, restartAt_ = 0;
@@ -40,6 +42,8 @@ class WebService {
   void settings();
   void wifiSettings();
   void wifiAction();
+  void demoStatus();
+  void demoAction();
   void upload();
   void finishUpload();
 };

@@ -13,6 +13,8 @@ void (*callback)(void*) = nullptr;
 void* argument = nullptr;
 bool busReady = true, dataFailure = false, maintenance = false;
 bool changeRotation = false;
+bool demoOwned=false;
+uint8_t demoEye=0;
 int failedAddress = -1, extraAddress = -1;
 uint8_t activeAddress = 0;
 std::vector<uint8_t> packet;
@@ -24,6 +26,7 @@ void reset() {
   fakeWorkMs=0;
   busReady = true; dataFailure = false; maintenance = false; failedAddress = extraAddress = -1;
   changeRotation = false;
+  demoOwned=false;demoEye=0;
   snapshotCalls = 0; transfers.clear(); for (auto& image : images) image.clear();
   output = Output{};
 }
@@ -69,10 +72,16 @@ ControlSnapshot ControlService::snapshot() {
     EyeSettings settings; settings.rotateLeft=false; settings.rotateRight=true;
     static_cast<EyeService*>(argument)->configure(settings);
   }
-  ControlSnapshot s{}; s.logic.output = output; s.logic.maintenance = maintenance; return s;
+  ControlSnapshot s{}; s.logic.output = output; s.logic.maintenance = maintenance;s.logic.demoOwned=demoOwned;s.logic.demoEye=demoEye;return s;
 }
 int main() {
   ControlService control;
+  for(unsigned cue=1;cue<=3;++cue) {
+    reset();demoOwned=true;demoEye=uint8_t(cue);EyeService demo(control);run(demo,2);
+    auto s=demo.snapshot();assert(isBoxEye(s.frame.expression));assert(s.settings.automatic);
+    assert(s.frame.expression==(cue==1?Expression::Happy:cue==2?Expression::WinkLeft:Expression::Curious));
+    demoOwned=false;demoEye=0;run(demo,2);assert(demo.snapshot().settings.automatic);
+  }
   reset();fakeWorkMs=120;
   EyeService overloaded(control);run(overloaded,3);
   assert(overloaded.snapshot().overruns==3);

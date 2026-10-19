@@ -1,6 +1,61 @@
 # Verification evidence
 
-Current source: v0.9.0 (2026-10-16). Device/build evidence is recorded chronologically below; earlier version evidence is historical.
+Current source: v0.14.0 (2026-10-20). Evidence entries carry their own versions; earlier version evidence is historical. See the v0.14.0 entry below for current validation and physical-test limits.
+
+## v0.14.0 editable table demo — 2026-10-20 WIB
+
+- Previous v0.13.0; changes and contract: DEMO_V014.md. User explicitly requested
+  editable dimensions to enter estimates later. Geometry remains unconfigured on
+  the device; do not invent table dimensions, physical hand pose or calibration.
+  Estimates are suitable for simulation, not evidence of physical containment.
+- Mandatory sibling-vault rules read: Firmware_AI_Vault_Home; Workspace naming;
+  Firmware standards; GitHub Gitflow; Wi-Fi credentials; HuaweiJIN profile; Robot
+  lab access; Versioning; Change Notifications. Existing pins, partitions, saved
+  Wi-Fi profiles/access and TCPv1 remain. New NVS robot/demoV1 stores only demo
+  configuration/calibration; no running session/pose/Zero is restored.
+- Local PASS: 90 Python/browser tests, including45 Chromium dashboard tests;
+  10 native C++17 suites with Wall/Wextra/Werror. New planner covers12 seeds x
+  60,000 ticks (720,000 modeled steps, not physical endurance), model bounds,
+  turns, tiny geometry, timer wrap/stall, slow hands and gesture limits. Actual
+  DemoService with fake SDK/real NetworkService covers simulation isolation,
+  calibration IDs/results, bounded trace/JSON, HTTP/TCP replacement ownership,
+  stop phases, OTA/network loss, stale Zero, corrupt storage/reboot and fresh
+  hand confirmation. Planner and service also PASS ASan/UBSan. Eye-service tests
+  verify temporary box-family overlay and restoration of user settings.
+- Clean pinned ESP32-S3 N16R8/core3.3.10 build PASS. Firmware v0.14.0,
+  buildUTC2026-10-19T20:42:42Z =20 October2026 03:42:42 WIB. App1,230,672 bytes;
+  program storage1,230,518; global RAM57,560. Two6,291,456-byte OTA slots verified.
+  App SHA256 `8ba6eae43ff13d9fc538885cb30b57c15637949790beeccb477b4819d98af8a4`.
+  Source-hash gate passed and was rechecked before upload. Intermediate artifacts
+  were superseded, including one source-change gate rejection and one deliberately
+  cancelled build; none was uploaded. Only the final clean artifact was deployed.
+- App-only OTA at192.168.1.22 acknowledged ok/rebooting. Expected
+  MACe0:72:a1:fd:0d:88 and exact new firmware/build verified. Two postboot GET
+  timeouts retained before the third probe recovered; these are reboot recovery
+  probes, not discarded normal-request failures. Wi-Fi profile list unchanged.
+  No owner/session, Manual, wheel duties0, laserOFF, servo pulsesdisabled.
+  Demo task/storage ready; runningfalse, Zeroinvalid, calibrationnotready,
+  can_start_robotfalse. No automatic demo/target resumed.
+- Actual no-motion API PASS:35 normal GET samples,0 normal failures,
+  p95~62 ms,p99/worst~63 ms. Observation uptime16,401→22,168 ms (5.767 s),
+  disconnect_count0/connect_count1, no additional reboot observed. Six expected
+  rejection cases retained: unconfigured real start/calibration, unconfirmed Zero,
+  invalid geometry, injected calibration mask, stale run-ID Stop. No configuration
+  persisted and no acquire/command/actuator request was sent. HTTP80/81 demo/status
+  and TCP9000 hello/status worked. Command/scenario p95/p99 are not applicable:
+  no motion scenario ran. This brief idle sample does not prove sustained latency.
+- Actual read-only Chromium desktop/mobile PASS: exact version, editable blank
+  length/width/reach fields, Startdisabled, no JS error/horizontal overflow/POST.
+  Live mobile screenshot visually inspected; host simulation screenshots also
+  inspected. Evidence remains ignored under build/{ota,live,browser}-v014*.json,
+  tcp-v014-readonly.json and demo-v014-live-*.png; build_manifest.json records hashes.
+- Limitations: no actual wheel calibration, servo/laser movement, real exploration,
+  physical drift measurement or on-device simulated run was performed. Geometry
+  awaits operator entry; simulation/model and fault tests above are host evidence.
+  Operator must measure/calibrate on the fenced table and Set Zero before real
+  Start. No claim of edge detection, physical containment or24-hour stability.
+  Old soak stays failed/partial and its automation paused; no runner restarted.
+
 
 ## v0.3.3 Wi-Fi investigation — 2026-10-09
 

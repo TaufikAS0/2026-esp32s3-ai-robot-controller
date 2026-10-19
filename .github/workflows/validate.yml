@@ -24,6 +24,10 @@ jobs:
           /tmp/test-tcp
           g++ -std=c++17 -Wall -Wextra -Werror -Itests/network_fakes -I/usr/include/cjson tests/test_network.cpp 02_Firmware/robot_controller/network_service.cpp -lcjson -o /tmp/test-network
           /tmp/test-network
+          g++ -std=c++17 -Wall -Wextra -Werror -I/usr/include/cjson tests/test_demo.cpp -lcjson -o /tmp/test-demo
+          /tmp/test-demo
+          g++ -std=c++17 -Wall -Wextra -Werror -DROBOT_DEMO_TEST -Itests/network_fakes -I/usr/include/cjson tests/test_demo_service.cpp 02_Firmware/robot_controller/demo_service.cpp 02_Firmware/robot_controller/network_service.cpp -lcjson -o /tmp/test-demo-service
+          /tmp/test-demo-service
           g++ -std=c++17 -Wall -Wextra -Werror tests/test_control.cpp -o /tmp/test-control
           /tmp/test-control
           g++ -std=c++17 -Wall -Wextra -Werror tests/test_arm_policy.cpp -o /tmp/test-arm-policy

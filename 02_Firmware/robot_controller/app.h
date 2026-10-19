@@ -11,5 +11,6 @@ class App {
   OtaService ota_;
   EyeService eyes_{control_};
   TcpService tcp_{control_,network_};
-  WebService web_{control_, network_, ota_, eyes_, tcp_};
+  DemoService demo_{control_,network_};
+  WebService web_{control_, network_, ota_, eyes_, tcp_,demo_};
 };

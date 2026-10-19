@@ -39,3 +39,11 @@ struct FakeSerial {
 inline FakeSerial Serial;
 struct FakeESP { uint64_t getEfuseMac(){return 0x112233;} };
 inline FakeESP ESP;
+#ifdef ROBOT_DEMO_TEST
+using TickType_t=uint32_t;
+constexpr int pdPASS=1;
+inline uint32_t pdMS_TO_TICKS(uint32_t n){return n;}
+inline TickType_t xTaskGetTickCount(){return fakeNow;}
+inline int xTaskCreatePinnedToCore(void(*)(void*),const char*,uint32_t,void*,int,void*,int){return pdPASS;}
+inline void vTaskDelayUntil(TickType_t*,TickType_t){}
+#endif

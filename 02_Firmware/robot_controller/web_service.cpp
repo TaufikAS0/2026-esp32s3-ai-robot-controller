@@ -43,6 +43,9 @@ void WebService::begin() {
   server_.on("/api/v1/eyes", HTTP_POST, [this]() { eyes(); });
   server_.on("/api/v1/settings", HTTP_POST, [this]() { settings(); });
   server_.on("/api/v1/wifi",HTTP_GET,[this](){wifiSettings();});
+  server_.on("/api/v1/demo",HTTP_GET,[this](){demoStatus();});
+  for(const auto path:{"/api/v1/demo/config","/api/v1/demo/zero","/api/v1/demo/start","/api/v1/demo/stop","/api/v1/demo/calibration/start","/api/v1/demo/calibration/result"})
+    server_.on(path,HTTP_POST,[this](){demoAction();});
   for(const auto path:{"/api/v1/wifi/scan","/api/v1/wifi/save","/api/v1/wifi/delete","/api/v1/wifi/order","/api/v1/wifi/connect"})
     server_.on(path,HTTP_POST,[this](){wifiAction();});
   server_.on("/api/v1/update", HTTP_POST, [this]() { finishUpload(); }, [this]() { upload(); });
@@ -76,7 +79,7 @@ char* WebService::statusJson() {
   cJSON_AddStringToObject(root.get(), "owner", l.owner == Owner::Manual ? "manual" : l.owner == Owner::Program ? "program" : "none");
   cJSON_AddNumberToObject(root.get(), "session", l.session);
   cJSON_AddNumberToObject(root.get(), "sequence", l.lastSequence);
-  cJSON_AddStringToObject(root.get(),"control_transport",l.owner==Owner::None?"none":l.transport?"tcp":"http");
+  cJSON_AddStringToObject(root.get(),"control_transport",l.owner==Owner::None?"none":l.demoOwned?"demo":l.transport?"tcp":"http");
   cJSON_AddStringToObject(root.get(), "reason", l.reason);
   cJSON_AddBoolToObject(root.get(), "maintenance", l.maintenance);
   cJSON_AddBoolToObject(root.get(), "arduino_ota", ota_.enabled);

@@ -17,9 +17,9 @@ void WebService::beginFastControl() {
   config.recv_wait_timeout=1;config.send_wait_timeout=1;config.lru_purge_enable=true;
   if(httpd_start(&fastServer_,&config)!=ESP_OK){fastServer_=nullptr;return;}
   const char* paths[]={"/api/v1/status","/api/v1/command","/api/v1/control/acquire","/api/v1/control/release",
-    "/api/v1/control/mode","/api/v1/stop","/api/v1/arms/settings","/api/v1/arms/policy"};
-  for(unsigned i=0;i<8;++i) {
-    httpd_uri_t route{};route.uri=paths[i];route.method=i==0?HTTP_GET:HTTP_POST;
+    "/api/v1/control/mode","/api/v1/stop","/api/v1/arms/settings","/api/v1/arms/policy","/api/v1/demo","/api/v1/demo/stop"};
+  for(unsigned i=0;i<10;++i) {
+    httpd_uri_t route{};route.uri=paths[i];route.method=i==0||i==8?HTTP_GET:HTTP_POST;
     route.handler=fastControl;route.user_ctx=this;
     if(httpd_register_uri_handler(fastServer_,&route)!=ESP_OK){httpd_stop(fastServer_);fastServer_=nullptr;return;}
     route.method=HTTP_OPTIONS;
@@ -66,7 +66,7 @@ esp_err_t WebService::fastControl(httpd_req_t* req) {
   }
   if(req->method==HTTP_OPTIONS){httpd_resp_set_status(req,"204 No Content");return httpd_resp_send(req,nullptr,0);}
   if(req->method==HTTP_GET) {
-    char* text=self.statusJson();
+    char* text=strcmp(req->uri,"/api/v1/demo")==0?self.demo_.statusJson():self.statusJson();
     if(!text)return fastError(req,500,"out_of_memory");
     const auto result=httpd_resp_sendstr(req,text);cJSON_free(text);return result;
   }
@@ -125,6 +125,10 @@ esp_err_t WebService::fastControl(httpd_req_t* req) {
   } else if(strcmp(path,"/api/v1/arms/policy")==0) {
     code=self.applyArmPolicy(root.get());
     if(code!=200)error=code==400?"invalid_arm_policy":"release_control_and_place_arms_inside_limits";
+  } else if(strcmp(path,"/api/v1/demo/stop")==0) {
+    uint32_t run=0;
+    if(!fields(root.get(),{"run_id"})||!integer(root.get(),"run_id",run)){code=400;error="invalid_demo_run";}
+    else {code=self.demo_.stop(run);if(code!=200)error="demo_run_mismatch";}
   } else if(strcmp(path,"/api/v1/stop")==0) {
     if(!fields(root.get(),{})){code=400;error="invalid_stop";}
     else if(!self.control_.stop("stop")){code=503;error="task_unresponsive";}

@@ -11,6 +11,9 @@ class ControlService {
   bool configureArmPolicy(const ArmPolicy& policy);
   bool command(const Command& command, uint32_t connection = 0);
   bool release(uint32_t session, uint32_t connection = 0);
+  bool acquireDemo(uint32_t& session,uint32_t expectedEpoch);
+  bool commandDemo(const Command& command,uint8_t eye);
+  bool releaseDemo(uint32_t session);
   bool stop(const char* reason, bool disableServo = false);
   bool beginMaintenance();
   bool beginNetworkChange(bool linkLost = false);

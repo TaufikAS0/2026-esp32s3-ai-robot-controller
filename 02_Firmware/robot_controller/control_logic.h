@@ -45,6 +45,9 @@ class ControlLogic {
   Owner owner = Owner::None;
   uint32_t session = 0, lastSequence = 0, lastCommandMs = 0;
   uint32_t transport = 0; // 0 HTTP; nonzero identifies one TCP connection.
+  bool demoOwned=false;
+  uint8_t demoEye=0;
+  uint32_t stopEpoch=0;
   const char* reason = "boot";
   bool maintenance = false, hasCommand = false;
   bool networkBusy = false;
@@ -90,19 +93,25 @@ class ControlLogic {
     owner = requested; session = id; lastCommandMs = now; transport = connection;
     return true;
   }
-  bool command(const Command& c, uint32_t now, uint32_t connection = 0) {
+  bool acquireDemo(uint32_t id,uint32_t now,uint32_t expectedEpoch=UINT32_MAX) {
+    if(expectedEpoch!=UINT32_MAX&&expectedEpoch!=stopEpoch)return false;
+    if(!acquire(Owner::Program,id,now))return false;
+    demoOwned=true;return true;
+  }
+  bool command(const Command& c, uint32_t now, uint32_t connection = 0,bool demo=false) {
     expire(now);
-    if (maintenance || networkBusy || owner == Owner::None || c.session != session || connection != transport ||
+    if (maintenance || networkBusy || owner == Owner::None || demo!=demoOwned || c.session != session || connection != transport ||
         c.sequence <= lastSequence || !valid(c) || !armPolicy.allows(c.armLeft,c.armRight)) return false;
     target = c; lastSequence = c.sequence; lastCommandMs = now; hasCommand = true;
     reason = "running";
     return true;
   }
-  bool release(uint32_t id, uint32_t connection = 0) {
-    if (owner == Owner::None || session != id || transport != connection) return false;
+  bool release(uint32_t id, uint32_t connection = 0,bool demo=false) {
+    if (owner == Owner::None || demo!=demoOwned || session != id || transport != connection) return false;
     stop("released"); return true;
   }
   void stop(const char* why, bool disableServos = false) {
+    ++stopEpoch;demoOwned=false;demoEye=0;
     owner = Owner::None; session = 0; transport = 0; lastSequence = 0; hasCommand = false;
     target.left = target.right = 0; target.laser = false;
     output.left = output.right = 0; output.laser = false;
@@ -133,7 +142,7 @@ class ControlLogic {
     output.left = left_.step(target.left, now);
     output.right = right_.step(target.right, now);
     const float forward=(output.left+output.right)*.5f;
-    dynamicActive=armPolicy.dynamic && target.left*target.right>0 && output.left*output.right>0 && std::fabs(forward)>.02f;
+    dynamicActive=!demoOwned && armPolicy.dynamic && target.left*target.right>0 && output.left*output.right>0 && std::fabs(forward)>.02f;
     float offset=0;
     if(dynamicActive) {
       dynamicPhase_+=dt*6283.1853f/armPolicy.periodMs*(forward>0?1.f:-1.f);

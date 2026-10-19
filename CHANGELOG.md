@@ -1,5 +1,28 @@
 # Changelog
 
+## v0.14.0 — 2026-10-20 WIB
+
+- Previous: v0.13.0 manual/external-engine control, no autonomous bounded-model demo.
+- Changes: shared portable planner for no-output simulation and explicit onboard
+  Auto demo: random goal, turn, forward, brake, stopped hand/box-eye gesture,
+  repeat until Stop. Top-view map, table/robot footprint/clearance, operator Zero,
+  wheel/hand calibration, bounded256-point trace, model/phase/stall cancellation.
+- Add internal demo lease isolation, exclusive config-write gate, max25% PWM,
+  max5 cm/s/30 deg/s modeled speeds, scoped run-ID Stop and existing global Stop.
+  Dynamic hands suppressed only for demo; temporary eyes don't overwrite settings.
+- New HTTP demo APIs and NVS robot/demoV1 for config/calibration. Zero/position/
+  running state never persists; hand confirmation resets at boot. No auto resume.
+- Unchanged: pins/partitions, Wi-Fi profiles/access, TCPv1 wire commands, single
+  GPIO writer and500 ms valid-command expiry. Laser stays off throughout demo.
+- Tests: native planner/service/ownership and eye overlay, Chromium wizard/map/
+  simulation/readiness/Stop/reopen, full regression, sanitizers and pinned build.
+  Exact counts/build identity and actual OTA/bench scope: VERIFICATION.md.
+- Limitations: open-loop ideal estimate, not physical localization or edge
+  detection. Fenced tabletop/operator measurements required for real movement;
+  no claim of physical containment or24-hour endurance.
+- Upgrade: app-only OTA, no unrelated NVS erase. Saved geometry/calibration stays;
+  reboot requires physical hand confirmation and new Zero before real Start.
+
 ## v0.13.0 — 2026-10-19 WIB
 
 - Previous: v0.12.0 attempted saved profiles by stored priority, including absent

@@ -124,3 +124,22 @@ void ControlService::endMaintenance() {
   ++generation_;
   portEXIT_CRITICAL(&mux_);
 }
+bool ControlService::acquireDemo(uint32_t& session,uint32_t expectedEpoch) {
+  uint32_t id;do{id=esp_random();}while(!id);
+  portENTER_CRITICAL(&mux_);
+  const bool ok=logic_.acquireDemo(id,millis(),expectedEpoch);const uint32_t gen=ok?++generation_:generation_;
+  portEXIT_CRITICAL(&mux_);
+  if(!ok)return false;
+  if(!awaitApplied(gen)){releaseDemo(id);return false;}session=id;return true;
+}
+bool ControlService::commandDemo(const Command& c,uint8_t eye) {
+  if(eye>3||c.laser)return false;
+  portENTER_CRITICAL(&mux_);
+  const bool ok=logic_.command(c,millis(),0,true);if(ok)logic_.demoEye=eye;
+  portEXIT_CRITICAL(&mux_);return ok;
+}
+bool ControlService::releaseDemo(uint32_t session) {
+  portENTER_CRITICAL(&mux_);
+  const bool ok=logic_.release(session,0,true);const uint32_t gen=ok?++generation_:generation_;
+  portEXIT_CRITICAL(&mux_);return ok&&awaitApplied(gen);
+}

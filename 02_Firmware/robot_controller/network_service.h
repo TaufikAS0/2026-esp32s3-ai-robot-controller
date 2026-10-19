@@ -24,6 +24,7 @@ class NetworkService {
   uint32_t disconnectCount() const { return disconnectCount_.load(); }
   uint32_t disconnectReason() const { return lastDisconnectReason_.load(); }
   uint32_t connectCount() const { return connectCount_.load(); }
+  bool linkLostPending() const {return linkLost_.load();}
  private:
   enum class Phase { Waiting, Scanning, Connecting, Connected, Pending };
   std::atomic<Phase> phase_{Phase::Waiting};

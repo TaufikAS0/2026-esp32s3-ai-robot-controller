@@ -103,7 +103,7 @@ template<class Control> class TcpProtocol {
     cJSON_AddStringToObject(data,"owner",l.owner==Owner::None?"none":l.owner==Owner::Manual?"manual":"program");
     cJSON_AddNumberToObject(data,"session",l.session);
     cJSON_AddNumberToObject(data,"sequence",l.lastSequence);
-    cJSON_AddStringToObject(data,"control_transport",l.owner==Owner::None?"none":l.transport?"tcp":"http");
+    cJSON_AddStringToObject(data,"control_transport",l.owner==Owner::None?"none":l.demoOwned?"demo":l.transport?"tcp":"http");
     cJSON_AddStringToObject(data,"reason",l.reason);
     cJSON_AddBoolToObject(data,"maintenance",l.maintenance);
     cJSON_AddBoolToObject(data,"network_busy",l.networkBusy);

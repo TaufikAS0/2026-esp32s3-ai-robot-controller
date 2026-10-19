@@ -1,5 +1,14 @@
 # AI Robot Controller
 
+Source **v0.14.0** adds **Demo meja**: an isolated no-output simulation and an
+explicitly started onboard random-walk/gesture mode. Configure table dimensions,
+robot/hand reach and clearance, calibrate wheels/hands, select Auto and Set Zero
+at the physically placed center. Real demo runs until Stop, including when the
+browser closes. The map is ideal open-loop estimation, not measured position or
+edge protection; use a fenced table. No automatic start/resume after reboot/OTA.
+See [demo setup/API](04_Dokumen/DEMO_V014.md) and actual
+[verification](04_Dokumen/VERIFICATION.md). Prior version notes follow as history.
+
 Source **v0.13.0** simplifies Wi-Fi: the top dashboard panel shows the active
 network and live signal, **Cari Wi-Fi → pilih jaringan → password → Simpan &
 sambungkan**, plus Sambung/Hapus for saved networks. Boot/loss/retry select the

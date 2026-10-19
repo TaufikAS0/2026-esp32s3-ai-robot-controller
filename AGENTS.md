@@ -1,5 +1,16 @@
 # AI Robot Controller Rules
 
+v0.14.0 user decision20 October2026 adds onboard random exploration with stopped
+hand/box-eye gestures and isolated simulation. Read04_Dokumen/DEMO_V014.md. The
+user selected ESP32 standalone, until Stop, fenced tabletop and dashboard
+calibration. That authorizes the NEW demo's operator-started calibrated wheel
+tests; previous zero-wheel soak/diagnostics remain zero-wheel and paused. Never
+guess actual table/robot dimensions, physical hand pose or wheel gains. Real
+motion requires explicit Auto, current operator Zero, confirmed hands and measured
+calibration. Clear runtime hand confirmation after reboot. Only the control task
+writes GPIO; demo leases must remain isolated from external HTTP/TCP and never
+resume after stop/fault/network/OTA. Persist only demoV1 config, not running/pose.
+
 v0.13.0 user decision19 October2026 replaces stored-order selection with strongest
 VISIBLE SAVED SSID first at boot/loss/retry. Read04_Dokumen/WIFI_V013.md. Never
 roam/scan a healthy link or connect an unknown SSID.15 s per visible candidate,
