@@ -99,9 +99,24 @@ bool ControlService::release(uint32_t session, uint32_t connection) {
 }
 bool ControlService::beginMaintenance() {
   portENTER_CRITICAL(&mux_);
+  if(logic_.networkBusy) { portEXIT_CRITICAL(&mux_);return false; }
   logic_.beginMaintenance(); uint32_t gen = ++generation_;
   portEXIT_CRITICAL(&mux_);
   return awaitApplied(gen);
+}
+bool ControlService::beginNetworkChange(bool linkLost) {
+  portENTER_CRITICAL(&mux_);
+  const bool ok=logic_.beginNetworkChange(linkLost);
+  const uint32_t gen=ok?++generation_:generation_;
+  portEXIT_CRITICAL(&mux_);
+  if(!ok)return false;
+  if(awaitApplied(gen))return true;
+  endNetworkChange();return false;
+}
+void ControlService::endNetworkChange() {
+  portENTER_CRITICAL(&mux_);
+  logic_.endNetworkChange();++generation_;
+  portEXIT_CRITICAL(&mux_);
 }
 void ControlService::endMaintenance() {
   portENTER_CRITICAL(&mux_);

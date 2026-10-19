@@ -1,4 +1,23 @@
-# Continuation status — v0.11.0 TCP engine integration
+# Continuation status — v0.12.0 saved Wi-Fi and failover
+
+Latest source adds scan/5 saved priority profiles/failover and always-active
+recovery AP, under new explicit user policy replacing fixed-SSID-only behavior.
+Read WIFI_PROFILES_V012.md and latest VERIFICATION. NVS wifiProfilesV1 is now
+authoritative; no boot overwrite of saved credentials. Preserve no-wheel/unknown
+servo pose constraint. Network changes invalidate control, do not resume targets.
+Build/upload/physical failover evidence is reported separately; old soak stays
+partial/paused, no new automation started.
+
+v0.12.0 app OTA subsequently verified over recovery AP192.168.4.1, exact
+buildUTC2026-10-19T12:46:30Z (19:46:30 WIB), app1,199,472 bytes;82 Python/browser
+tests and8 native suites PASS. Initial postboot HTTP check failed until laptop
+re-associated to the same saved AP. Actual scan/CRUD/network guard worked;
+follow-up trace observed temporary-profile attempt -> HuaweiJIN at15.594 s ->
+waiting30.625 s, with8 failed requests retained. Initial live test also timed out;
+all temporary profiles removed, sole original HuaweiJIN restored. No successful
+second-router association claimed. Real UI read-only inspected. Final wheels0,
+laserOFF/pulsesdisabled/no owner; no actuator command sent. See latest VERIFICATION
+for exact failure/recovery evidence and limits. No new soak; old monitor paused.
 
 Latest source adds TCP9000 for an external LAN engine: read TCP_CONTROL_V011.md
 and the latest VERIFICATION entry. JSON lines, explicit Auto/program, one socket,

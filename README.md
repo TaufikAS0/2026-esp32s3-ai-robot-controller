@@ -1,5 +1,15 @@
 # AI Robot Controller
 
+Source **v0.12.0** adds detected Wi-Fi selection, up to5 saved profiles with
+priority/failover, and persistent recovery hotspot. Open **Pengaturan Wi-Fi &
+jaringan cadangan**: scan, save credentials, reorder, then connect when idle.
+The new user decision replaces the fixed-HuaweiJIN-only runtime policy described
+in historical sections below. See [Wi-Fi guide and API](04_Dokumen/WIFI_PROFILES_V012.md)
+and [verification](04_Dokumen/VERIFICATION.md) for build and actual upload state.
+IP can change between networks; old control sessions never resume automatically.
+
+Earlier v0.11.0 behavior:
+
 Source **v0.11.0** adds a LAN **TCP server on port9000** for an external control
 engine. [Protocol and backend guide](04_Dokumen/TCP_CONTROL_V011.md),
 [Python client](04_Dokumen/python/robot_tcp_client.py) and a read-only

@@ -36,3 +36,11 @@ class NetworkPolicyTests(unittest.TestCase):
     def test_old_nvs_station_implementation_is_rejected(self):
         with self.assertRaises(ValueError):
             validate_network_source('apPassword = NetworkDefaults::apPassword; WiFi.begin(ssid.c_str(), password.c_str());')
+
+    def test_old_fixed_only_sta_is_rejected(self):
+        with self.assertRaises(ValueError):
+            validate_network_source('apPassword = NetworkDefaults::apPassword; WiFi.begin(NetworkDefaults::stationSsid, NetworkDefaults::stationPassword);')
+
+    def test_unrelated_nvs_erase_is_rejected(self):
+        source=(pathlib.Path(__file__).resolve().parents[1]/'02_Firmware/robot_controller/network_service.cpp').read_text()
+        with self.assertRaises(ValueError):validate_network_source(source+'\npreferences_.clear();')

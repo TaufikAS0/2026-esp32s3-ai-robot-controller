@@ -42,6 +42,9 @@ void WebService::begin() {
   server_.on("/api/v1/eyes/check", HTTP_POST, [this]() { eyeCheck(); });
   server_.on("/api/v1/eyes", HTTP_POST, [this]() { eyes(); });
   server_.on("/api/v1/settings", HTTP_POST, [this]() { settings(); });
+  server_.on("/api/v1/wifi",HTTP_GET,[this](){wifiSettings();});
+  for(const auto path:{"/api/v1/wifi/scan","/api/v1/wifi/save","/api/v1/wifi/delete","/api/v1/wifi/order","/api/v1/wifi/connect"})
+    server_.on(path,HTTP_POST,[this](){wifiAction();});
   server_.on("/api/v1/update", HTTP_POST, [this]() { finishUpload(); }, [this]() { upload(); });
   server_.onNotFound([this]() { error(404, "not_found"); });
   server_.begin();
@@ -79,7 +82,9 @@ char* WebService::statusJson() {
   cJSON_AddBoolToObject(root.get(), "arduino_ota", ota_.enabled);
   cJSON_AddBoolToObject(root.get(), "wifi_sleep", WiFi.getSleep());
   cJSON_AddBoolToObject(root.get(), "sta_connected", WiFi.status() == WL_CONNECTED);
-  cJSON_AddStringToObject(root.get(), "sta_target_ssid", NetworkDefaults::stationSsid);
+  cJSON_AddStringToObject(root.get(), "sta_target_ssid", network_.targetSsid().c_str());
+  cJSON_AddStringToObject(root.get(),"wifi_state",network_.phaseName());
+  cJSON_AddBoolToObject(root.get(),"network_busy",l.networkBusy);
   cJSON_AddStringToObject(root.get(), "sta_ssid", WiFi.SSID().c_str());
   cJSON_AddStringToObject(root.get(), "sta_ip", WiFi.localIP().toString().c_str());
   cJSON_AddStringToObject(root.get(), "sta_mac", WiFi.macAddress().c_str());
@@ -223,15 +228,15 @@ void WebService::release() {
 void WebService::settings() {
   auto root = parse(server_);
   if (fields(root.get(), {"arduino_ota"}) && cJSON_IsBool(item(root.get(), "arduino_ota"))) {
-    if (webOta_ || ota_.busy) { error(409, "ota_busy"); return; }
+    if (webOta_ || ota_.busy || control_.snapshot().logic.networkBusy) { error(409, "ota_or_network_busy"); return; }
     ota_.setEnabled(cJSON_IsTrue(item(root.get(), "arduino_ota")));
   } else if (fields(root.get(), {"ssid", "password"}) && cJSON_IsString(item(root.get(), "ssid")) &&
              cJSON_IsString(item(root.get(), "password"))) {
-    if (webOta_ || ota_.busy) { error(409, "ota_busy"); return; }
-    if (!control_.stop("wifi_config")) { error(503, "task_unresponsive"); return; }
-    if (!network_.configure(item(root.get(), "ssid")->valuestring, item(root.get(), "password")->valuestring)) {
-      error(400, "invalid_wifi_config"); return;
-    }
+    if (webOta_ || ota_.busy || ota_.enabled) { error(409, "ota_busy"); return; }
+    if(server_.arg("plain").indexOf("\\u0000")>=0){error(400,"invalid_wifi_config");return;}
+    int code=network_.save(item(root.get(),"ssid")->valuestring,item(root.get(),"password")->valuestring);
+    if(code==200)code=network_.connectSaved(item(root.get(),"ssid")->valuestring);
+    if(code>=400){error(code,code==409?"release_control_or_wait_for_network":"invalid_wifi_config_or_storage");return;}
   } else { error(400, "invalid_settings"); return; }
   server_.send(200, "application/json", "{\"ok\":true}");
 }
@@ -241,7 +246,7 @@ void WebService::upload() {
     // A single multipart request must contain exactly one application image.
     if (webOta_) { uploadFailed_ = true; return; }
     uploadOk_ = false; uploadFailed_ = false; uploadComplete_ = false;
-    if (webOta_ || ota_.busy || ota_.enabled || u.name != "firmware") { uploadFailed_ = true; return; }
+    if (webOta_ || ota_.busy || ota_.enabled || control_.snapshot().logic.networkBusy || u.name != "firmware") { uploadFailed_ = true; return; }
     webOta_ = true; uploadAt_ = millis();
     if (!control_.beginMaintenance() || !Update.begin(UPDATE_SIZE_UNKNOWN, U_FLASH)) uploadFailed_ = true;
   } else if (u.status == UPLOAD_FILE_WRITE) {

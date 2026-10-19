@@ -22,6 +22,8 @@ jobs:
           sudo apt-get install -y libcjson-dev
           g++ -std=c++17 -Wall -Wextra -Werror -I/usr/include/cjson tests/test_tcp.cpp -lcjson -o /tmp/test-tcp
           /tmp/test-tcp
+          g++ -std=c++17 -Wall -Wextra -Werror -Itests/network_fakes -I/usr/include/cjson tests/test_network.cpp 02_Firmware/robot_controller/network_service.cpp -lcjson -o /tmp/test-network
+          /tmp/test-network
           g++ -std=c++17 -Wall -Wextra -Werror tests/test_control.cpp -o /tmp/test-control
           /tmp/test-control
           g++ -std=c++17 -Wall -Wextra -Werror tests/test_arm_policy.cpp -o /tmp/test-arm-policy

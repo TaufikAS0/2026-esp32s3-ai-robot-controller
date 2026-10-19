@@ -18,8 +18,13 @@ def validate_network_source(source):
     if re.search(r'secret\(\s*"apPassword"', source):
         raise ValueError("Random AP passwords contradict the mandatory lab policy")
     calls = re.findall(r'WiFi\.begin\s*\(([^;]*)\)\s*;', source)
-    if [re.sub(r'\s+', '', call) for call in calls] != ["NetworkDefaults::stationSsid,NetworkDefaults::stationPassword"]:
-        raise ValueError("STA connection must use the approved lab profile")
+    if [re.sub(r'\s+', '', call) for call in calls] != ["profiles_.entries[index].ssid,profiles_.entries[index].password"]:
+        raise ValueError("STA connection must use a validated saved profile (user-approved v0.12 policy)")
+    for required in ('wifiProfilesV1', 'WifiProfiles::parse', 'NetworkDefaults::stationSsid',
+                     'NetworkDefaults::stationPassword', 'WiFi.setAutoReconnect(false)', 'WiFi.persistent(false)',
+                     'beginNetworkChange', 'WiFi.softAP(apName.c_str(),apPassword.c_str())'):
+        if required not in source:raise ValueError("Saved Wi-Fi policy/migration missing: "+required)
+    if re.search(r'preferences_\.clear\s*\(',source):raise ValueError("Do not erase unrelated NVS")
 
 
 def check(root):
@@ -41,7 +46,7 @@ def check(root):
             if not re.search(r'^' + key + r':\s*' + re.escape(expected) + r'\s*$', profile, re.M):
                 raise ValueError(f"Obsidian lab profile mismatch: {key}")
         print("Read Obsidian: Rules_Kredensial_WiFi.md and WiFi_HuaweiJIN.md")
-    print("Lab network policy PASS: STA HuaweiJIN; AP password 12345678")
+    print("Network policy PASS: HuaweiJIN initial fallback; user-saved profiles authoritative; AP12345678")
 
 
 if __name__ == "__main__":

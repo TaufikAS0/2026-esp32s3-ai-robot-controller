@@ -31,6 +31,9 @@ class DashboardTests(unittest.TestCase):
         self.urls = []
         self.fast_channel = False
         self.drop_status = False
+        self.network_busy=False
+        self.reject_wifi=False
+        self.wifi=dict(storage_ready=True,state='connected',connected=True,current_ssid='HuaweiJIN',target_ssid='HuaweiJIN',sta_ip='192.168.1.22',ap_active=True,ap_ssid='robot-setup',ap_ip='192.168.4.1',scan_state='idle',networks=[],profiles=[dict(ssid='HuaweiJIN',priority=1,secured=True)])
         self.arm_policy=dict(min_left=0,max_left=180,min_right=0,max_right=180,dynamic=False,amplitude_deg=8,period_ms=2400)
         self.session = 0
         self.mode = "manual"
@@ -108,9 +111,24 @@ class DashboardTests(unittest.TestCase):
             else:
                 self.eye_settings = body
                 result = {"ok": True}
+        elif path == '/wifi':
+            result=self.wifi
+        elif path.startswith('/wifi/'):
+            code=409 if self.reject_wifi else 200
+            result=dict(error='release_control_or_wait_for_network') if self.reject_wifi else dict(ok=True)
+            if not self.reject_wifi:
+                if path=='/wifi/scan':
+                    self.wifi['scan_state']='complete'
+                    self.wifi['networks']=[dict(ssid='Backup WiFi',rssi=-48,secured=True),dict(ssid='<img src=x onerror=alert(1)>',rssi=-60,secured=False)]
+                elif path=='/wifi/save':
+                    self.wifi['profiles']=[p for p in self.wifi['profiles'] if p['ssid']!=body['ssid']]+[dict(ssid=body['ssid'],priority=2,secured=bool(body['password']))]
+                elif path=='/wifi/order':
+                    self.wifi['profiles']=sorted(self.wifi['profiles'],key=lambda p:body['ssids'].index(p['ssid']))
+                elif path=='/wifi/delete':
+                    self.wifi['profiles']=[p for p in self.wifi['profiles'] if p['ssid']!=body['ssid']]
         elif path == "/status":
             result = dict(firmware_version=VERSION, build_time_utc="2026-10-12T01:02:03Z", hardware=self.hardware, uptime_ms=112147, sta_connected=True, sta_ssid="HuaweiJIN", mode=self.mode, sta_ip="192.168.1.34", session=self.session, reason="stop", arduino_ota=False,
-                          control_channel=dict(ready=self.fast_channel,port=81),arm_motion=dict(speed_dps=60,acceleration_dps2=240,**self.arm_policy),
+                          network_busy=self.network_busy,control_channel=dict(ready=self.fast_channel,port=81),arm_motion=dict(speed_dps=60,acceleration_dps2=240,**self.arm_policy),
                           eyes=dict(**self.eye_settings,task_ready=True,check=dict(mode="animate",target="both",scanned=112,scan_complete=True,found_addresses=[60],left_probe_code=2,right_probe_code=0,remaining_ms=0), active_expression="curious", reaction="turn_left", left_online=True, right_online=False,
                                     left=dict(x=48,y=32,width=50,height=40),right=dict(x=48,y=32,width=50,height=30)),
                           commanded_output=dict(left=0, right=0, arm_left=90, arm_right=90, laser=False))
@@ -343,6 +361,62 @@ class DashboardTests(unittest.TestCase):
         self.assertFalse(self.page.locator('script[src],link[href^="http"],img[src^="http"]').count())
         self.assertNotIn("WebSockets", HTML)
         self.assertNotIn("ESP32-WROOM", HTML)
+
+    def test_wifi_scan_select_save_password_not_displayed(self):
+        self.page.locator('#wifiNav').click()
+        self.page.locator('#scanWifi').click()
+        self.page.wait_for_function("document.querySelectorAll('#wifiDetected option').length===3")
+        self.page.locator('#wifiDetected').select_option(label='Backup WiFi · -48 dBm · terkunci')
+        self.assertEqual(self.page.locator('#ssid').input_value(),'Backup WiFi')
+        self.page.locator('#wifiPassword').fill('private-test-pass')
+        self.page.locator('#saveWifi').click()
+        self.page.wait_for_function("document.querySelector('#wifiProfiles').textContent.includes('Backup WiFi')")
+        self.assertIn(('/wifi/save',dict(ssid='Backup WiFi',password='private-test-pass')),self.calls)
+        self.assertEqual(self.page.locator('#wifiPassword').input_value(),'')
+        self.assertNotIn('private-test-pass',self.page.locator('#wifi-settings').inner_text())
+        self.assertFalse(any(path in ('/command','/control/acquire','/stop') for path,_ in self.calls))
+        self.assertFalse(self.page.locator('#wifi-settings img').count())
+
+    def test_wifi_priority_connect_and_delete(self):
+        self.wifi['profiles'].append(dict(ssid='Backup',priority=2,secured=True))
+        self.page.locator('#wifiNav').click()
+        self.page.wait_for_function("document.querySelectorAll('#wifiProfiles button').length===8")
+        self.page.locator('#wifiProfiles').get_by_text('Naik',exact=True).nth(1).click()
+        self.page.wait_for_function("document.querySelector('#wifiProfiles p').textContent.includes('Backup')")
+        self.assertIn(('/wifi/order',dict(ssids=['Backup','HuaweiJIN'])),self.calls)
+        self.page.locator('#wifiProfiles').get_by_text('Sambung',exact=True).first.click()
+        self.page.wait_for_function('!wifiBusy')
+        self.assertIn(('/wifi/connect',dict(ssid='Backup')),self.calls)
+        self.page.on('dialog',lambda dialog:dialog.accept())
+        self.page.locator('#wifiProfiles').get_by_text('Hapus',exact=True).first.click()
+        self.page.wait_for_function("!document.querySelector('#wifiProfiles').textContent.includes('Backup')")
+        self.assertIn(('/wifi/delete',dict(ssid='Backup')),self.calls)
+
+    def test_wifi_rejected_owner_does_not_global_stop(self):
+        self.reject_wifi=True
+        self.page.locator('#wifiNav').click()
+        self.page.locator('#scanWifi').click()
+        self.page.wait_for_function("document.querySelector('#wifiMessage').textContent.includes('release_control_or_wait_for_network')")
+        self.assertFalse(any(path=='/stop' for path,_ in self.calls))
+
+    def test_wifi_blank_password_requires_explicit_open_and_mobile_layout(self):
+        self.page.set_viewport_size(dict(width=390,height=1100))
+        self.page.locator('#wifiNav').click()
+        self.page.locator('#ssid').fill('Open WiFi')
+        self.page.locator('#saveWifi').click()
+        self.assertFalse(any(path=='/wifi/save' for path,_ in self.calls))
+        self.page.locator('#wifiOpen').check()
+        self.page.locator('#saveWifi').click()
+        self.page.wait_for_function('!wifiBusy')
+        self.assertIn(('/wifi/save',dict(ssid='Open WiFi',password='')),self.calls)
+        self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth<=innerWidth'))
+
+    def test_network_busy_disables_actuators(self):
+        self.network_busy=True
+        self.page.evaluate('refresh()')
+        self.page.wait_for_function('networkBusy')
+        self.assertTrue(self.page.locator('#armLeft').is_disabled())
+        self.assertTrue(self.page.locator('[data-drive=forward]').is_disabled())
 
     def test_missing_telemetry_is_not_fabricated(self):
         self.hardware = {}

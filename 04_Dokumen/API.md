@@ -1,5 +1,16 @@
 # HTTP API v1
 
+### v0.12.0 saved Wi-Fi profiles
+
+[WIFI_PROFILES_V012.md](WIFI_PROFILES_V012.md) defines GET/wifi and POST
+/wifi/scan, /wifi/save, /wifi/delete, /wifi/order, /wifi/connect on port80.
+User-approved saved SSIDs replace fixed-SSID-only configuration; existing legacy
+POST/settings {ssid,password} now saves/connects any valid profile while idle.
+New NVS wifiProfilesV1 preserves user list across boot. HTTP status adds
+network_busy/wifi_state and reports actual targetSSID; TCP status adds network_busy.
+Scan/config/failover invalidate stale control and gate acquire/command; no secret
+profile password returned. The old fixed-profile descriptions below are historical.
+
 ### v0.11.0 TCP control
 
 See [TCP_CONTROL_V011.md](TCP_CONTROL_V011.md) for TCP9000 JSON-lines protocol,

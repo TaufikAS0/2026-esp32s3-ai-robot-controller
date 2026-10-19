@@ -13,6 +13,8 @@ class ControlService {
   bool release(uint32_t session, uint32_t connection = 0);
   bool stop(const char* reason, bool disableServo = false);
   bool beginMaintenance();
+  bool beginNetworkChange(bool linkLost = false);
+  void endNetworkChange();
   void endMaintenance();
   ControlSnapshot snapshot();
  private:

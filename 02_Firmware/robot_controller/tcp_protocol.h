@@ -106,6 +106,7 @@ template<class Control> class TcpProtocol {
     cJSON_AddStringToObject(data,"control_transport",l.owner==Owner::None?"none":l.transport?"tcp":"http");
     cJSON_AddStringToObject(data,"reason",l.reason);
     cJSON_AddBoolToObject(data,"maintenance",l.maintenance);
+    cJSON_AddBoolToObject(data,"network_busy",l.networkBusy);
     auto out=cJSON_AddObjectToObject(data,"commanded_output");
     cJSON_AddNumberToObject(out,"left",l.output.left);cJSON_AddNumberToObject(out,"right",l.output.right);
     cJSON_AddNumberToObject(out,"arm_left",l.output.armLeft);cJSON_AddNumberToObject(out,"arm_right",l.output.armRight);

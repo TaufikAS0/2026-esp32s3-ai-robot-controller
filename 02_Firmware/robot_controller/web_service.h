@@ -38,6 +38,8 @@ class WebService {
   void command();
   void release();
   void settings();
+  void wifiSettings();
+  void wifiAction();
   void upload();
   void finishUpload();
 };

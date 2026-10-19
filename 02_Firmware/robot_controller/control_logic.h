@@ -47,6 +47,7 @@ class ControlLogic {
   uint32_t transport = 0; // 0 HTTP; nonzero identifies one TCP connection.
   const char* reason = "boot";
   bool maintenance = false, hasCommand = false;
+  bool networkBusy = false;
   Output output;
   Command target;
   ArmMotionSettings armSettings;
@@ -54,12 +55,12 @@ class ControlLogic {
   float effectiveArmLeft=90,effectiveArmRight=90;
   bool dynamicActive=false;
   bool configureArmPolicy(const ArmPolicy& p) {
-    if(maintenance || owner!=Owner::None || !ArmPolicy::valid(p) ||
+    if(maintenance || networkBusy || owner!=Owner::None || !ArmPolicy::valid(p) ||
        (output.servoEnabled && !p.allows(output.armLeft,output.armRight))) return false;
     armPolicy=p;dynamicPhase_=0;return true;
   }
   bool configureArms(const ArmMotionSettings& s) {
-    if(maintenance || !ArmMotionSettings::valid(s) || owner!=Owner::None) return false;
+    if(maintenance || networkBusy || !ArmMotionSettings::valid(s) || owner!=Owner::None) return false;
     armSettings=s; return true;
   }
 
@@ -74,13 +75,13 @@ class ControlLogic {
       stop("timeout");
   }
   bool setMode(ControlMode requested, bool idleOnly = false) {
-    if (maintenance || (idleOnly && owner != Owner::None)) return false;
+    if (maintenance || networkBusy || (idleOnly && owner != Owner::None)) return false;
     if (mode != requested) { stop("mode_changed"); mode = requested; }
     return true;
   }
   bool acquire(Owner requested, uint32_t id, uint32_t now, uint32_t connection = 0) {
     expire(now);
-    if (maintenance || !id || requested == Owner::None ||
+    if (maintenance || networkBusy || !id || requested == Owner::None ||
         (mode == ControlMode::Manual && requested != Owner::Manual) ||
         (mode == ControlMode::Auto && requested != Owner::Program)) return false;
     if (owner != Owner::None && !(owner == Owner::Program && requested == Owner::Manual))
@@ -91,7 +92,7 @@ class ControlLogic {
   }
   bool command(const Command& c, uint32_t now, uint32_t connection = 0) {
     expire(now);
-    if (maintenance || owner == Owner::None || c.session != session || connection != transport ||
+    if (maintenance || networkBusy || owner == Owner::None || c.session != session || connection != transport ||
         c.sequence <= lastSequence || !valid(c) || !armPolicy.allows(c.armLeft,c.armRight)) return false;
     target = c; lastSequence = c.sequence; lastCommandMs = now; hasCommand = true;
     reason = "running";
@@ -112,6 +113,11 @@ class ControlLogic {
     effectiveArmLeft=output.armLeft;effectiveArmRight=output.armRight;
   }
   void beginMaintenance() { maintenance = true; stop("ota", true); }
+  bool beginNetworkChange(bool linkLost = false) {
+    if (maintenance || networkBusy || (!linkLost && owner != Owner::None)) return false;
+    networkBusy = true; stop(linkLost ? "wifi_disconnected" : "wifi_change"); return true;
+  }
+  void endNetworkChange() { if(networkBusy) { networkBusy=false; stop("wifi_ready"); } }
   void endMaintenance() { maintenance = false; stop("ota_finished", true); }
   void tick(uint32_t now) {
     const float dt=lastTick_ ? std::fmin(float(uint32_t(now-lastTick_)),float(Config::tickMs))*.001f : Config::tickMs*.001f;

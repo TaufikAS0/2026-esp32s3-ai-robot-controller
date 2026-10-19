@@ -6,7 +6,7 @@ void App::begin() {
   Serial.println(String("Build UTC: ") + kFirmwareBuildUtc);
   if (!control_.begin()) Serial.println("Actuator initialization failed; control locked");
   if (!eyes_.begin()) Serial.println("Eye task initialization failed; motor control unaffected");
-  network_.begin(); ota_.begin(control_, network_); web_.begin();
+  network_.begin(control_); ota_.begin(control_, network_); web_.begin();
   if(!tcp_.begin())Serial.println("TCP control server unavailable");
 }
-void App::update() { network_.update(); web_.update(); ota_.update(); }
+void App::update() { network_.update(ota_.enabled || ota_.busy); web_.update(); ota_.update(); }

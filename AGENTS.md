@@ -1,5 +1,14 @@
 # AI Robot Controller Rules
 
+v0.12.0 user decision19 October2026 supersedes the fixed-SSID-only rules below:
+read04_Dokumen/WIFI_PROFILES_V012.md. Up to5 user-saved ordered profiles in
+robot/wifiProfilesV1 are authoritative after one-time legacy/default migration;
+never overwrite them at boot with HuaweiJIN. Lab defaults remain first-install
+fallback, AP12345678 stays, open-access unchanged. Scan/manual config only idle;
+network_busy must atomically gate HTTP/TCP acquisition/commands and OTA. Lost
+STA invalidates control; no automatic target/session resumption. No Wi-Fi
+passwords in status/logs/Git; no NVS clear. Pin/partition mapping stays unchanged.
+
 v0.11.0 adds TCP9000: read04_Dokumen/TCP_CONTROL_V011.md. Sessions are bound to
 the socket generation and cannot be driven/released through HTTP. Keep explicit
 Auto,500 ms valid-command expiry, bounded framing/send deadlines and no command
@@ -25,7 +34,7 @@ Current eyes work v0.7.0: read 04_Dokumen/EYES_DESIGN.md and latest VERIFICATION
 
 - Read README and 04_Dokumen/API.md before changing control behavior.
 - Before planning, connectivity changes, build/upload, read the sibling vault's 01_Rules/Rules_Kredensial_WiFi.md and 04_Profiles/WiFi/WiFi_HuaweiJIN.md. Locate the vault if checkout is elsewhere; never infer network defaults from legacy baselines. Report the rule files read.
-- Internal lab policy: STA HuaweiJIN, AP password 12345678. Centralized source lab defaults are explicitly authorized; migrate old STA/AP NVS values preserving unrelated keys; the approved open-access migration removes only obsolete apiToken/otaPassword keys. The build's network-policy check must pass.
+- Current lab policy: HuaweiJIN is the initial fallback; user profiles may select other SSIDs under the v0.12.0 decision above. AP password12345678 unchanged. Preserve unrelated keys; remove only obsolete apiToken/otaPassword auth keys. The updated build network-policy check must pass.
 - Arduino-ESP32 core 3.3.10; generic ESP32-S3 N16R8. Build with scripts/build.py.
 - Maintain thin sketch, separate modules, and a single firmware_version.h version source.
 - Only the 10 ms control task initializes/writes actuator GPIO and LEDC.

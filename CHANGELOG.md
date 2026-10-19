@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.12.0 — 2026-10-19 WIB
+
+- User-approved replacement of fixed-SSID-only policy: asynchronous SSID scan,
+  five ordered saved profiles, manual connect/update/delete/reorder, automatic
+  15-second attempts and30-second cycle cooldown. Stay on a healthy connection.
+- Keep recovery AP active from boot; add authoritative NVS wifiProfilesV1 with
+  one-time legacy/default import, atomic save and no unrelated key erase. Never
+  return profile passwords. New operator credentials are not placed in source.
+- Add idle-only network reservation, stop/invalidate on link loss and gate new
+  HTTP/TCP commands/acquisition plus OTA while transitioning. Servo reference
+  holds, wheels/laser stop; no stale session/target resume. HTTP80 Wi-Fi APIs and
+  dashboard scan/save/priority/connect controls; add network_busy/status phase.
+- Keep pins/partitions, TCPv1 commands and open lab access. New NVS schema and
+  persistent AP/profile behavior are documented in WIFI_PROFILES_V012.md.
+- Add tests of actual network service using fake Wi-Fi/NVS, updated policy gate,
+  and browser configuration/error/mobile behavior. Build/OTA/real failover
+  evidence is recorded separately in VERIFICATION; host tests are not router tests.
+
 ## v0.11.0 — 2026-10-19 WIB
 
 - Add open-LAN TCP9000 JSON-lines v1 server for an external engine: hello/status,

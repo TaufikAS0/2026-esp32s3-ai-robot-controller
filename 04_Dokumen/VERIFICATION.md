@@ -414,3 +414,88 @@ no observed reboot/Wi-Fi disconnect. No physical motion/laser-on test, command
 latency/gap measurement, real ML-engine integration or24-hour stability claim.
 Active-command OTA/expiry/laser shutdown and wheel dynamics are simulation
 evidence only. Old soak monitor status re-read as PAUSED; no runner restarted.
+
+## v0.12.0 saved Wi-Fi profiles — 2026-10-19 WIB
+
+User explicitly requested detected-SSID selection, persistent backup profiles and
+automatic switching like a laptop. This supersedes the old fixed-HuaweiJIN-only
+runtime restriction; HuaweiJIN remains initial fallback. Read repository AGENTS,
+handoff/latest verification and actual vault home/folder/firmware/Gitflow,
+Rules_Kredensial_WiFi, WiFi_HuaweiJIN, Rules_Akses_Robot_Lab, Rules_Versioning and
+Rules_Change_Notifications. Updated local policy gate/AGENTS/docs for this explicit
+exception; no other repository/vault policy changed. AP12345678 and open access
+stay, pins/partitions stay. New NVS robot/wifiProfilesV1 imports legacy once then
+preserves user profiles, including empty list. No unrelated key erase or returned
+profile passwords. Wi-Fi SDK persistence is disabled before init to avoid flash
+rewrites on every attempt; Preferences still stores profiles explicitly.
+
+Behavior/API/migration contract: WIFI_PROFILES_V012.md.5 profiles, ordered fallback,
+15 s attempts/30 s cycle cooldown, no healthy roaming, async manual scan and
+always-active recovery AP. Main-task Wi-Fi mutations atomically reserve idle
+control, stop/invalidate at link loss, gate acquire/command/OTA, preserve servo
+hold and never resume stale targets. Manual operations refuse a foreign owner.
+Same TCPv1 command contract, additive network_busy; HTTP80 profile routes and
+dashboard scan/save/connect/delete/up/down. Shared radio can stall AP access.
+
+Software PASS:82 Python/browser tests (37 Chromium,13 HTTP client,11 TCP client,
+9 policy,2 identity,10 soak) and8 GCC C++17/Wall/Wextra/Werror native suites.
+Actual network_service.cpp compiled with fake Wi-Fi/NVS/control adapter verifies
+default/legacy/profile persistence, save without reconnect, secret redaction,
+owner rejection/acquire gating, manual preferred profile then remaining priorities,
+15/30 s timing, no healthy roaming, link-loss cancellation/no target resume,
+OTA retry suppression, scan completion/deadline, empty-list AP-only boot, invalid
+NVS preservation, failed-write atomicity, max5/type/range/UTF-8, escaped credentials
+roundtrip, reorder/delete and millis wrap. Network suite also PASS ASan/UBSan.
+Existing TCP/control/driver/eye suites passed; dynamic/wheel motion stays simulation.
+Mock desktop/mobile Wi-Fi panel visually inspected, no horizontal overflow.
+
+Final pinned core3.3.10 ESP32-S3 N16R8 incremental build PASS: v0.12.0,
+buildUTC2026-10-19T12:46:30Z =2026-10-19 19:46:30 WIB. App1,199,472 bytes;
+program1,199,326, staticRAM54,952; emitted two6,291,456-byte OTA slots verified.
+SHA25615a337a671bd974ef1c29c7f1471e6f3e1a20c383f76bcea7e3977afdc4447fb.
+Manifest clean_build=false; source hashes passed and were rechecked before OTA.
+Earlier build was rejected by source-mutation gate after the SDK persistence fix;
+that superseded artifact was not uploaded.
+
+Device initially unreachable at last STA IP192.168.1.22. User then confirmed robot
+hotspot/access192.168.4.1. Pre-OTA matched v0.11.0/buildUTC2026-10-19T03:04:54Z,
+MACe0:72:a1:fd:0d:88, no owner/session, wheels0/laserOFF/pulsesdisabled, no OTA
+busy. App-only upload acknowledged ok/rebooting. Initial30-attempt postboot check
+FAILED: Windows showed association but ARP unresolved/no HTTP response. Disconnect
+and reconnect the same saved robot AP profile restored access; no router/route/
+firewall change, no second flash. Recovery readback matched exact v0.12.0/build/MAC,
+Manual/unowned, zero wheel duties, laserOFF/pulsesdisabled, HTTP81/TCPready,
+AP192.168.4.1 and storage_ready with migrated HuaweiJIN profile. Preserve this
+initial verification failure in ignored build/ota-v012-result.json rather than
+calling the first postboot loop a pass.
+
+Actual AP-only Wi-Fi API test PARTIAL with failures retained. GET profiles and
+async scan worked (7 deduplicated SSIDs returned); invalid password/order400 and
+network-busy acquire409 verified. Temporary absent SSID profile was saved/reordered/
+connect queued, but a fallback poll timed out after2 s and initial cleanup poll
+also timed out. API later recovered; temporary profile explicitly removed and
+original sole HuaweiJIN profile restored. No new actual user credentials supplied,
+no healthy STA connection forced down. Evidence:build/live-wifi-v012-result.json.
+
+One follow-up trace retained all8 failed requests and observed target/state
+transitions: temporary profile connecting at elapsed3.313 s, HuaweiJIN connecting
+at15.594 s, waiting at30.625 s. This establishes actual profile attempt failover
+and cooldown entry, not successful association to a second working router or
+uninterrupted AP service. Cleanup succeeded; original sole HuaweiJIN profile
+restored. Final snapshot uptime333572 ms, Manual/owner none, network_busyfalse,
+wheels0/laserOFF/pulsesdisabled; no commands sent. All observed reconnect counter
+changes include intentional attempts, not evidence of independent RF outages.
+Evidence:build/trace-wifi-v012-result.json. No failures discarded as retries.
+
+Actual dashboard read-only Chromium desktop/mobile inspection PASS: versionv0.12.0,
+profile list/scan results shown, blank password input, editableSSID, no JS errors,
+no horizontal overflow, no POST requests. Evidence:build/browser-wifi-v012-live.json
+andwifi-v012-live-{desktop,mobile}.png. Final output evidence is software/PWM,
+not physical position. User's unknown-pose/no-actuator constraint maintained;
+no wheel/servo/laser activation, shared-network/router disruption or new soak.
+
+Limitations: successful automatic roaming between two credentialed routers and
+reboot persistence of new user profiles remain host-simulation evidence only.
+AP requests can fail during association/scan; AP active does not mean zero radio
+interruption. This feature does not fix or certify TCP200 ms telemetry timeout,
+power stability, mechanical behavior, real backend integration or24-hour soak.
