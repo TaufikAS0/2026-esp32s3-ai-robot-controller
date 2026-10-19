@@ -131,3 +131,82 @@ Use a new semver for firmware behavior/new presets, generate actual UTC build me
 ## Handoff publication status
 
 The current publication ships the previously built/tested v0.8.0 source plus this handoff. **No new firmware fix for the above timeout, Kurama or expanded Sharingan work has been implemented in this publication. No24-hour runner/automation is running as a result of publishing this prompt.** This task must be started on the continuation laptop/chat; creating a GitHub issue does not launch Codex by itself.
+
+
+## v0.13.0 strongest saved Wi-Fi and simple dashboard — 2026-10-19 WIB
+
+Previous: v0.12.0. User explicitly replaced manual priority ordering with strongest
+detected saved SSID first, fallback on failure, visible active Wi-Fi/signal and
+simple save/connect/delete UI. Read current AGENTS/README/API/handoff/verification
+and actual sibling vault home, folder, firmware, Gitflow, Rules_Kredensial_WiFi,
+WiFi_HuaweiJIN, Rules_Akses_Robot_Lab, Rules_Versioning, Rules_Change_Notifications.
+See WIFI_V013.md for the current contract; v0.12 ordered-attempt notes are history.
+
+Changes: asynchronous scan at boot/loss/retry; strongest VISIBLE SAVED candidate
+first,15 s each, then30 s cooldown. If none seen or scan fails, no blind automatic
+association attempts; wait120 s before scanning again. Explicit manual connect
+can attempt hidden/absent SSID first. Healthy link never roams/scans automatically.
+Rank all5 saved SSIDs even beyond24 public scan rows; duplicate BSSID RSSI uses
+strongest, equal RSSI keeps stored order. /wifi/order retained as tie preference.
+Active SSID/live RSSI/bars/IP now top-level, distinct from last-scan signals and
+browser hotspot access. One existing POST/settings saves/connects; simple saved
+Sambung/Hapus. GET/wifi adds selection/busy/retry/scan age and nullable RSSI.
+Hostname is set before Wi-Fi start per core API; timed-out driver scan is stopped.
+
+Unchanged: pins, two6 MiB slots, core3.3.10, Wi-Fi profile NVS schema/list,
+AP password/open LAN, HTTP80/81/TCP9000, ownership/500 ms expiry, no stale resume.
+Upgrade: app-only OTA preserves NVS profiles, no erase/unrelated key modifications.
+
+Tests:84 Python/browser tests PASS (39 dashboard,13 HTTP,11 TCP,9 policy,2 identity,
+10 soak simulation);8 GCC C++17 Wall/Wextra/Werror suites PASS. Expanded network
+test (actual service/fake SDK) also ASan/UBSan PASS including full5-candidate array,
+RSSI ties/duplicate APs, profile deletion/cache correspondence, >24 results,
+scan failure/timeout, absent-network120 s wait, preferred manual override and
+strongest fallback. Existing control/TCP/eyes/driver/OTA reservation tests passed.
+Mock desktop/mobile visual review passed. Native evidence remains simulation.
+
+Pinned incremental firmware build PASS: v0.13.0,
+buildUTC 2026-10-19T13:19:03Z =2026-10-19 20:19:03 WIB.
+App1,203,456 bytes; program1,203,306/staticRAM55,008; two6,291,456-byte slots verified.
+App SHA256 65d70241a133c930e017876a1683f18006ec8243fa400425ce2b1107c92f3192.
+Source-input hashes passed and were checked again before upload; clean_build=false.
+
+Actual AP192.168.4.1 matched MACe0:72:a1:fd:0d:88, v0.12.0/build12:46:30Z,
+no owner/session, wheels0/laserOFF/pulsesdisabled before OTA. FIRST upload failed
+HTTP400; subsequent polling confirmed old version, not a successful flash. Exact
+cause not proven; busy network is plausible. Evidence ota-v013-result.json.
+Waited for observed connecting -> waiting transition (ota-v013-idle-window.json)
+then performed ONE retry; upload acknowledged ok/rebooting. Windows remained
+associated to same AP/BSSID but ARP unresolved after reboot; disconnect/reconnect
+the SAME saved hotspot restored access. No router/route/firewall change. Final
+readback matches exact v0.13.0/build/MAC, idle wheels/PWM0, laserOFF/pulsesdisabled,
+HTTP81/TCP ready and one original saved profile. Evidence ota-v013-retry-result.json.
+Do not hide first rejection or claim uninterrupted reboot/reassociation.
+
+Actual device test PARTIAL: 53.031 s, 47 requests,
+1 failure retained. Manual async scan returned 10 SSIDs,
+sorted RSSI, offline current_ssid empty/RSSI null, passwords absent, profiles
+unchanged. The failure was the first GET/wifi at1.22 s during manual scan,
+timeout3 s; later polling completed. All42 status reads succeeded; p95
+250.0 ms, p99 1859.0 ms, worst
+2328.0 ms (successful samples; timeout is separate). Whole
+suite passed=false, not relabeled PASS. Final uptime119917 ms, Wi-Fi waiting,
+STAconnect0/disconnect4/reason203; these counts include connection attempts,
+not4 proven RF outages. No unexpected reboot observed in bounded check. Reason203
+does not establish password/RF/root cause here. Evidence live-wifi-v013-result.json.
+Final manual/unowned, network_busyfalse, all wheel duties0, laserOFF/pulsesdisabled.
+No actuator command and no profile save/delete was sent during this live check.
+
+Actual desktop/mobile dashboard read-only PASS, no JS error/overflow or actuator
+POST, correct v0.13.0 and one saved profile. Screenshots wifi-v013-live-desktop.png,
+wifi-v013-live-mobile.png and browser-wifi-v013-live.json under ignored build/.
+
+Limitations: scan/AP association still can interrupt HTTP; successful status can
+exceed2 s. Not seamless failover or TCP200 ms stability certification. Only one
+saved network on device; successful strongest selection/fallback between two
+credentialed routers remains native simulation. Actual saved profile survived
+OTA; new user credential persistence is not separately reboot-tested. Unknown
+servo pose restriction maintained; no wheels/servo/laser activation, new soak or
+automation restart. Old24-hour run remains partial; keep feature PR#1 to develop
+open/unmerged. Next tests: two real saved networks with operator credentials,
+association failure diagnosis and AP/RF latency observation, without moving wheels.

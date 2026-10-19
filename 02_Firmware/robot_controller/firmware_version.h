@@ -1,3 +1,3 @@
 #pragma once
 #include "firmware_build.h"
-constexpr char kFirmwareVersion[] = "v0.12.0";
+constexpr char kFirmwareVersion[] = "v0.13.0";

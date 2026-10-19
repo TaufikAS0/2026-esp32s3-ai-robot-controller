@@ -3,6 +3,7 @@
 #include <Preferences.h>
 #include <WiFi.h>
 #include <atomic>
+#include <algorithm>
 #include "wifi_profiles.h"
 #include "control_service.h"
 class NetworkService {
@@ -24,16 +25,20 @@ class NetworkService {
   uint32_t disconnectReason() const { return lastDisconnectReason_.load(); }
   uint32_t connectCount() const { return connectCount_.load(); }
  private:
-  enum class Phase { Waiting, Connecting, Connected, Pending };
+  enum class Phase { Waiting, Scanning, Connecting, Connected, Pending };
   std::atomic<Phase> phase_{Phase::Waiting};
   Preferences preferences_;
   WifiProfiles profiles_;
   WifiCycle cycle_;
   ControlService* control_=nullptr;
-  bool storageReady_=false,guard_=false,scanning_=false;
+  bool storageReady_=false,guard_=false,scanning_=false,cycleScan_=false;
   const char* scanState_="idle";
   struct ScanEntry { char ssid[33]{};int rssi=0;bool secured=false; } scan_[24];
   unsigned scanCount_=0;
+  int candidates_[WifiProfiles::capacity]{};
+  int savedRssi_[WifiProfiles::capacity]{};
+  unsigned candidateCount_=0,candidateNext_=0;
+  uint32_t retryDelay_=WifiCycle::retryMs;
   uint32_t scanAt_=0,phaseAt_=0;
   int pending_=-1;
   char target_[33]{};
@@ -48,4 +53,7 @@ class NetworkService {
   void attempt(int index);
   void nextAttempt();
   void finishScan();
+  int launchScan(bool cycle);
+  void beginCycle(int preferred=-1);
+  void rankCandidates();
 };

@@ -12,6 +12,8 @@ struct FakeWifi {
   std::string current;
   std::vector<std::string> attempts;
   std::vector<std::string> visible;
+  std::vector<int> signals;
+  int scanCalls=0;
   void onEvent(std::function<void(WiFiEvent_t,WiFiEventInfo_t)> fn){callback=fn;}
   void mode(int){}
   void persistent(bool){}
@@ -25,12 +27,13 @@ struct FakeWifi {
   int status(){return statusValue;}
   String SSID(){return String(current.c_str());}
   String SSID(int index){return String(visible.at(index).c_str());}
-  int RSSI(int){return -55;}
+  int RSSI(){return -58;}
+  int RSSI(int i){return unsigned(i)<signals.size()?signals[i]:-55;}
   int encryptionType(int){return 1;}
   IP localIP(){return {};}
   IP softAPIP(){return {};}
   void scanDelete(){}
-  int scanNetworks(bool,bool,bool,int){scanResult=-1;return -1;}
+  int scanNetworks(bool,bool,bool,int){++scanCalls;scanResult=-1;return -1;}
   int scanComplete(){return scanResult;}
 };
 inline FakeWifi WiFi;

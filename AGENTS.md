@@ -1,5 +1,13 @@
 # AI Robot Controller Rules
 
+v0.13.0 user decision19 October2026 replaces stored-order selection with strongest
+VISIBLE SAVED SSID first at boot/loss/retry. Read04_Dokumen/WIFI_V013.md. Never
+roam/scan a healthy link or connect an unknown SSID.15 s per visible candidate,
+30 s retry after failures,120 s when none visible/scan fails. Manual connect can
+try a hidden/absent saved SSID first. NVS schema remains wifiProfilesV1. Keep UI
+active SSID/live RSSI visible and scan signal labeled separately; never invent
+hotspot client signal or report an unconnected target as the active Wi-Fi.
+
 v0.12.0 user decision19 October2026 supersedes the fixed-SSID-only rules below:
 read04_Dokumen/WIFI_PROFILES_V012.md. Up to5 user-saved ordered profiles in
 robot/wifiProfilesV1 are authoritative after one-time legacy/default migration;

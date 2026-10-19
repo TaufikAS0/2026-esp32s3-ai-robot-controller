@@ -1,5 +1,10 @@
 # Wi-Fi tersimpan dan cadangan — v0.12.0
 
+Historical v0.12 policy/UI: [WIFI_V013.md](WIFI_V013.md) replaces ordered automatic
+attempts with strongest visible saved Wi-Fi first and a simpler always-visible
+panel. The NVS schema and profile endpoint contracts below remain, but /order
+only breaks signal ties; absent SSIDs now require explicit manual connect.
+
 Permintaan pengguna19 Oktober2026 mengganti kebijakan SSID tunggal: robot boleh
 menyimpan jaringan pilihan operator dan otomatis mencoba profil berikutnya saat
 gagal. Aturan lama yang menulis ulang HuaweiJIN setiap boot bersifat historis;

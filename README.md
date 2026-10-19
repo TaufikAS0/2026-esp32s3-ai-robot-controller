@@ -1,5 +1,14 @@
 # AI Robot Controller
 
+Source **v0.13.0** simplifies Wi-Fi: the top dashboard panel shows the active
+network and live signal, **Cari Wi-Fi → pilih jaringan → password → Simpan &
+sambungkan**, plus Sambung/Hapus for saved networks. Boot/loss/retry select the
+strongest detected saved SSID, then the next on failure; no roaming while healthy.
+Absent saved SSIDs are skipped automatically, with120 s idle rescan when none are
+visible to reduce repeated association disruption on the recovery AP. Read the
+[current Wi-Fi guide](04_Dokumen/WIFI_V013.md) and latest
+[verification](04_Dokumen/VERIFICATION.md). Prior v0.12 behavior follows as history.
+
 Source **v0.12.0** adds detected Wi-Fi selection, up to5 saved profiles with
 priority/failover, and persistent recovery hotspot. Open **Pengaturan Wi-Fi &
 jaringan cadangan**: scan, save credentials, reorder, then connect when idle.

@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.13.0 — 2026-10-19 WIB
+
+- Previous: v0.12.0 attempted saved profiles by stored priority, including absent
+  networks, with a Wi-Fi panel buried under OTA. User found access difficult and
+  requested strongest-signal redundancy with a simpler interface.
+- Changes: scan at boot/loss/retry; strongest visible saved SSID first, then next
+  on15 s failure.30 s after candidate failures;120 s rescan when none visible or
+  scan fails. Manual selection may try a hidden/absent profile first. Stay on
+  healthy connections; no continuous strongest-signal roaming.
+- Show active Wi-Fi, IP, live RSSI/bars at the top, separate hotspot access and
+  last-scan signal, simplified saved Sambung/Hapus and one save/connect action.
+  Keep existing APIs; GET/wifi adds nullable RSSI, selection/busy/retry/scan age.
+  /wifi/order remains a signal-tie preference for legacy clients.
+- Unchanged: pins, partitions, NVS wifiProfilesV1/profiles, shared lab AP/open LAN,
+  HTTP/TCP ports, ownership and500 ms expiry. No automatic target/session resume.
+- Tests:84 Python/browser tests and8 native suites; network bounds/ties/ranking,
+  hidden manual selection, scan failure/timeout, missing-network120 s cooldown,
+  ownership/OTA guards, no healthy roaming, and desktop/mobile visual review.
+- Limitations: signal is not internet/latency proof. Shared AP/STA radio can
+  interrupt requests. Hidden saved SSIDs need manual connect; successful failover
+  between two routers and24-hour endurance are not established by host tests.
+- Upgrade: app-only OTA retains user profiles with no NVS erase. Actual artifact,
+  upload and device evidence are recorded separately in VERIFICATION.md.
+
 ## v0.12.0 — 2026-10-19 WIB
 
 - User-approved replacement of fixed-SSID-only policy: asynchronous SSID scan,

@@ -1,5 +1,17 @@
 # HTTP API v1
 
+### v0.13.0 strongest saved Wi-Fi and clear connection status
+
+[WIFI_V013.md](WIFI_V013.md) supersedes v0.12 stored-order selection. GET/wifi adds
+selection=strongest_saved, busy, retry_in_ms, scan_age_ms, live rssi (null offline),
+per-profile scanned rssi (nullable); current_ssid is empty offline. Existing
+endpoints/NVS schema remain. /wifi/order now only breaks RSSI ties. Boot/loss/retry
+scan then attempt visible saved SSIDs strongest first,15 s each;30 s after all
+fail,120 s if no candidates/scan failed. Manual connect tries chosen profile first,
+then other visible saved networks. No automatic attempts of hidden SSIDs; use
+explicit connect. No background scan/roaming while healthy. Dashboard uses existing
+POST/settings to save/connect together. Same ownership/OTA/500 ms lease protections.
+
 ### v0.12.0 saved Wi-Fi profiles
 
 [WIFI_PROFILES_V012.md](WIFI_PROFILES_V012.md) defines GET/wifi and POST
