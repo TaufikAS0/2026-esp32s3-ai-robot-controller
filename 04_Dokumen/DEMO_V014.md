@@ -63,8 +63,8 @@ After reboot, hand confirmation is cleared even though saved limits/gains surviv
 - Planner updates20 ms; commands every100 ms. Initial speed cap5 cm/s, turn cap
   30 deg/s, PWM cap25%. Slowdown uses remaining distance/angle. Model boundary
   crossing, nonfinite state, >300 ms planner gap, or120 s phase timeout stop demo.
-- Drive only forward. Actual commanded wheel outputs must be zero for500 ms
-  before the gesture stage. Hand motion never drives the wheels. Gesture outputs
+- Drive only forward. The brake stage lasts at least500 ms and gestures require
+  applied wheel outputs to be zero. Hand motion never drives the wheels. Gesture outputs
   remain within approved limits, max10 degrees from base: one-hand two waves,
   both-hand small raise, or eyes-only. Existing arm trajectory limits still apply.
 - Demo suppresses dynamic hands only for its own lease. Eye cues use Happy,
