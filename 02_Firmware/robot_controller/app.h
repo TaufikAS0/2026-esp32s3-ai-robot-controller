@@ -1,5 +1,6 @@
 #pragma once
 #include "web_service.h"
+#include "tcp_service.h"
 class App {
  public:
   void begin();
@@ -9,5 +10,6 @@ class App {
   NetworkService network_;
   OtaService ota_;
   EyeService eyes_{control_};
-  WebService web_{control_, network_, ota_, eyes_};
+  TcpService tcp_{control_,network_};
+  WebService web_{control_, network_, ota_, eyes_, tcp_};
 };

@@ -1,5 +1,15 @@
 # HTTP API v1
 
+### v0.11.0 TCP control
+
+See [TCP_CONTROL_V011.md](TCP_CONTROL_V011.md) for TCP9000 JSON-lines protocol,
+SDK, explicit Auto/program flow and socket-bound ownership. HTTP status adds
+`tcp_control:{ready,port:9000,protocol_version:1}` and
+`control_transport:"none"|"http"|"tcp"`. HTTP command/release cannot operate a
+TCP-bound session; HTTP leases continue to work normally. Explicit HTTP mode
+changes/global stop still stop/invalidate ownership. Existing HTTP schemas,
+arm policy/settings and eye endpoints remain available. No network/NVS changes.
+
 ### v0.10.0 servo and isolated control
 
 Read [SERVO_CONTROL_V010.md](SERVO_CONTROL_V010.md) for the strict7-field

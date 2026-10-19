@@ -65,10 +65,15 @@ char* WebService::statusJson() {
   auto channel=cJSON_AddObjectToObject(root.get(),"control_channel");
   cJSON_AddBoolToObject(channel,"ready",fastServer_!=nullptr);
   cJSON_AddNumberToObject(channel,"port",81);
+  auto tcp=cJSON_AddObjectToObject(root.get(),"tcp_control");
+  cJSON_AddBoolToObject(tcp,"ready",tcp_.ready());
+  cJSON_AddNumberToObject(tcp,"port",TcpService::port);
+  cJSON_AddNumberToObject(tcp,"protocol_version",1);
   cJSON_AddNumberToObject(root.get(), "uptime_ms", millis());
   cJSON_AddStringToObject(root.get(), "owner", l.owner == Owner::Manual ? "manual" : l.owner == Owner::Program ? "program" : "none");
   cJSON_AddNumberToObject(root.get(), "session", l.session);
   cJSON_AddNumberToObject(root.get(), "sequence", l.lastSequence);
+  cJSON_AddStringToObject(root.get(),"control_transport",l.owner==Owner::None?"none":l.transport?"tcp":"http");
   cJSON_AddStringToObject(root.get(), "reason", l.reason);
   cJSON_AddBoolToObject(root.get(), "maintenance", l.maintenance);
   cJSON_AddBoolToObject(root.get(), "arduino_ota", ota_.enabled);

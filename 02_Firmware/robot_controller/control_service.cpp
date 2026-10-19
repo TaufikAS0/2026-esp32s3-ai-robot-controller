@@ -51,10 +51,10 @@ ControlSnapshot ControlService::snapshot() {
   portEXIT_CRITICAL(&mux_);
   return s;
 }
-bool ControlService::acquire(Owner owner, uint32_t& session) {
+bool ControlService::acquire(Owner owner, uint32_t& session, uint32_t connection) {
   uint32_t id; do { id = esp_random(); } while (!id);
   portENTER_CRITICAL(&mux_);
-  bool ok = logic_.acquire(owner, id, millis());
+  bool ok = logic_.acquire(owner, id, millis(), connection);
   uint32_t gen = ok ? ++generation_ : generation_;
   portEXIT_CRITICAL(&mux_);
   if (!ok) return false;
@@ -71,16 +71,16 @@ bool ControlService::configureArmPolicy(const ArmPolicy& policy) {
   const bool ok=logic_.configureArmPolicy(policy);
   portEXIT_CRITICAL(&mux_);return ok;
 }
-bool ControlService::setMode(ControlMode mode) {
+bool ControlService::setMode(ControlMode mode, bool idleOnly) {
   portENTER_CRITICAL(&mux_);
-  bool ok = logic_.setMode(mode);
+  bool ok = logic_.setMode(mode, idleOnly);
   uint32_t gen = ok ? ++generation_ : generation_;
   portEXIT_CRITICAL(&mux_);
   return ok && awaitApplied(gen);
 }
-bool ControlService::command(const Command& c) {
+bool ControlService::command(const Command& c, uint32_t connection) {
   portENTER_CRITICAL(&mux_);
-  bool ok = logic_.command(c, millis());
+  bool ok = logic_.command(c, millis(), connection);
   portEXIT_CRITICAL(&mux_);
   return ok;
 }
@@ -90,10 +90,9 @@ bool ControlService::stop(const char* reason, bool disableServo) {
   portEXIT_CRITICAL(&mux_);
   return awaitApplied(gen);
 }
-bool ControlService::release(uint32_t session) {
+bool ControlService::release(uint32_t session, uint32_t connection) {
   portENTER_CRITICAL(&mux_);
-  bool ok = logic_.owner != Owner::None && logic_.session == session;
-  if (ok) logic_.stop("released");
+  bool ok = logic_.release(session, connection);
   uint32_t gen = ok ? ++generation_ : generation_;
   portEXIT_CRITICAL(&mux_);
   return ok && awaitApplied(gen);

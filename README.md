@@ -1,5 +1,15 @@
 # AI Robot Controller
 
+Source **v0.11.0** adds a LAN **TCP server on port9000** for an external control
+engine. [Protocol and backend guide](04_Dokumen/TCP_CONTROL_V011.md),
+[Python client](04_Dokumen/python/robot_tcp_client.py) and a read-only
+[discovery example](04_Dokumen/python/tcp_example.py) are included. JSON lines,
+one connected client, explicit Auto/program session and100 ms fresh commands;
+500 ms expiry still stops wheels/laser and freezes arm travel. Build/OTA/live
+results are recorded separately in [VERIFICATION](04_Dokumen/VERIFICATION.md).
+
+Earlier v0.10.0 behavior:
+
 Source **v0.10.0** adds faster accelerate/cruise/brake servo motion, configurable
 per-arm degree limits and optional dynamic hands during forward/reverse. Slider
 targets stay separate from held references; a dedicated HTTP81 control channel

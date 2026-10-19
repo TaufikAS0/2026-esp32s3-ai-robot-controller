@@ -5,12 +5,12 @@ struct ControlSnapshot { ControlLogic logic; uint32_t appliedGeneration; PwmSnap
 class ControlService {
  public:
   bool begin();
-  bool acquire(Owner owner, uint32_t& session);
-  bool setMode(ControlMode mode);
+  bool acquire(Owner owner, uint32_t& session, uint32_t connection = 0);
+  bool setMode(ControlMode mode, bool idleOnly = false);
   bool configureArms(const ArmMotionSettings& settings);
   bool configureArmPolicy(const ArmPolicy& policy);
-  bool command(const Command& command);
-  bool release(uint32_t session);
+  bool command(const Command& command, uint32_t connection = 0);
+  bool release(uint32_t session, uint32_t connection = 0);
   bool stop(const char* reason, bool disableServo = false);
   bool beginMaintenance();
   void endMaintenance();

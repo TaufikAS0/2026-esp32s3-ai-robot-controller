@@ -44,6 +44,7 @@ class ControlLogic {
   ControlMode mode = ControlMode::Manual;
   Owner owner = Owner::None;
   uint32_t session = 0, lastSequence = 0, lastCommandMs = 0;
+  uint32_t transport = 0; // 0 HTTP; nonzero identifies one TCP connection.
   const char* reason = "boot";
   bool maintenance = false, hasCommand = false;
   Output output;
@@ -72,12 +73,12 @@ class ControlLogic {
     if (owner != Owner::None && uint32_t(now - lastCommandMs) >= Config::timeoutMs)
       stop("timeout");
   }
-  bool setMode(ControlMode requested) {
-    if (maintenance) return false;
+  bool setMode(ControlMode requested, bool idleOnly = false) {
+    if (maintenance || (idleOnly && owner != Owner::None)) return false;
     if (mode != requested) { stop("mode_changed"); mode = requested; }
     return true;
   }
-  bool acquire(Owner requested, uint32_t id, uint32_t now) {
+  bool acquire(Owner requested, uint32_t id, uint32_t now, uint32_t connection = 0) {
     expire(now);
     if (maintenance || !id || requested == Owner::None ||
         (mode == ControlMode::Manual && requested != Owner::Manual) ||
@@ -85,19 +86,23 @@ class ControlLogic {
     if (owner != Owner::None && !(owner == Owner::Program && requested == Owner::Manual))
       return false;
     stop("acquired");
-    owner = requested; session = id; lastCommandMs = now;
+    owner = requested; session = id; lastCommandMs = now; transport = connection;
     return true;
   }
-  bool command(const Command& c, uint32_t now) {
+  bool command(const Command& c, uint32_t now, uint32_t connection = 0) {
     expire(now);
-    if (maintenance || owner == Owner::None || c.session != session ||
+    if (maintenance || owner == Owner::None || c.session != session || connection != transport ||
         c.sequence <= lastSequence || !valid(c) || !armPolicy.allows(c.armLeft,c.armRight)) return false;
     target = c; lastSequence = c.sequence; lastCommandMs = now; hasCommand = true;
     reason = "running";
     return true;
   }
+  bool release(uint32_t id, uint32_t connection = 0) {
+    if (owner == Owner::None || session != id || transport != connection) return false;
+    stop("released"); return true;
+  }
   void stop(const char* why, bool disableServos = false) {
-    owner = Owner::None; session = 0; lastSequence = 0; hasCommand = false;
+    owner = Owner::None; session = 0; transport = 0; lastSequence = 0; hasCommand = false;
     target.left = target.right = 0; target.laser = false;
     output.left = output.right = 0; output.laser = false;
     if (disableServos) output.servoEnabled = false;

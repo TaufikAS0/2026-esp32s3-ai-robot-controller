@@ -1,5 +1,11 @@
 # AI Robot Controller Rules
 
+v0.11.0 adds TCP9000: read04_Dokumen/TCP_CONTROL_V011.md. Sessions are bound to
+the socket generation and cannot be driven/released through HTTP. Keep explicit
+Auto,500 ms valid-command expiry, bounded framing/send deadlines and no command
+pipeline/replay. User confirmed unknown initial physical servo pose: do not enable
+servo/laser during device verification until a known accepted pose is supplied.
+
 v0.10.0 servo follow-up: read `04_Dokumen/SERVO_CONTROL_V010.md` and the latest
 verification. Natural60/240, per-arm RAM limits and optional forward/reverse
 dynamic hands; dynamic OFF at boot. Never let a dynamic gesture write wheels.

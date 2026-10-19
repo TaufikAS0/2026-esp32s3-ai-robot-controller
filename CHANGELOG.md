@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.11.0 — 2026-10-19 WIB
+
+- Add open-LAN TCP9000 JSON-lines v1 server for an external engine: hello/status,
+  explicit mode, program acquire, complete command, scoped release and global stop.
+  One connection,1024-byte frames,250 ms framing/send deadlines, strict schema and
+  bounded parser depth/UTF-8; command pipelining rejects instead of replaying a queue.
+- Bind TCP leases to the originating socket generation; other sockets/HTTP cannot
+  command or release them. Existing HTTP explicit mode changes/global stop retain
+  authority. Single output task,500 ms expiry, arm limits/trajectory remain.
+- Add synchronous dependency-free Python SDK with fresh producer timestamps,
+  correlated ACKs, bounded I/O and no automatic heartbeat/retry/reconnect; read-only
+  discovery example and backend contract. HTTP status advertises TCP readiness.
+- Add shared native protocol/socket coverage and Python client integration tests.
+  Build/OTA/device evidence is recorded separately in VERIFICATION. User confirmed
+  unknown initial physical pose, so live tests must not enable servo/laser.
+- No pin/partition/NVS/lab-network policy change; old24-hour soak stays partial and
+  monitoring paused. Transport availability is not a stability certification.
+
 ## v0.10.0 — 2026-10-17 WIB
 
 - Preserve integer slider/numeric drafts across polling/release; show separate0.1-degree reference, pulse state and stop reason. A stale draft is never silently resumed. Explain blur cancellation and keep fresh control alive across a failed cosmetic/status request.

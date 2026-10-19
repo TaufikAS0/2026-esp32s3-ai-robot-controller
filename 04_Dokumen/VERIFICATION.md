@@ -325,3 +325,92 @@ Bounded live test PASS from2026-10-16T17:09:48.203463Z to17:09:53.443058Z:34 com
 Actual robot-page Chromium inspection PASS at desktop1100 and mobile390 widths: v0.10.0, real HTTP81 status responses, zero JavaScript/CORS errors and no POST requests. Degree/reference, limits and Natural60 controls rendered; mobile servo card visually inspected without horizontal overflow. Evidence: ignoredbuild/browser-v010-result.json andservo-v010-live-{desktop,mobile}.png. No browser actuator input was sent during inspection.
 
 Limits: this short v0.10.0 test is not24-hour stability proof. Dynamic forward/reverse behavior was tested in native simulation only; physical wheels were never driven. No full servo sweep, mechanical end-stop calibration, supply measurement or physical OLED inspection. The failed v0.9.0 soak remains partial and its automation PAUSED; no replacement runner launched while the user is controlling the robot.
+
+## v0.11.0 TCP engine integration — 2026-10-19 WIB
+
+User explicitly approved TCP9000/server plan, source publication and app OTA.
+Read repository AGENTS/README/API, servo/arm design, SOAK, complete handoff/latest
+verification and actual sibling vault home, workspace foldering, firmware,
+Gitflow, Rules_Kredensial_WiFi, WiFi_HuaweiJIN, Rules_Akses_Robot_Lab,
+Rules_Versioning and Rules_Change_Notifications. Preserve lab STA/AP, open access,
+pins, partitions and NVS policy. Branch feature/initial-robot-controller; PR#1
+remains open to develop, never merge. No replacement soak/automation launched.
+
+Preflight HTTP81 matched v0.10.0/buildUTC2026-10-16T17:04:24Z and MAC
+e0:72:a1:fd:0d:88; Manual/unowned, boot reason, all wheel duties0, laserfalse,
+servo pulsesdisabled, disconnect0. Ethernet192.168.1.122/direct route verified.
+User confirmed physical initial pose unknown and selected NO actuator testing:
+do not treat the boot90 references as measured pose. Device verification must
+send no command request and never enable servo/laser. This overrides the earlier
+plan's small physical movement/laser test; those remain simulation evidence only.
+
+Implementation: bounded nonblocking socket server in its own priority2/core1
+task below actuator3, JSON lines/UTF-8/depth16/1024 bytes, first-byte framing and
+blocked-send250 ms deadlines, single client, no queued command replay. Shared
+parser/protocol/peer loop are compiled in native socket tests. All paths use the
+existing control service; bound transport IDs prevent HTTP/other socket command
+or release of TCP sessions. TCP mode refuses active ownership; HTTP explicit
+Manual/global stop retain authority. Disconnect releases only its own lease;
+500 ms expiry unchanged. Status advertises port/protocol/readiness and transport.
+Python client requires fresh producer timestamps (TTL<=300 ms), bounded I/O,
+correlated ACKs, no automatic command/retry/reconnect. Read-only example and full
+backend contract: TCP_CONTROL_V011.md.
+
+Software PASS:75 Python/browser tests (64 existing +11 new real-local-socket SDK
+tests), six existing GCC C++17/Wall/Wextra/Werror suites, plus new native TCP suite
+with the actual framing/dispatcher/peer loop and pure control logic. TCP suite
+also PASS under AddressSanitizer/UndefinedBehaviorSanitizer. Coverage includes
+fragmented/coalesced frames,1024-byte boundary/oversize, invalid UTF-8/NUL/depth,
+duplicate fields, range/limits/schema, sequences, wrong transport/socket/owner,
+mode conflict, expiry without valid commands, disconnect/partial-frame deadline,
+nonreading client, command pipeline rejection, stale disconnect preserving newer
+HTTP ownership and maintenance invalidation. Native nonzero wheel/laser commands
+are simulation only. Host cJSON1.7.19 extracted to ignored build cache without
+admin/system install; CI installs its host development package. Target uses the
+core-bundled cJSON. Initial compile failed for missing cJSON forward declaration;
+corrected before the final build, no failed image uploaded.
+
+Final pinned Arduino core3.3.10/N16R8 incremental build PASS. v0.11.0 generated
+buildUTC2026-10-19T03:04:54Z =2026-10-19 10:04:54 WIB. App1,185,408 bytes;
+program1,185,254, staticRAM53,296; both6,291,456-byte OTA slots verified.
+SHA256 dbf3be9f28bb66712cad4b881fc2b53c16e7c5c108a3475899b4d68adafbeed4.
+Manifest records clean_build=false; source hash gate passed and every input was
+checked against the manifest again immediately before upload. No source changes
+during the final build; first failed compile was not uploaded.
+
+App-only OTA PASS. Rechecked MAC/baseline identity/slot, unowned state, wheel
+duties0, laserfalse and pulsesdisabled before acknowledged stop/upload. Upload
+returned ok/rebooting. Postboot matched exact v0.11.0/build/MAC, Manual, no owner,
+zero wheels, laserfalse, pulsesdisabled, HTTP81ready and TCP9000ready/protocol1.
+Raw evidence ignored:build/ota-v011-result.json. No pin/partition/NVS/profile
+change; network/API/OTA remain open under the approved lab policy.
+
+Actual no-actuator TCP suite PASS:50 normal status requests/0 failures,
+statusp95=46 ms,p99/worst=47 ms. Command count **0**; these are status/transport
+latencies, not command ACK/motion measurements. Verified real split/coalesced
+frames, second-client rejection, extra/duplicate fields/version rejection,
+HTTP Manual owner protected from TCP mode/acquire, HTTP release of TCP lease
+rejected, no-command lease expires despite status polling, partial-frame deadline
+closes/releases, old TCP closure preserves replacement HTTP owner, oversized/NUL/
+invalid UTF-8 closes, and nonreading client closes under receive-buffer pressure.
+Read-only Python discovery example also ran successfully on the actual robot.
+
+The first slow-reader experiment FAILED to observe closure: it resized the
+receive buffer after connecting and began draining after1 second, so it did not
+establish sustained send backpressure. Preserve it as an unsuccessful experiment,
+not an erased retry:build/live-v011-initial-slow-reader-failure.json. A separate
+probe confirmed an accepted hello,1024-byte receive buffer configured BEFORE
+connect,100 status frames and4 seconds with no reads; connection then observed
+closed. The final suite used that corrected setup and passed. This confirms
+closure under that setup, not a directly measured250 ms send deadline; native
+socket tests verify the deadline logic. All induced disconnect/schema cases are
+separate from the50 normal requests. Raw final/probe evidence:
+build/live-v011-no-actuators.json andbuild/slow-reader-v011-probe.json.
+
+Final HTTP/TCP readback: Manual, ownernone/session0/control_transportnone,
+all four wheel PWM duties0, laserfalse, servo pulsesdisabled. Device uptime
+increased continuously and disconnect counter stayed0 during the final suite;
+no observed reboot/Wi-Fi disconnect. No physical motion/laser-on test, command
+latency/gap measurement, real ML-engine integration or24-hour stability claim.
+Active-command OTA/expiry/laser shutdown and wheel dynamics are simulation
+evidence only. Old soak monitor status re-read as PAUSED; no runner restarted.

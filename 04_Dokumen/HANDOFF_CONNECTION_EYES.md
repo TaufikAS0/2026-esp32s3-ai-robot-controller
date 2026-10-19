@@ -1,4 +1,21 @@
-# Continuation status — v0.10.0 servo follow-up
+# Continuation status — v0.11.0 TCP engine integration
+
+Latest source adds TCP9000 for an external LAN engine: read TCP_CONTROL_V011.md
+and the latest VERIFICATION entry. JSON lines, explicit Auto/program, one socket,
+bound sessions,500 ms expiry and no command replay. User confirmed unknown
+physical initial servo pose; live verification must send no command and must not
+enable servo/laser until an accepted pose is supplied. Old soak remains FAILED/
+PARTIAL, monitor PAUSED. Build/OTA/live outcome is recorded separately below.
+
+v0.11.0 app OTA succeeded: exact buildUTC2026-10-19T03:04:54Z (10:04:54 WIB),
+MACe0:72:a1:fd:0d:88, app1,185,408 bytes.75 Python/browser tests +7 native suites
+PASS (TCP suite also ASan/UBSan). Actual no-actuator suite:50 status requests,
+0 normal failures,p95=46 ms,p99/worst47 ms; session arbitration/expiry, framing
+and slow-client faults verified. First slow-reader setup failed to establish
+closure; original evidence retained and corrected setup/probe recorded in
+VERIFICATION. Final Manual/unowned, all wheel duties0, laserOFF, pulsesdisabled;
+no command requests or physical actuator tests. Backend's real engine remains
+to be integrated against the documented contract; no24-hour acceptance claim.
 
 ## Latest source — v0.10.0
 

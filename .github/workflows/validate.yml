@@ -18,6 +18,10 @@ jobs:
           arduino-cli core install esp32:esp32@3.3.10 --additional-urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
       - name: Test control logic and Python producer expiry
         run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y libcjson-dev
+          g++ -std=c++17 -Wall -Wextra -Werror -I/usr/include/cjson tests/test_tcp.cpp -lcjson -o /tmp/test-tcp
+          /tmp/test-tcp
           g++ -std=c++17 -Wall -Wextra -Werror tests/test_control.cpp -o /tmp/test-control
           /tmp/test-control
           g++ -std=c++17 -Wall -Wextra -Werror tests/test_arm_policy.cpp -o /tmp/test-arm-policy
@@ -33,6 +37,7 @@ jobs:
           g++ -std=c++17 -Wall -Wextra -Werror -DROBOT_EYE_TEST -Itests/fakes tests/test_eye_service.cpp 02_Firmware/robot_controller/eye_service.cpp -o /tmp/test-eye-service
           /tmp/test-eye-service
           python -m unittest discover -s tests -p 'test_client.py' -v
+          python -m unittest discover -s tests -p 'test_tcp_client.py' -v
           python -m unittest discover -s tests -p 'test_network_policy.py' -v
           python -m unittest discover -s tests -p 'test_build_metadata.py' -v
           python -m unittest discover -s tests -p 'test_soak.py' -v
