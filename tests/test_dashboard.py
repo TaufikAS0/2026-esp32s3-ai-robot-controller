@@ -36,6 +36,7 @@ class DashboardTests(unittest.TestCase):
         self.wifi=dict(storage_ready=True,state='connected',connected=True,current_ssid='HuaweiJIN',target_ssid='HuaweiJIN',sta_ip='192.168.1.22',ap_active=True,ap_ssid='robot-setup',ap_ip='192.168.4.1',rssi=-55,busy=False,scan_state='idle',networks=[],profiles=[dict(ssid='HuaweiJIN',priority=1,secured=True)])
         self.demo=dict(ready=True,storage_ready=True,running=False,simulation=False,calibrating=False,zero_valid=False,calibration_ready=False,can_start_robot=False,run_id=0,sample_id=0,phase='idle',reason='boot',estimated=True,pose=dict(x_cm=0,y_cm=0,heading_deg=0),goal=dict(x_cm=0,y_cm=0),trace=[],config=dict(width_cm=0,length_cm=0,radius_cm=0,margin_cm=10,coast_cm=0,speed_cm_s=5,turn_deg_s=30,pwm=.15,base_left=90,base_right=90,min_left=0,max_left=180,min_right=0,max_right=180,arms_confirmed=False,calibration=0))
         self.arm_policy=dict(min_left=0,max_left=180,min_right=0,max_right=180,dynamic=False,amplitude_deg=8,period_ms=2400)
+        self.demo['exhibition']=dict(selected=False,center_valid=False,can_start=False,width_cm=30,length_cm=30)
         self.session = 0
         self.mode = "manual"
         self.reject = False
@@ -116,7 +117,15 @@ class DashboardTests(unittest.TestCase):
             result=self.demo
         elif path.startswith('/demo/'):
             result=dict(ok=True)
-            if path=='/demo/config':
+            if path=='/demo/exhibition/config':
+                self.demo['exhibition'].update(**body,selected=True,center_valid=False,can_start=False)
+            elif path=='/demo/exhibition/center':
+                self.demo['exhibition'].update(selected=True,center_valid=True,can_start=True)
+                self.demo.update(pose=dict(x_cm=0,y_cm=0,heading_deg=0),trace=[],zero_valid=False)
+            elif path=='/demo/exhibition/start':
+                self.demo['exhibition'].update(selected=True,center_valid=False,can_start=False)
+                self.demo.update(running=True,run_id=self.demo['run_id']+1,phase='drive',simulation=body['mode']=='simulation')
+            elif path=='/demo/config':
                 self.demo['config'].update(body)
             elif path=='/demo/zero':
                 self.demo['zero_valid']=True
@@ -124,7 +133,9 @@ class DashboardTests(unittest.TestCase):
                 self.demo.update(running=True,run_id=self.demo['run_id']+1,phase='drive',simulation=body['mode']=='simulation')
             elif path=='/demo/stop':
                 if body['run_id']!=self.demo['run_id']:code=409;result=dict(error='demo_run_mismatch')
-                else:self.demo.update(running=False,zero_valid=False,phase='idle',sample_pending=False,sample_reason='demo_stop')
+                else:
+                    self.demo.update(running=False,zero_valid=False,phase='idle',sample_pending=False,sample_reason='demo_stop')
+                    self.demo['exhibition'].update(center_valid=False,can_start=False)
             elif path=='/demo/calibration/start':
                 self.demo.update(running=True,calibrating=True,run_id=8,sample_id=8,phase='calibration',zero_valid=False,sample_pending=False,sample_kind=['forward','cw','ccw'].index(body['kind']))
             elif path=='/demo/calibration/result':
@@ -739,6 +750,57 @@ class DashboardTests(unittest.TestCase):
     def test_desktop_layout(self):
         self.assertLessEqual(self.page.evaluate("document.documentElement.scrollWidth"), 1100)
         self.page.screenshot(path=str(ROOT / "build/dashboard-desktop.png"), full_page=True)
+
+    def test_exhibition_reset_no_motion_then_explicit_start_stop(self):
+        self.page.on('dialog',lambda d:d.accept())
+        self.page.wait_for_function('demoData!==null')
+        self.assertTrue(self.page.locator('#exhibitStart').is_disabled())
+        self.assertTrue(self.page.locator('#exhibitCenter').is_disabled())
+        self.page.locator('#exhibitConfirmed').check()
+        self.page.locator('#exhibitCenter').click()
+        self.page.wait_for_function('demoData.exhibition.can_start')
+        self.assertEqual(self.mode,'auto')
+        self.assertTrue(any(p=='/demo/exhibition/center' and all(b.values()) for p,b in self.calls))
+        self.assertFalse(any(p in ('/command','/control/acquire','/demo/exhibition/start') for p,b in self.calls))
+        self.assertFalse(self.demo['config']['calibration'])
+        self.page.locator('#exhibitStart').click()
+        self.page.wait_for_function('demoData.running')
+        self.assertIn(('/demo/exhibition/start',dict(mode='robot',accept_estimates=True)),self.calls)
+        self.page.locator('#exhibitStop').click()
+        self.page.wait_for_function('!demoData.running')
+        self.assertTrue(self.page.locator('#exhibitStart').is_disabled())
+        self.assertFalse(self.demo['exhibition']['center_valid'])
+
+    def test_exhibition_reload_monitor_no_replay(self):
+        self.demo.update(running=True,run_id=9,phase='gesture')
+        self.demo['exhibition'].update(selected=True)
+        self.page.reload()
+        self.page.wait_for_function('demoData?.running===true')
+        self.assertIn('Pameran ROBOT NYATA',self.page.locator('#exhibitStatus').inner_text())
+        self.assertTrue(self.page.locator('#exhibitCenter').is_disabled())
+        self.assertFalse(any(b is not None for p,b in self.calls))
+
+    def test_exhibition_simulation_and_edit_invalidates_start(self):
+        self.page.wait_for_function('demoData!==null')
+        self.page.locator('#exhibitWidth').fill('40')
+        self.page.locator('#exhibitSim').click()
+        self.page.wait_for_function('demoData.running')
+        self.assertIn(('/demo/exhibition/config',dict(width_cm=40,length_cm=30)),self.calls)
+        self.assertIn(('/demo/exhibition/start',dict(mode='simulation',accept_estimates=True)),self.calls)
+        self.assertFalse(any(p in ('/command','/control/acquire','/control/mode') for p,b in self.calls))
+
+    def test_exhibition_mobile_and_foreign_owner(self):
+        self.page.on('dialog',lambda d:d.accept())
+        self.page.set_viewport_size(dict(width=390,height=844))
+        self.session=42
+        self.page.wait_for_function('demoData!==null')
+        self.page.locator('#exhibitConfirmed').check()
+        self.page.locator('#exhibitCenter').click()
+        self.page.wait_for_function('!demoBusy')
+        self.assertFalse(any(p=='/demo/exhibition/center' for p,b in self.calls))
+        self.assertIn('Pengendali lain',self.page.locator('#demoMessage').inner_text())
+        self.assertLessEqual(self.page.evaluate('document.documentElement.scrollWidth'),390)
+        self.page.locator('#exhibitionPanel').screenshot(path=str(ROOT/'build/exhibition-v016-mobile.png'))
 
 
 if __name__ == "__main__":

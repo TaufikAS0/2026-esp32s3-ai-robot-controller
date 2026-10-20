@@ -70,6 +70,35 @@ int main(){
   assert(!demo.snapshot().running&&!demo.snapshot().zero&&logic.owner==Owner::None);
   auto stored=Preferences::data["demoV1"];DemoService reboot(control,network);assert(reboot.begin());assert(!reboot.snapshot().zero&&!reboot.snapshot().running&&!reboot.snapshot().config.armsConfirmed);
   assert(reboot.snapshot().config.calibration==7&&Preferences::data["demoV1"]==stored);
+  NetworkService exhibitNetwork;exhibitNetwork.begin(control);DemoService exhibit(control,exhibitNetwork);assert(exhibit.begin());
+  const auto unchanged=Preferences::data["demoV1"];logic.stop("fixture");logic.mode=ControlMode::Manual;logic.output.servoEnabled=false;
+  assert(exhibit.centerExhibition()==409&&exhibit.startExhibition()==409);
+  logic.mode=ControlMode::Auto;logic.armPolicy.leftMax=100;assert(exhibit.centerExhibition()==409);logic.armPolicy.leftMax=180;
+  auto area=ApiJson::Json(cJSON_Parse("{\"width_cm\":30,\"length_cm\":30}"),cJSON_Delete);
+  assert(exhibit.configureExhibition(area.get())==200&&Preferences::data["demoV1"]==unchanged);
+  cJSON_AddNumberToObject(area.get(),"width_cm",30);assert(exhibit.configureExhibition(area.get())==400);cJSON_DeleteItemFromObject(area.get(),"width_cm");
+  const auto priorAcquires=acquires,priorCommands=commands;
+  assert(exhibit.startExhibition(true)==202);advance(exhibit,20000);assert(exhibit.snapshot().planner.visits>3&&commands==priorCommands&&acquires==priorAcquires);
+  assert(exhibit.stop(exhibit.snapshot().run)==200);
+  assert(exhibit.centerExhibition()==200);const auto centered=exhibit.snapshot();assert(centered.exhibitionCenter&&centered.planner.pose.x==0&&centered.planner.pose.y==0&&centered.planner.pose.heading==0&&centered.planner.traceCount==0);
+  assert(commands==priorCommands&&acquires==priorAcquires);logic.stop("global_stop");assert(!exhibit.snapshot().exhibitionCenter&&exhibit.startExhibition()==409);
+  assert(exhibit.centerExhibition()==200);assert(logic.acquire(Owner::Program,99,fakeNow,4));assert(exhibit.centerExhibition()==409&&exhibit.startExhibition()==409);logic.stop("foreign_released");assert(!exhibit.snapshot().exhibitionCenter);
+  for(DemoPhase phase:{DemoPhase::Choose,DemoPhase::Turn,DemoPhase::Drive,DemoPhase::Brake,DemoPhase::Gesture}){
+    logic.output.servoEnabled=false;assert(exhibit.centerExhibition()==200&&exhibit.startExhibition()==202);
+    assert(exhibit.centerExhibition()==409&&exhibit.configureExhibition(area.get())==409);
+    unsigned count=0;while(exhibit.snapshot().planner.phase!=phase&&count++<20000)advance(exhibit);
+    assert(exhibit.snapshot().planner.phase==phase);const auto run=exhibit.snapshot().run;
+    assert(exhibit.stop(run+1)==409&&exhibit.snapshot().running);assert(exhibit.stop(run)==200);
+    assert(!exhibit.snapshot().exhibitionCenter&&logic.owner==Owner::None&&logic.output.left==0&&logic.output.right==0&&!logic.demoEye);
+    assert(exhibit.startExhibition()==409);
+  }
+  logic.output.servoEnabled=false;assert(exhibit.centerExhibition()==200&&exhibit.startExhibition()==202);
+  logic.stop("replace");assert(logic.acquire(Owner::Program,99,fakeNow,5));advance(exhibit);assert(!exhibit.snapshot().running&&logic.session==99);logic.stop("test");
+  assert(exhibit.centerExhibition()==200&&exhibit.startExhibition()==202);fakeNow+=301;DemoHarness::tick(exhibit);assert(!exhibit.snapshot().running&&logic.owner==Owner::None);
+  assert(exhibit.centerExhibition()==200&&exhibit.startExhibition()==202);logic.beginMaintenance();advance(exhibit);assert(!exhibit.snapshot().running&&!exhibit.snapshot().exhibitionCenter);logic.endMaintenance();
+  assert(exhibit.centerExhibition()==200&&exhibit.startExhibition()==202);WiFi.gotIp();WiFi.disconnect();advance(exhibit);assert(!exhibit.snapshot().running&&logic.owner==Owner::None);
+  assert(Preferences::data["demoV1"]==unchanged);
+  DemoService exhibitReboot(control,exhibitNetwork);assert(exhibitReboot.begin());assert(!exhibitReboot.snapshot().exhibitionCenter&&!exhibitReboot.snapshot().running&&exhibitReboot.snapshot().config.calibration==7);
   NetworkService freshNetwork;freshNetwork.begin(control);DemoService linkTest(control,freshNetwork);assert(linkTest.begin());
   j=request(c);assert(linkTest.configure(j.get())==200);logic.output.servoEnabled=false;
   assert(linkTest.zero()==200&&linkTest.calibrationStart(1)==202);advance(linkTest,50);assert(linkTest.snapshot().samplePending);

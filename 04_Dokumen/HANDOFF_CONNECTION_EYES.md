@@ -1,3 +1,43 @@
+# Continuation status — v0.16.0 floor exhibition
+
+DEPLOYED v0.16.0/buildUTC2026-10-20T10:10:18Z(17:10:18WIB),
+MACe0:72:a1:fd:0d:88 at192.168.1.14. App1,250,016 bytes/SHA
+f9583e4dc5f9c151c89f5a3e06f0fca00e4ecba9a87a9bf963d5e2c1421290d4.
+OTA ack success/3postboot GET timeouts then recovery, exact identity/idle verified.
+34 normal idle reads0failure,p95~78/p99~94ms; read-only desktop/mobile PASS.
+First real onboard random trial INTERRUPTED BY OPERATOR reset (user confirms),
+not completed.18 samples/4.64s before GET/Stop/finalstatus timeouts; subsequent
+globalStop ACK and reboot idle verified. Raw resetreason4/no crash trace means
+low-level mechanism uncertain; do not claim firmware spontaneously rebooted or
+that this real goal/wave passed. Subsequent no-output onboard simulation30s
+completed one goal/gesture without reboot; stopped/no owner/centerinvalid.
+Await new ready confirmation; no automatic physical retry. Source checks below.
+
+User20 October2026 authorizes SUPERVISED FLOOR random movement with a virtual
+30x30 cm axle-center area; accepts physical drift and manual recentering.
+Read EXHIBITION_V016.md. Reset ke Tengah is idle-only model reset after physical
+placement, never autonomous homing; explicit Start separate. No fake demoV1
+calibration/NVS writes. Runtime profile/center clear on reboot; old table mode
+guards unchanged. Tests:101 Python/browser,10 native and planner/service
+ASan/UBSan PASS. Build/OTA/live/publication evidence follows in VERIFICATION.
+At this entry preparation, active device v0.15.0/build07:40:11Z, expectedMAC
+e0:72:a1:fd:0d:88, newIP192.168.1.14, Auto/no owner/wheels0/laserOFF/hands90.
+Operator confirmed floor center/front, safe hands and observing for post-OTA
+bounded trial. Do not auto-retry physical motion on failure. Old soak partial,
+monitor paused, no runner start.
+
+Operator observations AFTER v0.15 deployment: forward80%1s about3–4 cm and
+4–5deg left drift, right45deg/left45deg with no visible coasting. Bounded
+laptop exhibition292ACK/29.45s/no errors/idle; out-and-back140ACK/14.016s
+operator later reports center return success (no measured numeric error).
+Left100 was upward, left180 vertical/free, left150 approved then lowered10deg
+to raised140/swing130–150 twice/base90. User approved final wave and requested
+Happy smile; script Happy test/readback/restore/idle passed. High right poses
+NOT confirmed; right stays90. Raw ignored build logs retain each physical trial
+and operator observation. These are estimates, not table calibration/endurance.
+
+## Previous v0.15.0 handoff (historical baseline)
+
 # Continuation status — v0.15.0 guided Auto
 
 DEPLOYED: exact v0.15.0/buildUTC2026-10-20T07:40:11Z (20 October14:40:11 WIB),

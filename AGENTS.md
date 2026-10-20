@@ -1,5 +1,16 @@
 # AI Robot Controller Rules
 
+v0.16.0 operator decision20 October2026: read04_Dokumen/EXHIBITION_V016.md.
+Supervised FLOOR exhibition is separate from measured table mode. User accepts
+open-loop drift in a virtual30x30 cm axle-center area and manually repositions.
+Use explicitly labeled midpoint estimates3.5cm/45deg/4.5deg-left per1s trial,
+never mark demoV1 calibration valid or inflate table geometry. No NVS change.
+User approved LEFT raised140/swing130..150, base90; right stays90. Internal
+Happy effect only after wheels stop. Runtime-only profile/center; boot Manual.
+Reset ke Tengah is idle-only estimate/trace reset after physical placement, no
+GPIO/acquire/start/home motion. Separate explicit Start, scoped demo lease,
+Stop/mode/network/OTA/fault invalidate center with no automatic resume.
+
 v0.15.0 read04_Dokumen/AUTO_GUIDE_V015.md. Guided preparation must not move
 actuators until one explicit test/start action. Pending calibration results live
 in RAM for the same boot without120 s expiry or actuator lease; invalidate on

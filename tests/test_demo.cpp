@@ -1,6 +1,7 @@
 #include <cassert>
 #include <limits>
 #include "../02_Firmware/robot_controller/demo_planner.h"
+#include "../02_Firmware/robot_controller/exhibition_profile.h"
 static DemoConfig config(){DemoConfig c;c.width=120;c.length=90;c.radius=10;return c;}
 int main(){
   DemoConfig bad;assert(!bad.valid());auto c=config();assert(c.valid()&&!c.ready());
@@ -64,4 +65,24 @@ int main(){
   assert(l.acquire(Owner::Program,12,2,5));assert(!l.release(11,0,true));assert(l.session==12);
   l.stop("test");const auto epoch=l.stopEpoch;l.setMode(ControlMode::Manual);l.setMode(ControlMode::Auto);assert(!l.acquireDemo(20,3,epoch));
   assert(l.acquireDemo(21,3));assert(l.command(Command{21,1,.2f,.2f,90,90,false},3,0,true));l.tick(503);assert(l.owner==Owner::None&&l.output.left==0&&!l.demoOwned);
+  ExhibitionProfile profile;assert(profile.valid());
+  assert(ExhibitionProfile::referenceIntegral()>0&&ExhibitionProfile::referenceIntegral()<.3f);
+  auto exhibit=profile.model();assert(exhibit.valid()&&exhibit.minimumSpeedsAllowed()&&!exhibit.ready()&&exhibit.calibration==0);
+  assert(std::fabs(exhibit.width*.5f-exhibit.radius-exhibit.margin-15)<.001f);
+  for(float invalidSize:{0.f,14.9f,201.f,std::numeric_limits<float>::quiet_NaN()}){auto badProfile=profile;badProfile.width=invalidSize;assert(!badProfile.valid());}
+  for(unsigned seed=1;seed<=10;++seed){
+    ControlLogic v;v.mode=ControlMode::Auto;uint32_t now=seed==10?UINT32_MAX-1000:1000,seq=0;
+    assert(v.acquireDemo(7,now));DemoPlanner p;p.start(exhibit,seed,now);p.exhibition=true;
+    bool raised=false,smile=false;
+    for(unsigned i=0;i<40000;++i){
+      now+=20;v.tick(now-10);v.tick(now);assert(p.step(v.output,now));
+      if(i%5==0)assert(v.command(Command{7,++seq,p.left,p.right,p.armLeft,p.armRight,false},now,0,true));
+      assert(std::fabs(p.pose.x)<=15.001f&&std::fabs(p.pose.y)<=15.001f&&p.traceCount<=256);
+      assert(p.armLeft>=90&&p.armLeft<=150&&p.armRight==90);
+      if(p.armLeft>90){raised=true;assert(p.phase==DemoPhase::Gesture&&p.eye==1&&p.left==0&&p.right==0&&v.output.left==0&&v.output.right==0);}
+      if(p.phase==DemoPhase::Gesture&&p.eye==1)smile=true;
+      if(p.phase==DemoPhase::Choose&&p.visits)assert(std::fabs(v.output.armLeft-90)<.1f);
+    }
+    assert(p.visits>5&&raised&&smile);
+  }
 }

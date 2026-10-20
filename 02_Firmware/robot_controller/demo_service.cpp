@@ -16,7 +16,7 @@ bool DemoService::begin() {
   state_.ready=xTaskCreatePinnedToCore(task,"demo",8192,this,2,nullptr,0)==pdPASS;
   return state_.ready;
 }
-DemoSnapshot DemoService::snapshot(){if(!mutex_)return {};Lock lock(mutex_);refreshSample(control_.snapshot().logic);return state_;}
+DemoSnapshot DemoService::snapshot(){if(!mutex_)return {};Lock lock(mutex_);const auto l=control_.snapshot().logic;refreshSample(l);if(state_.exhibitionCenter&&(epoch_!=l.stopEpoch||network_.linkLostPending()))state_.exhibitionCenter=false;return state_;}
 void DemoService::invalidateSample(const char* reason){state_.samplePending=false;state_.sampleReason=reason;}
 void DemoService::refreshSample(const ControlLogic& l){
   if(state_.samplePending&&(l.stopEpoch!=sampleEpoch_||l.owner!=Owner::None||l.maintenance||l.networkBusy||network_.linkLostPending()))invalidateSample("control_or_network_changed");
@@ -28,6 +28,44 @@ bool DemoService::armsAllowed(const ControlLogic& l) const {
   const auto& c=state_.config;
   const bool pose=!l.output.servoEnabled||(std::fabs(l.output.armLeft-c.baseLeft)<=1&&std::fabs(l.output.armRight-c.baseRight)<=1);
   return pose&&c.armsConfirmed&&c.minLeft>=l.armPolicy.leftMin&&c.maxLeft<=l.armPolicy.leftMax&&c.minRight>=l.armPolicy.rightMin&&c.maxRight<=l.armPolicy.rightMax;
+}
+bool DemoService::exhibitionArmsAllowed(const ControlLogic& l) const {
+  const auto& o=l.output;
+  return l.armPolicy.allows(90,90)&&l.armPolicy.allows(150,90)&&
+    (!o.servoEnabled||(o.armLeft>=89&&o.armLeft<=180&&std::fabs(o.armRight-90)<=1));
+}
+int DemoService::configureExhibition(cJSON* root) {
+  if(!mutex_)return 503;
+  Lock lock(mutex_);ExhibitionProfile p;
+  if(!ApiJson::fields(root,{"width_cm","length_cm"})||!ApiJson::number(root,"width_cm",p.width)||!ApiJson::number(root,"length_cm",p.length)||!p.valid())return 400;
+  if(!idle(control_.snapshot().logic))return 409;
+  state_.exhibitionProfile=p;state_.exhibition=true;state_.exhibitionCenter=false;state_.zero=false;
+  invalidateSample("configuration_changed");state_.reason="exhibition_reset_center_required";return 200;
+}
+int DemoService::centerExhibition() {
+  if(!mutex_)return 503;
+  Lock lock(mutex_);const auto l=control_.snapshot().logic;
+  if(!state_.ready||!state_.exhibitionProfile.valid())return 400;
+  if(!idle(l)||l.mode!=ControlMode::Auto||!exhibitionArmsAllowed(l)||network_.linkLostPending())return 409;
+  state_.planner=DemoPlanner{};state_.planner.config=state_.exhibitionProfile.model();state_.planner.exhibition=true;
+  state_.exhibition=true;state_.exhibitionCenter=true;state_.zero=false;epoch_=l.stopEpoch;state_.exhibitionEpoch=l.stopEpoch;
+  invalidateSample("exhibition_center_reset");state_.reason="exhibition_center_set_by_operator";return 200;
+}
+int DemoService::startExhibition(bool simulation) {
+  if(!mutex_)return 503;
+  Lock lock(mutex_);const auto l=control_.snapshot().logic;const auto c=state_.exhibitionProfile.model();
+  if(!state_.ready||!state_.exhibitionProfile.valid()||!c.valid()||!c.minimumSpeedsAllowed())return 400;
+  if(!idle(l)||network_.linkLostPending())return 409;
+  if(!simulation&&(!state_.exhibitionCenter||epoch_!=l.stopEpoch||l.mode!=ControlMode::Auto||!exhibitionArmsAllowed(l)))return 409;
+  if(!simulation&&!control_.acquireDemo(session_,l.stopEpoch))return 409;
+  ++state_.run;if(!state_.run)++state_.run;
+  state_.simulation=simulation;state_.exhibition=true;state_.running=true;state_.calibrating=false;
+  state_.zero=false;state_.exhibitionCenter=false;invalidateSample("new_run");
+  state_.reason=simulation?"exhibition_simulation":"exhibition_estimated_motion";
+  const uint32_t now=millis();state_.planner.start(c,esp_random(),now);state_.planner.exhibition=true;
+  last_=sent_=now;sequence_=0;epoch_=control_.snapshot().logic.stopEpoch;
+  if(simulation){virtual_=ControlLogic{};virtual_.mode=ControlMode::Auto;virtual_.acquireDemo(1,now);}
+  return 202;
 }
 bool DemoService::persist(const DemoConfig& c,const uint32_t* expectedEpoch) {
   if(!state_.storage)return false;
@@ -46,7 +84,7 @@ int DemoService::configure(cJSON* root) {
   if(!idle(control_.snapshot().logic))return 409;
   if(c.pwm==state_.config.pwm&&c.minPwm==state_.config.minPwm&&c.deadbandPwm==state_.config.deadbandPwm){c.linearGain=state_.config.linearGain;c.cwGain=state_.config.cwGain;c.ccwGain=state_.config.ccwGain;c.calibration=state_.config.calibration;}
   if(!persist(c))return 503;
-  state_.zero=false;invalidateSample("configuration_changed");state_.reason="configured_set_zero";return 200;
+  state_.zero=false;state_.exhibitionCenter=false;state_.exhibition=false;invalidateSample("configuration_changed");state_.reason="configured_set_zero";return 200;
 }
 int DemoService::zero() {
   if(!mutex_)return 503;
@@ -54,7 +92,7 @@ int DemoService::zero() {
   if(!idle(l))return 409;
   if(!state_.config.valid())return 400;
   state_.planner=DemoPlanner{};state_.planner.config=state_.config;
-  state_.zero=true;epoch_=l.stopEpoch;state_.reason="zero_set_by_operator";return 200;
+  state_.zero=true;state_.exhibitionCenter=false;state_.exhibition=false;epoch_=l.stopEpoch;state_.reason="zero_set_by_operator";return 200;
 }
 int DemoService::start(bool simulation) {
   if(!mutex_)return 503;
@@ -64,7 +102,7 @@ int DemoService::start(bool simulation) {
   if(!simulation&&(!state_.zero||epoch_!=l.stopEpoch||!state_.config.ready()||!armsAllowed(l)||l.mode!=ControlMode::Auto))return 409;
   if(!simulation&&!control_.acquireDemo(session_,l.stopEpoch))return 409;
   ++state_.run;if(!state_.run)++state_.run;
-  state_.simulation=simulation;state_.calibrating=false;state_.running=true;state_.zero=false;invalidateSample("new_run");
+  state_.simulation=simulation;state_.calibrating=false;state_.running=true;state_.zero=false;state_.exhibitionCenter=false;state_.exhibition=false;invalidateSample("new_run");
   state_.reason=simulation?"simulation":"running";
   const uint32_t now=millis();state_.planner.start(state_.config,esp_random(),now);last_=sent_=now;sequence_=0;
   epoch_=control_.snapshot().logic.stopEpoch;
@@ -76,7 +114,7 @@ bool DemoService::finish(const char* reason) {
   bool released=true;
   // Scoped release never stops a replacement HTTP/TCP owner.
   if(state_.running&&!state_.simulation)released=control_.releaseDemo(session_);
-  state_.running=false;state_.calibrating=false;state_.zero=false;state_.reason=reason;
+  state_.running=false;state_.calibrating=false;state_.zero=false;state_.exhibitionCenter=false;state_.reason=reason;
   state_.planner.stop(reason);if(fault)state_.planner.phase=DemoPhase::Fault;session_=0;
   return released;
 }
@@ -94,7 +132,7 @@ int DemoService::calibrationStart(unsigned kind) {
   if(!state_.ready||!idle(l)||!state_.zero||epoch_!=l.stopEpoch||!armsAllowed(l)||l.mode!=ControlMode::Auto)return 409;
   if(!control_.acquireDemo(session_,l.stopEpoch))return 409;
   ++state_.run;if(!state_.run)++state_.run;
-  state_.running=true;state_.simulation=false;state_.calibrating=true;state_.zero=false;
+  state_.running=true;state_.simulation=false;state_.calibrating=true;state_.zero=false;state_.exhibitionCenter=false;state_.exhibition=false;
   state_.sample=state_.run;state_.sampleKind=kind;state_.integral=0;invalidateSample("new_test");
   state_.reason="calibration_one_second";state_.planner.stop("calibration");
   last_=sent_=calAt_=millis();sequence_=0;epoch_=control_.snapshot().logic.stopEpoch;return 202;
@@ -118,7 +156,7 @@ void DemoService::task(void* context) {
 void DemoService::tick(uint32_t now) {
   const auto l=control_.snapshot().logic;
   refreshSample(l);
-  if(!state_.running){if(state_.zero&&epoch_!=l.stopEpoch)state_.zero=false;return;}
+  if(!state_.running){if(epoch_!=l.stopEpoch||network_.linkLostPending()){state_.zero=false;state_.exhibitionCenter=false;}return;}
   if(uint32_t(now-last_)>300){invalidateSample("planner_stalled");finish("planner_stalled");return;}
   if(l.stopEpoch!=epoch_||l.maintenance||l.networkBusy||network_.linkLostPending()||(!state_.simulation&&(!l.demoOwned||l.session!=session_))){invalidateSample("control_or_network_cancelled");finish("control_or_network_cancelled");return;}
   const uint32_t elapsed=now-last_;last_=now;
@@ -161,6 +199,16 @@ char* DemoService::statusJson() {
   auto pose=cJSON_AddObjectToObject(r,"pose");cJSON_AddNumberToObject(pose,"x_cm",s.planner.pose.x);cJSON_AddNumberToObject(pose,"y_cm",s.planner.pose.y);cJSON_AddNumberToObject(pose,"heading_deg",s.planner.pose.heading*180/3.14159265f);
   auto goal=cJSON_AddObjectToObject(r,"goal");cJSON_AddNumberToObject(goal,"x_cm",s.planner.goal.x);cJSON_AddNumberToObject(goal,"y_cm",s.planner.goal.y);
   cJSON_AddNumberToObject(r,"visits",s.planner.visits);cJSON_AddNumberToObject(r,"gesture",s.planner.gesture);
+  auto e=cJSON_AddObjectToObject(r,"exhibition");
+  cJSON_AddBoolToObject(e,"selected",s.exhibition);cJSON_AddBoolToObject(e,"center_valid",s.exhibitionCenter);
+  cJSON_AddNumberToObject(e,"width_cm",s.exhibitionProfile.width);cJSON_AddNumberToObject(e,"length_cm",s.exhibitionProfile.length);
+  const bool exhibitPose=!l.output.servoEnabled||(l.output.armLeft>=89&&l.output.armLeft<=180&&std::fabs(l.output.armRight-90)<=1);
+  const bool exhibitArms=exhibitPose&&l.armPolicy.allows(90,90)&&l.armPolicy.allows(150,90);
+  cJSON_AddBoolToObject(e,"can_start",s.ready&&!s.running&&s.exhibitionCenter&&s.exhibitionEpoch==l.stopEpoch&&l.mode==ControlMode::Auto&&l.owner==Owner::None&&!l.maintenance&&!l.networkBusy&&!network_.linkLostPending()&&exhibitArms);
+  cJSON_AddStringToObject(e,"source","operator_estimates_not_calibration");cJSON_AddBoolToObject(e,"persistent",false);
+  cJSON_AddNumberToObject(e,"forward_cm_per_trial",3.5);cJSON_AddNumberToObject(e,"turn_deg_per_trial",45);
+  cJSON_AddNumberToObject(e,"left_drift_deg_per_trial",4.5);cJSON_AddNumberToObject(e,"trial_seconds",1);
+  cJSON_AddNumberToObject(e,"wave_raised_left",140);cJSON_AddNumberToObject(e,"wave_min_left",130);cJSON_AddNumberToObject(e,"wave_max_left",150);
   auto trace=cJSON_AddArrayToObject(r,"trace");for(unsigned i=0;i<s.planner.traceCount;++i){auto p=cJSON_CreateArray();cJSON_AddItemToArray(trace,p);const auto& point=s.planner.trace[(s.planner.traceNext+256-s.planner.traceCount+i)%256];cJSON_AddItemToArray(p,cJSON_CreateNumber(point.x));cJSON_AddItemToArray(p,cJSON_CreateNumber(point.y));}
   return cJSON_PrintUnformatted(r);
 }

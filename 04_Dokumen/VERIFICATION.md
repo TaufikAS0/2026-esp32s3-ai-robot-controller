@@ -1,6 +1,59 @@
 # Verification evidence
 
-Current source: v0.15.0 (2026-10-20). Entries below distinguish firmware versions, host/model tests and operator-observed hardware trials.
+## v0.16.0 build, OTA and live checks —20 October2026 WIB
+
+- Incremental pinned ESP32 core3.3.10 build PASS; app1,250,016 bytes, storage
+  usage1,249,862/globalRAM57,592; emitted6,291,456-byte slots and source-hash
+  stability/identity gate PASS. BuildUTC2026-10-20T10:10:18Z =17:10:18WIB.
+  SHA256 f9583e4dc5f9c151c89f5a3e06f0fca00e4ecba9a87a9bf963d5e2c1421290d4.
+- App-only OTA success acknowledged;3 postboot status timeouts retained before
+  recovery on fourth probe. Exact version/build/MAC verified at192.168.1.14.
+  Boot Manual/no owner/wheel duties0/laserOFF/servo pulsesdisabled; table config
+  and calibration mask0/profile order preserved. New exhibition center invalid.
+- Actual no-motion API suite PASS:34 normal GETs/0 unexpected failures, p95~78,
+  p99/worst~94ms. Expected stale result, unready starts and invalid/false floor
+  confirmations rejected. No actuator commands. Read-only live desktop/mobile
+  browser PASS: no JS errors/POST/overflow; screenshots inspected.
+- First operator-observed floor trial: center reset verified NO motion and
+  trace empty; start202; reset DURING motion409.18 status/demo samples through
+  about4.64s (lastuptime41,326ms) captured turn/drive. Then GET/demo timeout,
+  scopedStop timeout and finalGET timeout retained. A recovery globalStop on80
+  acknowledged; newuptime14,053ms, all wheel duties0/laserOFF/pulsesdisabled.
+  User explicitly reports manually switching off/resetting robot during this
+  trial. Classify as OPERATOR-INTERRUPTED, not complete and not proof of a
+  spontaneous firmware reset. Raw reset_reason4 retained; no crash trace captured
+  at the interruption, so its low-level reset path is not independently proven.
+- Diagnostic onboard ISOLATED simulation30s PASS: one goal/gesture, bounded trace,
+  no real owner/wheel/laser command, no reboot (uptime63,654 to~94,000ms). UART
+  COM11 opened with DTR/RTSfalse without reboot; no serial bytes during this
+  quiet simulation. Scoped simulationStop acknowledged and center invalid.
+- Recovery idle verified; no automatic physical retry. Await fresh operator
+  center/front/pose setup before any next motion trial. Ignored build/ota-v016,
+  live-v016, browser-v016 and exhibition-v016*.json preserve raw evidence.
+  Old soak remains partial and monitor paused. No endurance/containment PASS.
+
+## v0.16.0 exhibition — source and host checks
+
+- Read vault home, workspace naming, firmware standard, Gitflow, credential/profile,
+  robot LAN access, Versioning and Change Notifications. Existing saved Wi-Fi
+  selection/AP/access policy preserved. No network changes or NVS erase.
+-101 Python/browser tests PASS (56 Chromium),10 native C++17 Wall/Wextra/Werror
+  suites PASS; planner/service ASan/UBSan PASS. Exhibition model400k20ms steps
+  over10 seeds including timer wrap stays within±15cm axle bounds; left90–150,
+  right90, no wave while wheel output nonzero, Happy and return90 checks.
+- Source/service checks cover no NVS change/calibration promotion, RAM reset,
+  simulated run no real lease/commands, scoped stop during every phase, invalid
+  configs/duplicate fields, reset no GPIO/acquire, foreign owner/new session,
+  invalid center after Stop/replacement, network/OTA/stall and reboot.
+- Four new Chromium tests PASS: explicit reset/start/stop, reload no replay,
+  simulation/config paths, foreign owner and mobile. Entire101-test regression
+  PASS. Mobile screenshot visually inspected/no overflow. Initial new planner
+  assertion expected Happy on the single transition INTO Gesture; corrected
+  test to require Happy once wave starts (existing transition has no eye override).
+- Device at192.168.1.14 verified v0.15.0/build07:40:11Z/MAC before upload; idle,
+  no owner. Post-build/OTA/live results recorded below when actually complete.
+
+Current source: v0.16.0 (2026-10-20). Entries below distinguish firmware versions, host/model tests and operator-observed hardware trials.
 
 ## v0.15.0 guided Auto — 2026-10-20 WIB
 

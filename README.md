@@ -1,5 +1,13 @@
 # AI Robot Controller
 
+v0.16.0 adds **Jelajah pameran · pagar virtual** for supervised clear FLOOR use.
+Default30x30 cm virtual axle-center area; editable sizes, isolated simulation,
+STOP and **Reset ke Tengah** after manually placing the robot at its marked
+center/front. Reset only sets the estimate; Start is separate. Operator-estimate
+profile and approved left140/swing130–150 smiling wave are separate from saved
+table calibration. No physical containment/return-accuracy guarantee.
+[Setup/API/upgrade](04_Dokumen/EXHIBITION_V016.md). See verification for actual OTA.
+
 v0.15.0 adds **Siapkan Auto**, a guided pose → forward/right/left calibration →
 Zero → explicit Start flow. A completed sample can wait for input during the same
 boot without a120-second limit. See [Auto guide](04_Dokumen/AUTO_GUIDE_V015.md).

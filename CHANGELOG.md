@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.16.0 — 2026-10-20 WIB
+
+- Previous: v0.15.0 guided table calibration; operator tests/exhibition ran from a
+  laptop and were not saved as firmware calibration.
+- Changes: separate onboard floor exhibition using labeled observation midpoints,
+  random goals in default30x30 cm virtual axle area, estimated forward left drift,
+  stopped left140/swing130–150 Happy wave; no right-arm unvalidated high pose.
+  Web Reset ke Tengah after manual repositioning resets estimate/trace only;
+  explicit Start remains separate, reload is observation-only. Optional simulation.
+- Unchanged: measured table guards/demoV1, all NVS schemas/keys, pins/partitions,
+  HTTP/TCP/Wi-Fi/open-LAN and500 ms timeout; old soak partial/monitor paused.
+- Tests: native model/service and Chromium exhibition checks added; final full
+  regression, pinned-core build and actual OTA evidence in VERIFICATION.md.
+- Limitations: virtual bounds are model-only, no sensors or physical containment;
+  one successful operator-observed return is not repeatability proof. Estimates
+  and area are RAM-only; no fake calibration flags or automatic boot/resume.
+- Upgrade: app-only OTA after validation, then inspect hands/placement and Reset
+  followed by explicit Start. See04_Dokumen/EXHIBITION_V016.md.
+
 ## v0.15.0 — 2026-10-20 WIB
 
 - Previous: v0.14.1 independent Manual/Auto/Zero/test/result controls and120 s

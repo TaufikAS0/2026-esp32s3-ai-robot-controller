@@ -44,7 +44,7 @@ void WebService::begin() {
   server_.on("/api/v1/settings", HTTP_POST, [this]() { settings(); });
   server_.on("/api/v1/wifi",HTTP_GET,[this](){wifiSettings();});
   server_.on("/api/v1/demo",HTTP_GET,[this](){demoStatus();});
-  for(const auto path:{"/api/v1/demo/config","/api/v1/demo/zero","/api/v1/demo/start","/api/v1/demo/stop","/api/v1/demo/calibration/start","/api/v1/demo/calibration/result"})
+  for(const auto path:{"/api/v1/demo/config","/api/v1/demo/zero","/api/v1/demo/start","/api/v1/demo/stop","/api/v1/demo/calibration/start","/api/v1/demo/calibration/result","/api/v1/demo/exhibition/config","/api/v1/demo/exhibition/center","/api/v1/demo/exhibition/start"})
     server_.on(path,HTTP_POST,[this](){demoAction();});
   for(const auto path:{"/api/v1/wifi/scan","/api/v1/wifi/save","/api/v1/wifi/delete","/api/v1/wifi/order","/api/v1/wifi/connect"})
     server_.on(path,HTTP_POST,[this](){wifiAction();});

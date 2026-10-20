@@ -14,6 +14,12 @@ void WebService::demoAction() {
   else {
     if(webOta_||ota_.busy||ota_.enabled||control_.snapshot().logic.maintenance){error(409,"ota_busy");return;}
     if(path=="/api/v1/demo/config")code=demo_.configure(root.get());
+    else if(path=="/api/v1/demo/exhibition/config")code=demo_.configureExhibition(root.get());
+    else if(path=="/api/v1/demo/exhibition/center"&&fields(root.get(),{"confirmed_center","confirmed_floor","confirmed_hands"})&&cJSON_IsTrue(item(root.get(),"confirmed_center"))&&cJSON_IsTrue(item(root.get(),"confirmed_floor"))&&cJSON_IsTrue(item(root.get(),"confirmed_hands")))code=demo_.centerExhibition();
+    else if(path=="/api/v1/demo/exhibition/start"&&fields(root.get(),{"mode","accept_estimates"})&&cJSON_IsTrue(item(root.get(),"accept_estimates"))&&cJSON_IsString(item(root.get(),"mode"))) {
+      const char* mode=item(root.get(),"mode")->valuestring;
+      if(!strcmp(mode,"robot")||!strcmp(mode,"simulation"))code=demo_.startExhibition(!strcmp(mode,"simulation"));
+    }
     else if(path=="/api/v1/demo/zero"&&fields(root.get(),{"confirmed_center","confirmed_fence"})&&cJSON_IsTrue(item(root.get(),"confirmed_center"))&&cJSON_IsTrue(item(root.get(),"confirmed_fence")))code=demo_.zero();
     else if(path=="/api/v1/demo/start"&&fields(root.get(),{"mode"})&&cJSON_IsString(item(root.get(),"mode"))) {
       const char* mode=item(root.get(),"mode")->valuestring;

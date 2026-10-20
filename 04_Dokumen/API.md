@@ -1,5 +1,15 @@
 # HTTP API v1
 
+### v0.16.0 supervised floor exhibition
+
+[EXHIBITION_V016.md](EXHIBITION_V016.md) adds strict POST/demo/exhibition/config,
+/center and/start (robot or isolated simulation), plus GET/demo.exhibition.
+Runtime-only virtual axle area and operator estimates are separate from stored
+table calibration. Reset center is idle-only/no GPIO/no acquisition/no auto start;
+physical repositioning and explicit Auto/pose confirmations required. Existing
+scoped Stop/HTTP81 status and global Stop remain; no automatic resume after
+mode/network/OTA/Stop/reboot. Internal Happy override while waving left130–150.
+
 ### v0.15.0 guided Auto and pending results
 
 [AUTO_GUIDE_V015.md](AUTO_GUIDE_V015.md) defines same-boot pending sample lifetime

@@ -75,6 +75,7 @@ class DemoPlanner {
   const char* reason="idle";
   float left=0,right=0,armLeft=90,armRight=90;
   uint8_t eye=0;
+  bool exhibition=false;
   void start(const DemoConfig& c,uint32_t seed,uint32_t now) {
     *this=DemoPlanner{};config=c;rng_=seed?seed:1;last_=phaseAt_=now;
     armLeft=c.baseLeft;armRight=c.baseRight;
@@ -89,7 +90,10 @@ class DemoPlanner {
     const float effectiveLeft=config.effort(applied.left),effectiveRight=config.effort(applied.right);
     const float v=(effectiveLeft+effectiveRight)*.5f*config.linearGain;
     const float differential=(effectiveLeft-effectiveRight)*.5f;
-    const float w=differential*(differential>=0?config.cwGain:config.ccwGain)*pi/180;
+    // Optional exhibition estimate: observed left drift4.5deg per3.5cm.
+    // This is modeled heading drift, not closed-loop wheel correction.
+    const float yaw=exhibition?std::max(0.f,v)*(4.5f/3.5f):0;
+    const float w=(differential*(differential>=0?config.cwGain:config.ccwGain)-yaw)*pi/180;
     const float mid=pose.heading+w*dt*.5f;
     pose.x+=v*std::sin(mid)*dt;pose.y+=v*std::cos(mid)*dt;pose.heading=wrap(pose.heading+w*dt);
     if(!std::isfinite(pose.x)||!std::isfinite(pose.y)||std::fabs(pose.x)>config.width*.5f-config.radius-config.margin || std::fabs(pose.y)>config.length*.5f-config.radius-config.margin)return fail("model_boundary");
@@ -121,6 +125,13 @@ class DemoPlanner {
         break;
       case DemoPhase::Gesture: {
         if(std::fabs(applied.left)>.001f||std::fabs(applied.right)>.001f)return fail("gesture_wheels_nonzero");
+        if(exhibition) {
+          const uint32_t t=now-phaseAt_;eye=1; // Temporary Happy; no mutation of EyeService settings.
+          armLeft=t<1800?140:t<5000?140+10*std::sin(2*pi*(t-1800)/1600.f):config.baseLeft;
+          if(t>=7000&&std::fabs(applied.armLeft-config.baseLeft)<.1f&&std::fabs(applied.armRight-config.baseRight)<.1f){++visits;phase=DemoPhase::Choose;phaseAt_=now;eye=0;}
+          else if(t>20000)return fail("arm_reference_not_restored");
+          break;
+        }
         const uint32_t t=now-phaseAt_;eye=uint8_t(gesture+1);
         const float wave=.5f-.5f*std::cos(4*pi*std::min(1.f,t/3200.f));
         if(gesture<2)armLeft+=excursion(config.baseLeft,config.minLeft,config.maxLeft)*wave;
