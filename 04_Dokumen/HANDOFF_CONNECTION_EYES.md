@@ -1,5 +1,16 @@
 # Continuation status — v0.16.0 floor exhibition
 
+LATEST real one-goal trial PASS after fresh operator ready confirmation:
+67 paired samples/19.078s,148 requests0fail,p95~93/p99~109/worst~110ms.
+Onboard random goal and Happy left140/swing130–150 gesture completed; while
+arm raised wheel outputs0. No reboot/Wi-Fi disconnect (uptime306559→326816ms).
+ScopedStop ACK; final no owner/all wheel duties0/laserOFF/arms90/pulsesenabled,
+demo stopped/centerinvalid. Same v0.16.0/build10:10:18Z. Table NVS untouched.
+Before next run operator must manually place center/front then use web Reset
+ke Tengah and separate Start. No automatic next run. Earlier interrupted test
+and reset acknowledgement remain recorded below, not discarded. Model bounds
+are not measured physical containment. Full evidence in VERIFICATION.
+
 DEPLOYED v0.16.0/buildUTC2026-10-20T10:10:18Z(17:10:18WIB),
 MACe0:72:a1:fd:0d:88 at192.168.1.14. App1,250,016 bytes/SHA
 f9583e4dc5f9c151c89f5a3e06f0fca00e4ecba9a87a9bf963d5e2c1421290d4.

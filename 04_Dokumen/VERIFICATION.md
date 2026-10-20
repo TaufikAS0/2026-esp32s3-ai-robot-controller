@@ -1,5 +1,28 @@
 # Verification evidence
 
+## v0.16.0 final bounded real exhibition —20 October2026 WIB
+
+- Operator freshly confirmed center/front, safe90 hands and observation after
+  the manually interrupted first trial. One deliberate new run, no automatic
+  replay. Same deployed build10:10:18Z; no firmware change/reflash.
+- Real onboard reset/config verified no movement/acquisition; estimate(0,0),
+  heading0/trace empty, original table config unchanged. Explicit Start202;
+  Reset during run409 without interruption. One random goal and LEFT raised140,
+  swing130–150 Happy gesture completed, observed in67 paired status/demo samples
+  over19.078s;148 requests,0 unexpected failures. Request p95~93ms,p99~109ms,
+  worst~110ms. These are HTTP observation/control latencies, NOT internal
+  planner command ACK measurements. Trace centermaxabsXY8.564cm within±15cm.
+- Uptime306,559 to326,816ms; Wi-Fi disconnect0 to0; no reboot. COM11 serial
+  capture remained quiet. While arm reference>95deg, wheel outputs verified0;
+  Happy seen in actual eye status. LaserOFF throughout; no unapproved right
+  high-arm command. ScopedStop ACK, final no owner/wheel duties0/laserOFF,
+  both arm references90, pulses remainenabled, demo stopped/centerinvalid.
+  Existing stored table config/calibration mask unchanged; no auto continuation.
+- Ignored build/exhibition-v016-live-trial.json holds successful run; original
+  first run preserved separately as *-operator-interrupted.json, operator reset
+  acknowledgement and recovery/simulation logs retained. Success does not erase
+  prior timeouts. No physical containment/return accuracy or endurance claim.
+
 ## v0.16.0 build, OTA and live checks —20 October2026 WIB
 
 - Incremental pinned ESP32 core3.3.10 build PASS; app1,250,016 bytes, storage
