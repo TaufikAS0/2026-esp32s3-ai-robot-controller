@@ -1,5 +1,9 @@
 # Demo meja: simulasi dan jelajah mandiri — v0.14.0
 
+v0.14.1 supersedes the25% PWM cap and raw-PWM model below. Read
+[DEMO_V0141_PWM.md](DEMO_V0141_PWM.md) for optional minimum/deadband fields,
+80% upper limit, calibration invalidation, speed guards and storage compatibility.
+
 ## Previous / Changes
 
 Previous v0.13.0 only provides manual/external-engine actuator control. v0.14.0

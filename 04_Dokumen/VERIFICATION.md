@@ -1,6 +1,68 @@
 # Verification evidence
 
-Current source: v0.14.0 (2026-10-20). Evidence entries carry their own versions; earlier version evidence is historical. See the v0.14.0 entry below for current validation and physical-test limits.
+Current source: v0.14.1 (2026-10-20). Entries below distinguish firmware versions, host/model tests and operator-observed hardware trials.
+
+## v0.14.1 motor deadband and operator commissioning — 2026-10-20 WIB
+
+- Previous v0.14.0. Operator requested physical Auto testing and delegated temporary
+  model values, then confirmed hands90 safe, small88→92→90 safe, table centered/
+  fenced, stable wheels-lifted support, and finally a clear floor lane. The chosen
+  MODEL75x75 cm/reach15/margin10 generated20x20 cm goals; dimensions were not measured.
+  No fake wheel gains/calibration flags were written. Pose/angle remains open loop.
+- Physical observations on v0.14.0:15% one-second internal demo calibration produced
+  0 cm (operator); result not accepted. Lifted25/40/60/80% stages: operator thought
+  40% stationary,60% very slow,80% stronger. Descending80→60→40→25 answer "40%"
+  interpreted as stopping at40, not a precise threshold. Floor60%1 s: approximately
+  1 cm straight;80%1 s: approximately3–5 cm, direction/coast not explicitly reported.
+  These show the25% cap is unsuitable here, not the electrical root cause or an
+  exact speed curve. No random physical exploration was started.
+- Six direct HTTP trial logs contain150 acknowledged commands/0 request failures;
+  separate15% internal calibration has its own log. Commanded wheel/laser zero and
+  scoped release verified after each trial, arms held90. Command p95/p99/worst
+  ~79/94/109 ms. Per-scenario ALL-request p95/p99/worst ms: pose94/94/94,
+  hands78/94/94, ascending79/109/109, descending78/79/79,
+  floor60=63/78/78, floor80=78/79/79. Command scheduling gaps were not timestamped
+  for every scenario; floor intent duration was1.000 s before scoped release.
+  Distances/turns are not sensor measurements.
+  Bench records: ignored build/commission-{pose,hands,forward,wheels-lifted,
+  wheels-sustain,floor-60,floor-80}-v014.json. No replay or failed-request retry.
+- Changes: DEMO_V0141_PWM.md documents optional paired minimum/deadband PWM,
+  max80% but unchanged15/0/0 defaults, effective-applied-effort calibration/model,
+  explicit turn braking and minimum-speed gate. Changing any PWM setting clears
+  calibration. Raw external HTTP/TCP commands remain raw PWM; no GPIO/pin/partition/
+  Wi-Fi/access or expiry change. Old storage is read before extended save.
+- Read actual sibling-vault Firmware_AI_Vault_Home, Rules_Nama_dan_Folder_Workspace,
+  Rules_Firmware_Standar, Rules_GitHub_Gitflow, Rules_Kredensial_WiFi, WiFi_HuaweiJIN,
+  Rules_Akses_Robot_Lab, Rules_Versioning and Rules_Change_Notifications. Current
+  user-saved STA remains authoritative; no profile/default/access changes or erase.
+- Local PASS:92 Python/browser tests (47 Chromium);10 native C++17 suites
+  Wall/Wextra/Werror. New/legacy schema, duplicates/ranges, model deadband and
+  minimum target,900,000 combined random modeled steps, effective calibration
+  integral/invalidation/storage and minimum-speed guard. Planner/service ASan/UBSan
+  PASS. Mock advanced desktop/mobile inspected, no overflow/errors.
+- Pinned core3.3.10 incremental build PASS (core/library objects reused, source
+  hashes/binary identity verified; not labeled clean). v0.14.1/buildUTC
+  2026-10-20T03:03:42Z =20 October2026 10:03:42 WIB. App1,232,496 bytes, storage
+  1,232,342/global RAM57,576; two6,291,456-byte slots verified. App SHA256
+  `b8880597da2fea658533c77ddd36ad98a50317084b54af6b899ee82ec6eba1f3`.
+- App-only OTA acknowledged success. Three postboot GET timeouts retained before
+  recovery; no automatic reflash. Exact version/build/MACe0:72:a1:fd:0d:88 verified
+  at192.168.1.22, saved profiles unchanged. Boot Manual/unowned, wheel duties0,
+  laserOFF/pulsesdisabled, demo not running/Zero invalid/hand confirmation false.
+- v0.14.1 no-motion API PASS:36 normal reads/0 failures,p95/p99/worst~78 ms,
+  uptime56,733→60,918 ms; Wi-Fi disconnect count0→0. Old19-field storage loaded;
+  invalid PWM>80/minimum<=deadband/unpaired fields rejected; valid80/60/50 saved
+  without actuator activation. Real start rejected pending calibration/Zero/pose.
+  Actual desktop/mobile browser PASS: percentage values80/60/50, Startdisabled,
+  no JS error/overflow/POST. Ignored build/{ota,live,browser}-v0141-result.json
+  and demo-v0141-live-*.png retain evidence. No new actuator command after this OTA.
+- Limitations: motor supply/voltage/current/friction not measured, left/right
+  thresholds not independently measured, coast and CW/CCW calibration missing.
+  50% is an editable initial model estimate, not certified breakaway PWM. No
+  accepted3-axis wheel calibration, measured physical containment, autonomous
+  physical trajectory, recovery-under-load or24-hour proof. Old soak stays partial/
+  paused; no automation/runner restarted. Fresh physical commissioning remains.
+
 
 ## v0.14.0 editable table demo — 2026-10-20 WIB
 

@@ -460,6 +460,27 @@ class DashboardTests(unittest.TestCase):
         self.assertIn('SIMULASI',self.page.locator('#demoBadge').inner_text())
         self.assertTrue(self.page.locator('#demoStart').is_disabled())
 
+    def test_demo_pwm_percentages_roundtrip_without_actuation(self):
+        self.demo_setup()
+        self.page.locator('#demoAdvanced').evaluate('e=>e.open=true')
+        self.page.locator('#demoPwm').fill('80')
+        self.page.locator('#demoMinPwm').fill('60')
+        self.page.locator('#demoDeadband').fill('50')
+        self.page.locator('#demoSave').click()
+        self.page.wait_for_function('!demoBusy&&!demoDirty')
+        posted=[body for path,body in self.calls if path=='/demo/config'][-1]
+        self.assertEqual((posted['pwm'],posted['min_pwm'],posted['deadband_pwm']),(.8,.6,.5))
+        self.assertFalse(any(path in ['/command','/control/acquire'] for path,_ in self.calls))
+        self.assertEqual(self.page.locator('#demoMinPwm').input_value(),'60')
+
+    def test_demo_minimum_speed_block_is_explained(self):
+        self.demo_setup()
+        self.demo.update(minimum_speed_allowed=False,can_start_robot=False)
+        self.page.evaluate('loadDemo()')
+        self.page.wait_for_function('demoData.minimum_speed_allowed===false')
+        self.assertTrue(self.page.locator('#demoStart').is_disabled())
+        self.assertIn('kecepatan minimum motor melebihi',self.page.locator('#demoReadiness').inner_text())
+
     def test_demo_zero_cancel_and_confirm_no_motion(self):
         self.demo_setup()
         self.page.once('dialog',lambda d:d.dismiss())

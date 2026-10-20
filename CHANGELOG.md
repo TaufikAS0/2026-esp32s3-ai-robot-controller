@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.14.1 — 2026-10-20 WIB
+
+- Previous: v0.14.0 demo capped25% while operator found15% immobile and60–80%
+  necessary for visible loaded motion. Raw-PWM linear model missed this behavior.
+- Changes: optional min_pwm/deadband_pwm,80% upper limit, unchanged15/0/0 defaults;
+  shared effective-effort integration/inversion in planner and calibration, explicit
+  turn braking inside tolerance and minimum-speed readiness guard. Advanced UI
+  percentages and guard explanation. Any PWM change invalidates all motion results.
+- Unchanged: raw HTTP/TCP commands, pins/partitions, Wi-Fi/open-LAN policy, single
+  GPIO writer,500 ms expiry and no automatic restart. Laser remains off in demo.
+- Tests: expanded native/schema/random path/service and browser percentage/guard
+  regressions; exact counts, build identity and OTA outcome in VERIFICATION.
+- Limitations: measured position unavailable; operator floor observations were
+  rough estimates. No completed calibration, autonomous physical path or soak proof.
+- Upgrade: reads old15-field config/19-field stored data, writes new21-field data
+  under same demoV1 key. Old firmware cannot read the extended object. No NVS erase;
+  reboot clears hand confirmation/Zero/run, requires commissioning again.
+
 ## v0.14.0 — 2026-10-20 WIB
 
 - Previous: v0.13.0 manual/external-engine control, no autonomous bounded-model demo.

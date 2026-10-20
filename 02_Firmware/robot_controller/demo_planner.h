@@ -6,6 +6,7 @@
 // Portable, bounded, ideal differential-drive model. No GPIO, Wi-Fi or position sensor.
 struct DemoConfig {
   float width=0,length=0,radius=0,margin=10,coast=0,speed=5,turn=30,pwm=.15f;
+  float minPwm=0,deadbandPwm=0;
   float baseLeft=90,baseRight=90,minLeft=0,maxLeft=180,minRight=0,maxRight=180;
   float linearGain=40,cwGain=240,ccwGain=240;
   bool armsConfirmed=false;
@@ -14,24 +15,36 @@ struct DemoConfig {
   float halfX() const {return width*.5f-reserve();}
   float halfY() const {return length*.5f-reserve();}
   bool valid() const {
-    const float values[]={width,length,radius,margin,coast,speed,turn,pwm,baseLeft,baseRight,minLeft,maxLeft,minRight,maxRight,linearGain,cwGain,ccwGain};
+    const float values[]={width,length,radius,margin,coast,speed,turn,pwm,minPwm,deadbandPwm,baseLeft,baseRight,minLeft,maxLeft,minRight,maxRight,linearGain,cwGain,ccwGain};
     for(float v:values)if(!std::isfinite(v))return false;
     return width>0&&width<=1000&&length>0&&length<=1000&&radius>0&&margin>=0&&coast>=0&&
-      speed>0&&speed<=5&&turn>0&&turn<=30&&pwm>0&&pwm<=.25f&&
+      speed>0&&speed<=5&&turn>0&&turn<=30&&pwm>0&&pwm<=.8f&&
+      minPwm>=0&&minPwm<=pwm&&deadbandPwm>=0&&deadbandPwm<pwm&&
+      (minPwm==0?deadbandPwm==0:minPwm>deadbandPwm)&&
       minLeft>=0&&maxLeft<=180&&minLeft<maxLeft&&minRight>=0&&maxRight<=180&&minRight<maxRight&&
       baseLeft>=minLeft&&baseLeft<=maxLeft&&baseRight>=minRight&&baseRight<=maxRight&&
       linearGain>0&&linearGain<=2000&&cwGain>0&&cwGain<=10000&&ccwGain>0&&ccwGain<=10000&&
       halfX()>2.5f&&halfY()>2.5f&&std::hypot(halfX(),halfY())>=5.1f&&calibration<=7;
   }
-  bool ready() const {return valid()&&armsConfirmed&&calibration==7;}
+  float effort(float applied) const {return std::copysign(std::max(0.f,std::fabs(applied)-deadbandPwm),applied);}
+  float commandPwm(float requestedEffort) const {return requestedEffort<=0?0:std::min(pwm,std::max(minPwm,deadbandPwm+requestedEffort));}
+  bool minimumSpeedsAllowed() const {const float e=effort(minPwm);return e*linearGain<=speed+.001f&&e*cwGain<=turn+.001f&&e*ccwGain<=turn+.001f;}
+  bool ready() const {return valid()&&armsConfirmed&&calibration==7&&minimumSpeedsAllowed();}
   static bool parse(cJSON* r,DemoConfig& out,bool stored=false) {
     using namespace ApiJson;DemoConfig c;
+    // Accept the exact legacy schema or the exact schema with both new fields.
+    // Strip one occurrence on a copy so duplicate/unknown fields still fail.
+    Json known(cJSON_Duplicate(r,true),cJSON_Delete);if(!known)return false;
+    if(item(r,"min_pwm")||item(r,"deadband_pwm")) {
+      if(!number(r,"min_pwm",c.minPwm)||!number(r,"deadband_pwm",c.deadbandPwm))return false;
+      cJSON_DeleteItemFromObjectCaseSensitive(known.get(),"min_pwm");cJSON_DeleteItemFromObjectCaseSensitive(known.get(),"deadband_pwm");
+    }
     if(stored) {
-      if(!fields(r,{"width_cm","length_cm","radius_cm","margin_cm","coast_cm","speed_cm_s","turn_deg_s","pwm","base_left","base_right","min_left","max_left","min_right","max_right","arms_confirmed","linear_gain","cw_gain","ccw_gain","calibration"}))return false;
+      if(!fields(known.get(),{"width_cm","length_cm","radius_cm","margin_cm","coast_cm","speed_cm_s","turn_deg_s","pwm","base_left","base_right","min_left","max_left","min_right","max_right","arms_confirmed","linear_gain","cw_gain","ccw_gain","calibration"}))return false;
       uint32_t mask=0;auto m=item(r,"calibration");if(!cJSON_IsNumber(m)||m->valuedouble<0||m->valuedouble>7||std::floor(m->valuedouble)!=m->valuedouble)return false;
       mask=uint32_t(m->valuedouble);c.calibration=mask;
       if(!number(r,"linear_gain",c.linearGain)||!number(r,"cw_gain",c.cwGain)||!number(r,"ccw_gain",c.ccwGain))return false;
-    } else if(!fields(r,{"width_cm","length_cm","radius_cm","margin_cm","coast_cm","speed_cm_s","turn_deg_s","pwm","base_left","base_right","min_left","max_left","min_right","max_right","arms_confirmed"}))return false;
+    } else if(!fields(known.get(),{"width_cm","length_cm","radius_cm","margin_cm","coast_cm","speed_cm_s","turn_deg_s","pwm","base_left","base_right","min_left","max_left","min_right","max_right","arms_confirmed"}))return false;
     if(!number(r,"width_cm",c.width)||!number(r,"length_cm",c.length)||!number(r,"radius_cm",c.radius)||
        !number(r,"margin_cm",c.margin)||!number(r,"coast_cm",c.coast)||!number(r,"speed_cm_s",c.speed)||
        !number(r,"turn_deg_s",c.turn)||!number(r,"pwm",c.pwm)||!number(r,"base_left",c.baseLeft)||
@@ -44,6 +57,7 @@ struct DemoConfig {
     const char* names[]={"width_cm","length_cm","radius_cm","margin_cm","coast_cm","speed_cm_s","turn_deg_s","pwm","base_left","base_right","min_left","max_left","min_right","max_right","linear_gain","cw_gain","ccw_gain"};
     const float values[]={width,length,radius,margin,coast,speed,turn,pwm,baseLeft,baseRight,minLeft,maxLeft,minRight,maxRight,linearGain,cwGain,ccwGain};
     for(unsigned i=0;i<17;++i)cJSON_AddNumberToObject(r.get(),names[i],values[i]);
+    cJSON_AddNumberToObject(r.get(),"min_pwm",minPwm);cJSON_AddNumberToObject(r.get(),"deadband_pwm",deadbandPwm);
     cJSON_AddBoolToObject(r.get(),"arms_confirmed",armsConfirmed);cJSON_AddNumberToObject(r.get(),"calibration",calibration);return r;
   }
 };
@@ -64,7 +78,7 @@ class DemoPlanner {
   void start(const DemoConfig& c,uint32_t seed,uint32_t now) {
     *this=DemoPlanner{};config=c;rng_=seed?seed:1;last_=phaseAt_=now;
     armLeft=c.baseLeft;armRight=c.baseRight;
-    phase=c.valid()?DemoPhase::Choose:DemoPhase::Fault;reason=c.valid()?"running":"invalid_config";record();
+    const bool usable=c.valid()&&c.minimumSpeedsAllowed();phase=usable?DemoPhase::Choose:DemoPhase::Fault;reason=usable?"running":"invalid_config_or_minimum_speed";record();
   }
   void stop(const char* why) {phase=DemoPhase::Idle;left=right=0;eye=0;reason=why;}
   bool step(const Output& applied,uint32_t now) {
@@ -72,8 +86,9 @@ class DemoPlanner {
     const uint32_t elapsed=now-last_;last_=now;
     if(elapsed>300)return fail("planner_stalled");
     const float dt=elapsed*.001f;
-    const float v=(applied.left+applied.right)*.5f*config.linearGain;
-    const float differential=(applied.left-applied.right)*.5f;
+    const float effectiveLeft=config.effort(applied.left),effectiveRight=config.effort(applied.right);
+    const float v=(effectiveLeft+effectiveRight)*.5f*config.linearGain;
+    const float differential=(effectiveLeft-effectiveRight)*.5f;
     const float w=differential*(differential>=0?config.cwGain:config.ccwGain)*pi/180;
     const float mid=pose.heading+w*dt*.5f;
     pose.x+=v*std::sin(mid)*dt;pose.y+=v*std::cos(mid)*dt;pose.heading=wrap(pose.heading+w*dt);
@@ -93,13 +108,13 @@ class DemoPlanner {
         phase=DemoPhase::Turn;phaseAt_=now;break;
       }
       case DemoPhase::Turn:
-        if(std::fabs(error)<pi/90 && std::fabs(differential)<.01f){phase=DemoPhase::Drive;phaseAt_=now;}
-        else {const float gain=error>=0?config.cwGain:config.ccwGain;const float p=std::min(config.pwm,std::min(config.turn,std::fabs(error)*180/pi*3)/gain);left=error>=0?p:-p;right=-left;}
+        if(std::fabs(error)<pi/90){if(std::fabs(applied.left)<.01f&&std::fabs(applied.right)<.01f){phase=DemoPhase::Drive;phaseAt_=now;}}
+        else {const float gain=error>=0?config.cwGain:config.ccwGain;const float p=config.commandPwm(std::min(config.turn,std::fabs(error)*180/pi*3)/gain);left=error>=0?p:-p;right=-left;}
         break;
       case DemoPhase::Drive:
         if(distance<.75f){phase=DemoPhase::Brake;phaseAt_=now;}
         else if(std::fabs(error)>pi/12){phase=DemoPhase::Turn;phaseAt_=now;}
-        else left=right=std::min(config.pwm,std::min(config.speed,distance*1.5f)/config.linearGain);
+        else left=right=config.commandPwm(std::min(config.speed,distance*1.5f)/config.linearGain);
         break;
       case DemoPhase::Brake:
         if(std::fabs(applied.left)<.001f&&std::fabs(applied.right)<.001f&&uint32_t(now-phaseAt_)>=500){phase=DemoPhase::Gesture;phaseAt_=now;gesture=nextRandom()%3;}

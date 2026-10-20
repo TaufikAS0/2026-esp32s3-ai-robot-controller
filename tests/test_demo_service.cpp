@@ -47,6 +47,13 @@ int main(){
     assert(demo.snapshot().planner.phase==phase);auto s=demo.snapshot();const float arm=logic.output.armLeft;
     assert(demo.stop(s.run)==200);advance(demo,10);assert(!demo.snapshot().running&&logic.output.left==0&&logic.output.right==0&&logic.output.armLeft==arm);
   }
+  c.pwm=.8f;c.minPwm=.6f;c.deadbandPwm=.5f;j=request(c);assert(demo.configure(j.get())==200);assert(demo.snapshot().config.calibration==0);
+  for(unsigned kind=0;kind<3;++kind){
+    logic.output.servoEnabled=false;assert(demo.zero()==200);assert(demo.calibrationStart(kind)==202);advance(demo,50);const auto s=demo.snapshot();
+    assert(!s.running&&s.integral>0&&s.integral<.3f);
+    assert(demo.calibrationResult(s.sample,s.integral*(kind==0?20:120),0)==200);
+  }
+  assert(demo.snapshot().config.ready());
   logic.output.servoEnabled=false;assert(demo.zero()==200);WiFi.gotIp();assert(demo.start(false)==202);WiFi.disconnect();advance(demo);
   assert(!demo.snapshot().running&&!demo.snapshot().zero&&logic.owner==Owner::None);
   auto stored=Preferences::data["demoV1"];DemoService reboot(control,network);assert(reboot.begin());assert(!reboot.snapshot().zero&&!reboot.snapshot().running&&!reboot.snapshot().config.armsConfirmed);

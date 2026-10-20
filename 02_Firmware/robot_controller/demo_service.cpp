@@ -37,7 +37,7 @@ int DemoService::configure(cJSON* root) {
   Lock lock(mutex_);DemoConfig c;
   if(!DemoConfig::parse(root,c))return 400;
   if(!idle(control_.snapshot().logic))return 409;
-  if(c.pwm==state_.config.pwm){c.linearGain=state_.config.linearGain;c.cwGain=state_.config.cwGain;c.ccwGain=state_.config.ccwGain;c.calibration=state_.config.calibration;}
+  if(c.pwm==state_.config.pwm&&c.minPwm==state_.config.minPwm&&c.deadbandPwm==state_.config.deadbandPwm){c.linearGain=state_.config.linearGain;c.cwGain=state_.config.cwGain;c.ccwGain=state_.config.ccwGain;c.calibration=state_.config.calibration;}
   if(!persist(c))return 503;
   state_.zero=false;sampleReady_=false;state_.reason="configured_set_zero";return 200;
 }
@@ -52,7 +52,7 @@ int DemoService::zero() {
 int DemoService::start(bool simulation) {
   if(!mutex_)return 503;
   Lock lock(mutex_);auto l=control_.snapshot().logic;
-  if(!state_.ready||!state_.storage||!state_.config.valid())return 400;
+  if(!state_.ready||!state_.storage||!state_.config.valid()||!state_.config.minimumSpeedsAllowed())return 400;
   if(!idle(l))return 409;
   if(!simulation&&(!state_.zero||epoch_!=l.stopEpoch||!state_.config.ready()||!armsAllowed(l)||l.mode!=ControlMode::Auto))return 409;
   if(!simulation&&!control_.acquireDemo(session_,l.stopEpoch))return 409;
@@ -81,7 +81,7 @@ int DemoService::calibrationStart(unsigned kind) {
   if(!mutex_)return 503;
   Lock lock(mutex_);auto l=control_.snapshot().logic;
   if(kind>2||!state_.config.valid())return 400;
-  if(kind==0&&state_.config.linearGain*state_.config.pwm+state_.config.coast>state_.config.halfY())return 400;
+  if(kind==0&&state_.config.linearGain*state_.config.effort(state_.config.pwm)+state_.config.coast>state_.config.halfY())return 400;
   if(!state_.ready||!idle(l)||!state_.zero||epoch_!=l.stopEpoch||!armsAllowed(l)||l.mode!=ControlMode::Auto)return 409;
   if(!control_.acquireDemo(session_,l.stopEpoch))return 409;
   ++state_.run;if(!state_.run)++state_.run;
@@ -112,7 +112,8 @@ void DemoService::tick(uint32_t now) {
   if(l.stopEpoch!=epoch_||l.maintenance||l.networkBusy||network_.linkLostPending()||(!state_.simulation&&(!l.demoOwned||l.session!=session_))){sampleReady_=false;finish("control_or_network_cancelled");return;}
   const uint32_t elapsed=now-last_;last_=now;
   if(state_.calibrating) {
-    const auto& o=l.output;const float effort=state_.sampleKind==0?(o.left+o.right)*.5f:std::fabs((o.left-o.right)*.5f);
+    const auto& o=l.output;const float left=state_.config.effort(o.left),right=state_.config.effort(o.right);
+    const float effort=state_.sampleKind==0?(left+right)*.5f:std::fabs((left-right)*.5f);
     state_.integral+=effort*elapsed*.001f;
     if(uint32_t(now-calAt_)>=1000){finish("calibration_complete_enter_measurement");sampleReady_=true;sampleAt_=now;return;}
   }else {
@@ -133,6 +134,7 @@ char* DemoService::statusJson() {
   cJSON_AddBoolToObject(r,"ready",s.ready);cJSON_AddBoolToObject(r,"storage_ready",s.storage);
   cJSON_AddBoolToObject(r,"running",s.running);cJSON_AddBoolToObject(r,"simulation",s.simulation);cJSON_AddBoolToObject(r,"calibrating",s.calibrating);
   cJSON_AddBoolToObject(r,"zero_valid",s.zero);cJSON_AddBoolToObject(r,"calibration_ready",s.config.ready());
+  cJSON_AddBoolToObject(r,"minimum_speed_allowed",s.config.minimumSpeedsAllowed());
   const bool poseOk=!l.output.servoEnabled||(std::fabs(l.output.armLeft-s.config.baseLeft)<=1&&std::fabs(l.output.armRight-s.config.baseRight)<=1);
   const bool limits=poseOk&&s.config.minLeft>=l.armPolicy.leftMin&&s.config.maxLeft<=l.armPolicy.leftMax&&s.config.minRight>=l.armPolicy.rightMin&&s.config.maxRight<=l.armPolicy.rightMax;
   cJSON_AddBoolToObject(r,"can_start_robot",s.ready&&s.storage&&!s.running&&s.zero&&s.config.ready()&&limits&&l.mode==ControlMode::Auto&&!l.maintenance&&!l.networkBusy&&l.owner==Owner::None);

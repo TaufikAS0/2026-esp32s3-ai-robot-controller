@@ -1,5 +1,14 @@
 # HTTP API v1
 
+### v0.14.1 demo PWM deadband
+
+[DEMO_V0141_PWM.md](DEMO_V0141_PWM.md) extends demo config with optional paired
+`min_pwm,deadband_pwm` (normalized0..1), raises demo/calibration `pwm` maximum
+to0.80 while retaining15% default, and adds GET/demo `minimum_speed_allowed`.
+Exact legacy request/storage schemas remain readable. Any PWM change resets
+motion calibration; gains now use applied effort above the configured deadband.
+No change to raw HTTP/TCP actuator command semantics or automatic startup.
+
 ### v0.14.0 onboard demo
 
 [DEMO_V014.md](DEMO_V014.md) defines GET/demo, POST/demo/config, /zero, /start,

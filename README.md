@@ -1,5 +1,10 @@
 # AI Robot Controller
 
+v0.14.1 corrects demo control for motors with a large PWM deadband. See
+[motor setup and upgrade notes](04_Dokumen/DEMO_V0141_PWM.md): optional minimum/
+deadband parameters, upper limit80%, unchanged conservative defaults, and fresh
+physical calibration required. Rough observed distances are not trajectory proof.
+
 Source **v0.14.0** adds **Demo meja**: an isolated no-output simulation and an
 explicitly started onboard random-walk/gesture mode. Configure table dimensions,
 robot/hand reach and clearance, calibrate wheels/hands, select Auto and Set Zero

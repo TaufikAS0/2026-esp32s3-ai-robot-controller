@@ -1,5 +1,15 @@
 # AI Robot Controller Rules
 
+v0.14.1 operator bench20 October2026 found15% immobile,60%~1 cm and80%~3–5 cm
+in one-second floor trials (estimates). User explicitly requested higher PWM;
+this supersedes the old demo25% ceiling only. Read04_Dokumen/DEMO_V0141_PWM.md.
+New optional min_pwm/deadband_pwm affect DEMO ONLY, cap80%, defaults remain15/0/0.
+Preserve exact legacy parsing, invalidate calibration on any PWM parameter change,
+integrate applied effective effort consistently, refuse unattainable minimum speeds.
+Never treat rough bench observations/model dimensions as accepted calibration.
+Hands90 and small88–92 trial were observed safe before this upgrade; boot still
+requires fresh operator pose confirmation/Zero. No auto resume or old soak restart.
+
 v0.14.0 user decision20 October2026 adds onboard random exploration with stopped
 hand/box-eye gestures and isolated simulation. Read04_Dokumen/DEMO_V014.md. The
 user selected ESP32 standalone, until Stop, fenced tabletop and dashboard

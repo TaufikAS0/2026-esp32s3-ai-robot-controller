@@ -1,4 +1,34 @@
-# Continuation status — v0.14.0 editable table demo
+# Continuation status — v0.14.1 motor deadband correction
+
+Read DEMO_V0141_PWM.md and latest VERIFICATION first. Operator commissioned
+hands90 and88–92 safe; floor15% produced0cm,60%~1cm straight,80%~3–5cm estimated
+in1 s. Lifted test suggests no40%/slow60%/stronger80%; descending answer40% taken
+as stopping point, not precise threshold. No physical random demo started. These
+observations invalidate old25% demo cap and simple raw-PWM speed assumption.
+150 direct commands acknowledged/no request failure, all trials scoped-release
+to wheels0/laserOFF/hands90. Physical dimensions remain user-authorized MODEL
+75x75/reach15 for20x20 goals, not actual measured table dimensions.
+
+v0.14.1 implements optional min_pwm/deadband_pwm,80% cap, effective-effort model/
+calibration and minimum-speed guard. Defaults unchanged15/0/0; changing any PWM
+setting invalidates calibration. Legacy15/19-field API/storage accepted; extended
+17/21-field data saved under same demoV1. No external raw PWM contract change.
+No NVS erase/pin/partition/network/access changes. Rules/version notes read.
+
+92 Python/browser +10 native suites/sanitizers PASS; incremental pinned-core
+build/source hashes/slot gate PASS. App-only OTA verified v0.14.1/buildUTC
+2026-10-20T03:03:42Z (20 October10:03:42 WIB), MACe0:72:a1:fd:0d:88/app1,232,496.
+Three postboot timeouts before recovery retained.36 normal no-motion reads,
+0 failure,p95/p99/worst~78ms; new80/60/50 model saved, fresh flags remain false.
+Read-only live browser/advanced mobile PASS. Final checked Manual/unowned,
+wheel duties0/laserOFF/pulsesdisabled; no actuator commands after this OTA.
+Need fresh accepted hand pose/limits, physical recenter/fence and measured
+forward/CW/CCW/coast before real Start. Do not turn approximate old floor trial
+distances into a completed calibration. No automatic resumption; old soak partial,
+monitor paused. Device was last on the floor after clear-lane diagnostics;
+do not silently assert centered fenced-table placement for a new Zero.
+
+## Historical v0.14.0 editable table demo
 
 v0.14.0 implemented and app-only OTA verified at192.168.1.22, expected
 MACe0:72:a1:fd:0d:88/buildUTC2026-10-19T20:42:42Z (20 October03:42:42 WIB).
