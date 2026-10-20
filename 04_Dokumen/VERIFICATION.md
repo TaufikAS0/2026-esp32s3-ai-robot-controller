@@ -55,7 +55,8 @@ Current source: v0.14.1 (2026-10-20). Entries below distinguish firmware version
   without actuator activation. Real start rejected pending calibration/Zero/pose.
   Actual desktop/mobile browser PASS: percentage values80/60/50, Startdisabled,
   no JS error/overflow/POST. Ignored build/{ota,live,browser}-v0141-result.json
-  and demo-v0141-live-*.png retain evidence. No new actuator command after this OTA.
+  and demo-v0141-live-*.png retain evidence. This initial OTA verification sent
+  no actuator command; the subsequent commissioning trial is recorded below.
 - Limitations: motor supply/voltage/current/friction not measured, left/right
   thresholds not independently measured, coast and CW/CCW calibration missing.
   50% is an editable initial model estimate, not certified breakaway PWM. No
@@ -63,6 +64,21 @@ Current source: v0.14.1 (2026-10-20). Entries below distinguish firmware version
   physical trajectory, recovery-under-load or24-hour proof. Old soak stays partial/
   paused; no automation/runner restarted. Fresh physical commissioning remains.
 
+
+### Subsequent v0.14.1 clockwise commissioning
+
+- Operator freshly confirmed centered fenced tabletop/front heading and safe90
+  pose after OTA. Selected Auto explicitly, confirmed previously tested88–92
+  limits, set new Zero and ran one80%/one-second internal CW calibration trial.
+  Run/sample1 completed; effective-effort integral0.25719994. All request calls
+  succeeded. No physical angle/direction response received before120 s expiry;
+  no result was saved, no replay/retry, no completed wheel calibration claimed.
+- Final follow-up check165 s after trial start: Auto/unowned, wheels0/laserOFF,
+  hands90 references/pulsesenabled, demo not running, Zero invalid, calibration0.
+  Log: ignored build/calibration-cw-v0141.json. Need a fresh operator-observed
+  sample/recenter before saving a CW result. Do not use an expired sample ID or
+  silently assert a new centered heading after this rotation. Previous floor
+  pose/location notes below are historical. No autonomous path/old soak started.
 
 ## v0.14.0 editable table demo — 2026-10-20 WIB
 

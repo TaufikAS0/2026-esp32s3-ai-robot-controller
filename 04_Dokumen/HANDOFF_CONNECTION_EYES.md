@@ -1,5 +1,16 @@
 # Continuation status — v0.14.1 motor deadband correction
 
+LATEST PHYSICAL FOLLOW-UP (supersedes initial post-OTA idle/location below):
+Operator freshly confirmed centered fenced table/front heading/safe90 pose.
+Selected Auto, set fresh confirmed Zero and ran one80%1-second CW calibration.
+Run/sample1 completed, effective integral0.25719994; angle/direction feedback
+not received before120 s expiry, result NOT saved. No automatic repeat. Latest
+check165 s after trial: Auto/no owner, wheels0/laserOFF/hands90 pulsesenabled,
+demo stopped, Zero invalid/calibration0. Recenter and obtain fresh operator
+observation for a new sample; do not save expired ID or assume current heading
+matches map front after this rotation. Log build/calibration-cw-v0141.json.
+Full real random demo remains unstarted. Same firmware/build/branch as below.
+
 Read DEMO_V0141_PWM.md and latest VERIFICATION first. Operator commissioned
 hands90 and88–92 safe; floor15% produced0cm,60%~1cm straight,80%~3–5cm estimated
 in1 s. Lifted test suggests no40%/slow60%/stronger80%; descending answer40% taken
