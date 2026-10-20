@@ -33,13 +33,27 @@ main{padding:26px;max-width:1480px;width:100%;min-width:0}.hero{border:1px solid
 <button id="saveWifi" class="primary">Simpan &amp; sambungkan</button><p class="muted">Isi password sekali. Wi-Fi disimpan untuk koneksi otomatis berikutnya. Maksimal 5 jaringan.</p></details>
 <p id="wifiMessage" role="status" class="muted"></p></section>
 <section class="card demo-card" id="demo-panel"><div class="cardhead"><div class="iconbox">↝</div><div><h2>Demo meja</h2><p class="muted">Jelajah acak, berhenti, lalu salam dan ekspresi mata.</p></div><span class="chiptag" id="demoBadge">BELUM SIAP</span></div>
+<button id="demoGlobalStop" class="danger" style="position:sticky;top:8px;z-index:3;margin-bottom:12px">STOP SEMUA</button>
 <div class="demo-layout"><div><canvas id="demoMap" width="560" height="360" aria-label="Peta perkiraan posisi robot"></canvas><p id="demoPose" class="muted">Posisi perkiraan · bukan sensor posisi</p><p id="demoState" role="status">Membaca demo…</p></div><div>
 <p class="warning">Robot nyata memerlukan meja berpagar. Kotak virtual memakai perkiraan gerak, bukan pendeteksi tepi. Demo berjalan sampai Stop, termasuk saat browser ditutup.</p>
 <div class="demo-fields"><div><label for="demoLength">Panjang meja (cm)</label><input id="demoLength" type="number" min="1" max="1000" placeholder="Ukur meja"></div><div><label for="demoWidth">Lebar meja (cm)</label><input id="demoWidth" type="number" min="1" max="1000" placeholder="Ukur meja"></div><div><label for="demoRadius">Jangkauan robot / tangan (cm)</label><input id="demoRadius" type="number" min="1" placeholder="Dari pusat roda ke titik terjauh"></div><div><label for="demoMargin">Jarak dari tepi (cm)</label><input id="demoMargin" type="number" min="0" value="10"></div></div>
 <p class="muted">Ukur jangkauan sampai bagian terjauh termasuk tangan saat gestur. Area terlalu sempit akan ditolak.</p>
 <button id="demoSave">Simpan pengaturan</button><p id="demoReadiness" class="muted"></p>
-<div class="demo-actions"><button id="demoSim" class="primary">Simulasi tanpa gerak</button><button id="demoZero">Set Zero di tengah</button><button id="demoStart" disabled>Mulai robot</button><button id="demoStop" class="danger" disabled>■ Stop demo</button></div>
-<details id="demoAdvanced"><summary>Kalibrasi gerak &amp; tangan</summary>
+<div class="demo-actions"><button id="demoSim" class="primary">Simulasi tanpa gerak</button><button id="demoStop" class="danger" disabled>■ Stop demo</button></div>
+<button id="demoPrepare" class="primary">Siapkan Auto · panduan langkah demi langkah</button>
+<section id="demoWizard" hidden aria-label="Panduan Siapkan Auto"><h3 id="demoStepTitle">Periksa persiapan</h3><p id="demoStepInfo" role="status"></p>
+<p id="demoSetupInfo" class="muted"></p>
+<button id="demoHandsReady">Pose dan batas tangan sudah saya periksa — lanjut</button>
+<button id="demoWizardManual">Atur tangan lewat Manual</button>
+<button id="demoWizardRun">Robot sudah di posisi awal — pilih Auto dan uji 1 detik</button>
+<div id="demoResultBox" hidden><label id="demoResultLabel" for="demoWizardMeasured">Jarak maju (cm)</label><input id="demoWizardMeasured" type="number" min="0.01" step="0.1">
+<label for="demoWizardCoast">Meluncur setelah stop (cm), isi hasil pengamatan</label><input id="demoWizardCoast" type="number" min="0" step="0.1">
+<label id="demoDirectionRow"><input id="demoDirection" type="checkbox">Arah putaran sesuai permintaan</label>
+<button id="demoWizardSave">Simpan hasil dan lanjut</button><button id="demoNoMovement">Tidak bergerak</button><button id="demoWrongDirection">Arah salah</button></div>
+<button id="demoWizardZero">Robot di tengah menghadap depan — pilih Auto dan Set Zero</button>
+<button id="demoWizardStart">Mulai jelajah</button></section>
+<details id="demoAdvanced"><summary>Pengaturan lanjutan</summary>
+<div class="demo-actions"><button id="demoZero">Set Zero langsung</button><button id="demoStart" disabled>Mulai robot langsung</button></div>
 <p class="muted">1. Pilih Manual, atur tangan lewat kontrol yang sudah ada, lalu isi pose dasar dan batas yang benar-benar aman. Menyimpan angka tidak menggerakkan servo.</p><button id="demoManual">Buka kontrol tangan Manual</button>
 <div class="demo-fields"><div><label for="demoBaseLeft">Pose dasar kiri (°)</label><input id="demoBaseLeft" type="number" min="0" max="180" value="90"></div><div><label for="demoBaseRight">Pose dasar kanan (°)</label><input id="demoBaseRight" type="number" min="0" max="180" value="90"></div><div><label for="demoMinLeft">Batas kiri bawah (°)</label><input id="demoMinLeft" type="number" min="0" max="180" value="0"></div><div><label for="demoMaxLeft">Batas kiri atas (°)</label><input id="demoMaxLeft" type="number" min="0" max="180" value="180"></div><div><label for="demoMinRight">Batas kanan bawah (°)</label><input id="demoMinRight" type="number" min="0" max="180" value="0"></div><div><label for="demoMaxRight">Batas kanan atas (°)</label><input id="demoMaxRight" type="number" min="0" max="180" value="180"></div></div>
 <label class="demo-check"><input id="demoArmsConfirmed" type="checkbox">Saya sudah memeriksa pose dan batas tangan secara fisik</label>
@@ -175,7 +189,47 @@ function renderDemo(d){demoData=d;const c=d.config||{};if(!demoDirty){for(const 
 el('demoBadge').textContent=d.running?(d.simulation?'SIMULASI':'ROBOT NYATA'):d.can_start_robot?'SIAP':'PERSIAPAN';el('demoState').textContent=(demoPhaseLabels[d.phase]||d.phase)+' · '+d.reason;const p=d.pose||{};el('demoPose').textContent='Perkiraan: X '+Number(p.x_cm||0).toFixed(1)+' cm · Y '+Number(p.y_cm||0).toFixed(1)+' cm · arah '+Number(p.heading_deg||0).toFixed(0)+'° · '+(d.visits||0)+' tujuan';el('demoReadiness').textContent=(demoDirty?'Pengaturan belum disimpan · ':'')+'Kalibrasi '+((c.calibration||0)&1?'maju ✓':'maju —')+' / '+((c.calibration||0)&2?'kanan ✓':'kanan —')+' / '+((c.calibration||0)&4?'kiri ✓':'kiri —')+' · '+(c.arms_confirmed?'Tangan terkonfirmasi':'Periksa & konfirmasi tangan')+' · '+(mode==='auto'?'Auto':'Pilih Auto untuk robot')+' · '+(d.zero_valid?'Zero siap':'Perlu Set Zero')+(d.storage_ready?'':' · Penyimpanan belum siap');
 if(d.minimum_speed_allowed===false)el('demoReadiness').textContent+=' · Perkiraan kecepatan minimum motor melebihi batas demo';
 for(const id of ['demoSave','demoSim','demoZero','demoManual','demoAuto','demoCalSave'])el(id).disabled=demoBusy||d.running||uploading||!connected;for(const b of document.querySelectorAll('[data-demo-cal]'))b.disabled=demoDirty||demoBusy||d.running||!d.zero_valid||!c.arms_confirmed||mode!=='auto'||uploading||!connected;el('demoStart').disabled=demoBusy||!d.can_start_robot||demoDirty||uploading||!connected;el('demoStop').disabled=demoBusy||!d.running||uploading;drawDemo(d);}
-async function loadDemo(){if(demoLoading||uploading||document.hidden)return;demoLoading=true;try{renderDemo(await request('/demo'));}catch(e){el('demoMessage').textContent='Status demo belum terbaca: '+e.message;el('demoStart').disabled=true;}finally{demoLoading=false;}}
+let demoWizardOpen=false,demoWizardSample=0;
+function demoNextKind(d){const mask=d.config.calibration||0;return !(mask&1)?'forward':!(mask&2)?'cw':!(mask&4)?'ccw':null;}
+function renderDemoWizard(d){
+  const c=d.config||{},pending=!!d.sample_pending,kind=pending?['forward','cw','ccw'][d.sample_kind]:demoNextKind(d),names={forward:'maju',cw:'putar kanan',ccw:'putar kiri'};
+  el('demoWizard').hidden=!demoWizardOpen&&!pending;const busy=demoBusy||d.running||uploading||!connected||networkBusy;
+  const geometry=c.width_cm>0&&c.length_cm>0&&c.radius_cm>0;
+  el('demoSetupInfo').textContent=(connected?'Terhubung':'Offline')+' · Mode '+mode+' · '+el('unitState').textContent+' · Model '+c.width_cm+' × '+c.length_cm+' cm, jangkauan '+c.radius_cm+' cm (perkiraan, bukan hasil sensor). Pose '+c.base_left+'° / '+c.base_right+'°; batas '+c.min_left+'–'+c.max_left+'° / '+c.min_right+'–'+c.max_right+'°.';
+  const blocked=!geometry||d.config_valid===false?'Isi ukuran yang memberi ruang gerak cukup, lalu Simpan pengaturan.':demoDirty?'Simpan perubahan pengaturan sebelum lanjut.':!d.ready||!d.storage_ready?'Layanan atau penyimpanan demo belum siap.':null;
+  let title='1. Periksa persiapan',info=blocked||'Periksa pose dan batas tangan secara fisik. Konfirmasi tidak menggerakkan servo.';
+  if(d.running){title=d.calibrating?'3. Uji roda berlangsung':'Demo sedang berjalan';info='Tunggu robot berhenti. STOP SEMUA selalu tersedia.';}
+  else if(pending){title='4. Masukkan hasil '+names[kind];info='Hasil menunggu selama sesi boot ini. Masukkan hasil sekarang; tidak perlu mengulang karena lewat 120 detik. Setelah disimpan, posisikan ulang sebelum uji berikutnya.';}
+  else if(!blocked&&c.arms_confirmed&&kind){title='3. Uji '+names[kind]+' · 1 detik';info='Letakkan pusat roda di tengah meja berpagar menghadap depan. Tombol akan memilih Auto, menyetel Zero, lalu menjalankan SATU uji pada PWM '+Math.round(c.pwm*100)+'%.';}
+  else if(!blocked&&c.arms_confirmed&&!kind){title='5. Siap mulai jelajah';info=d.can_start_robot?'Persiapan lengkap. Tekan Mulai jelajah secara terpisah.':'Kalibrasi tersimpan. Posisikan ulang di tengah menghadap depan, lalu Set Zero.';}
+  if(d.minimum_speed_allowed===false)info+=' Kecepatan minimum motor melebihi batas; periksa pengaturan lanjutan.';
+  const spaceBlocked=kind==='forward'&&!pending&&d.calibration_forward_fits===false;
+  if(spaceBlocked)info+=' Ruang model belum cukup untuk uji maju satu detik. Ukur ruang sebenarnya dan perbaiki ukuran/jarak tepi; jangan mengarang ukuran agar lolos.';
+  if(!pending&&d.sample_reason==='control_or_network_changed')info+=' Hasil sebelumnya dibatalkan karena kendali/jaringan berubah; perlu uji baru.';
+  el('demoStepTitle').textContent=title;el('demoStepInfo').textContent=info;
+  el('demoHandsReady').hidden=!!c.arms_confirmed||pending||d.running;el('demoHandsReady').disabled=busy||!!blocked;
+  el('demoWizardManual').hidden=pending||d.running;el('demoWizardManual').disabled=busy;
+  el('demoWizardRun').hidden=!kind||pending||!c.arms_confirmed||d.running;el('demoWizardRun').disabled=busy||!!blocked||spaceBlocked;
+  el('demoResultBox').hidden=!pending;el('demoResultLabel').textContent=kind==='forward'?'Jarak maju (cm)':'Sudut '+names[kind]+' (derajat)';
+  el('demoDirectionRow').hidden=kind==='forward';el('demoWrongDirection').hidden=kind==='forward';
+  for(const id of ['demoWizardSave','demoNoMovement','demoWrongDirection'])el(id).disabled=busy||!pending;
+  if(d.sample_id!==demoWizardSample){demoWizardSample=d.sample_id;el('demoWizardMeasured').value='';el('demoWizardCoast').value='';el('demoDirection').checked=false;}
+  el('demoWizardZero').hidden=!!kind||pending||!c.arms_confirmed||d.running;el('demoWizardZero').disabled=busy||!!blocked;
+  el('demoWizardStart').hidden=!!kind||pending||!c.arms_confirmed||d.running;el('demoWizardStart').disabled=busy||!d.can_start_robot||!!blocked;
+  el('demoGlobalStop').disabled=!connected||uploading;
+}
+async function loadDemo(){if(demoLoading||uploading||document.hidden)return;demoLoading=true;try{const d=await request('/demo');renderDemo(d);renderDemoWizard(d);}catch(e){el('demoMessage').textContent='Status demo belum terbaca: '+e.message;for(const id of ['demoStart','demoWizardRun','demoWizardSave','demoWizardZero','demoWizardStart','demoHandsReady'])el(id).disabled=true;}finally{demoLoading=false;}}
+async function demoWizardAction(action){if(demoBusy||uploading)return;demoBusy=true;try{const s=await request('/status');if(s.owner!=='none'||s.maintenance||s.network_busy)throw Error('Pengendali lain atau pembaruan aktif. Lepaskan kendali lebih dahulu.');await action();}catch(e){el('demoMessage').textContent='Belum bisa: '+e.message;}finally{demoBusy=false;await refresh();await loadDemo();}}
+function demoCurrentConfig(){const c={};for(const [key,id] of Object.entries(demoFields))c[key]=Number(el(id).value)/(demoPwmField(key)?100:1);c.arms_confirmed=el('demoArmsConfirmed').checked;return c;}
+el('demoPrepare').onclick=()=>{demoWizardOpen=true;if(demoData)renderDemoWizard(demoData);el('demoWizard').scrollIntoView({block:'center'});};
+el('demoHandsReady').onclick=()=>{if(confirm('Pose dasar dan seluruh batas tangan yang ditampilkan sudah diperiksa secara fisik? Konfirmasi ini tidak menggerakkan servo.'))demoWizardAction(async()=>{const c=demoCurrentConfig();c.arms_confirmed=true;await request('/demo/config',c);demoDirty=false;});};
+el('demoWizardManual').onclick=()=>el('demoManual').click();
+el('demoWizardRun').onclick=()=>{const kind=demoData&&demoNextKind(demoData);if(!kind||demoData.sample_pending)return;if(confirm('Robot di tengah meja berpagar menghadap depan? Pilih Auto dan jalankan satu uji '+({forward:'maju',cw:'kanan',ccw:'kiri'}[kind])+' selama 1 detik pada PWM '+Math.round(demoData.config.pwm*100)+'%?'))demoWizardAction(async()=>{await request('/control/mode',{mode:'auto'});await request('/demo/zero',{confirmed_center:true,confirmed_fence:true});await request('/demo/calibration/start',{kind});});};
+el('demoWizardSave').onclick=()=>{const d=demoData,measured=Number(el('demoWizardMeasured').value),coast=Number(el('demoWizardCoast').value);if(!d?.sample_pending||!(measured>0)||el('demoWizardCoast').value===''||coast<0||(d.sample_kind!==0&&!el('demoDirection').checked)){el('demoMessage').textContent='Isi hasil positif, jarak meluncur (boleh 0 jika diamati), dan konfirmasi arah putaran.';return;}demoWizardAction(()=>request('/demo/calibration/result',{sample_id:d.sample_id,measured,coast_cm:coast}));};
+for(const id of ['demoNoMovement','demoWrongDirection'])el(id).onclick=()=>demoWizardAction(async()=>{await request('/demo/stop',{run_id:demoData.run_id});el('demoMessage').textContent=id==='demoNoMovement'?'Hasil tidak disimpan. Periksa PWM, daya, dan mekanik sebelum uji baru.':'Hasil tidak disimpan. Periksa arah roda sebelum uji baru.';});
+el('demoWizardZero').onclick=()=>{if(confirm('Robot berhenti di tengah meja berpagar dan menghadap depan peta?'))demoWizardAction(async()=>{await request('/control/mode',{mode:'auto'});await request('/demo/zero',{confirmed_center:true,confirmed_fence:true});});};
+el('demoWizardStart').onclick=()=>el('demoStart').click();
+el('demoGlobalStop').onclick=async()=>{try{await controller.stop();await request('/stop',{});}catch(e){el('demoMessage').textContent=e.message;}finally{await refresh();await loadDemo();}};
 async function demoAct(path,body){if(demoBusy||uploading)return;demoBusy=true;if(demoData)renderDemo(demoData);try{await request(path,body);if(path==='/demo/config')demoDirty=false;el('demoMessage').textContent=path.includes('calibration/start')?'Uji roda dimulai satu detik. Ukur hasil lalu masukkan di bawah.':path==='/demo/start'&&body.mode==='robot'?'Robot berjalan mandiri sampai Stop.':'Diterima.';}catch(e){const messages={demo_not_ready_or_control_busy:'Lengkapi kalibrasi, konfirmasi tangan, pilih Auto, dan Set Zero. Lepaskan pengendali lain.',invalid_demo_configuration:'Periksa ukuran meja, ruang tersisa, batas tangan, dan angka kalibrasi. Ukuran terlalu kecil akan ditolak.',demo_storage_or_task_unavailable:'Penyimpanan atau layanan demo belum siap.',demo_run_mismatch:'Sesi demo sudah berubah. Baca status terbaru sebelum Stop.'};el('demoMessage').textContent='Belum bisa: '+(messages[e.message]||e.message);}finally{demoBusy=false;await loadDemo();}}
 el('demoSave').onclick=()=>{const c={};for(const [k,id] of Object.entries(demoFields))c[k]=Number(el(id).value)/(demoPwmField(k)?100:1);c.arms_confirmed=el('demoArmsConfirmed').checked;demoAct('/demo/config',c);};
 el('demoSim').onclick=()=>demoAct('/demo/start',{mode:'simulation'});

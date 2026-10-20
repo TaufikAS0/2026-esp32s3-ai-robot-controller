@@ -1,5 +1,14 @@
 # HTTP API v1
 
+### v0.15.0 guided Auto and pending results
+
+[AUTO_GUIDE_V015.md](AUTO_GUIDE_V015.md) defines same-boot pending sample lifetime
+and invalidation. Existing endpoint request bodies unchanged. GET/demo adds
+sample_pending/sample_reason plus config_valid/calibration_forward_fits. Existing
+sample_id/sample_kind/sample_integral describe the pending sample. Remove the old
+120-second expiry, not500 ms actuator expiry. Pending results hold no control lease,
+never resume actuators and clear on control/network/config/OTA/new run/reboot.
+
 ### v0.14.1 demo PWM deadband
 
 [DEMO_V0141_PWM.md](DEMO_V0141_PWM.md) extends demo config with optional paired

@@ -1,5 +1,14 @@
 # AI Robot Controller Rules
 
+v0.15.0 read04_Dokumen/AUTO_GUIDE_V015.md. Guided preparation must not move
+actuators until one explicit test/start action. Pending calibration results live
+in RAM for the same boot without120 s expiry or actuator lease; invalidate on
+other control/Stop/network/OTA/config/new run/reboot. Preserve existing NVS gains,
+fresh pose/Zero after boot, sample IDs/epochs and no automatic replay. Never
+silently enlarge temporary75x75/reach15 geometry to bypass forward-space guard.
+User wants Codex to operate the web and report one physical step at a time while
+they observe. Confirm current physical setup before any actuator trial.
+
 v0.14.1 operator bench20 October2026 found15% immobile,60%~1 cm and80%~3–5 cm
 in one-second floor trials (estimates). User explicitly requested higher PWM;
 this supersedes the old demo25% ceiling only. Read04_Dokumen/DEMO_V0141_PWM.md.

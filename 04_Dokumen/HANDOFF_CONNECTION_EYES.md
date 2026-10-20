@@ -1,4 +1,43 @@
-# Continuation status — v0.14.1 motor deadband correction
+# Continuation status — v0.15.0 guided Auto
+
+DEPLOYED: exact v0.15.0/buildUTC2026-10-20T07:40:11Z (20 October14:40:11 WIB),
+MACe0:72:a1:fd:0d:88, app1,241,840 bytes at192.168.1.22.97 Python/browser,
+10 native suites and planner/service sanitizers PASS. Incremental pinned-core
+build/source hashes/slot gate PASS. Final OTA acknowledged success;5 postboot
+probe timeouts before recovery retained. Final idle34 reads/0fail,p95~63,
+p99/worst~109ms. Live desktop/mobile guide inspected/no POST/JS error/overflow.
+No physical actuator command this task; final Manual/unowned/wheel duties0,
+laserOFF/pulsesdisabled. Stored config/mask preserved; confirmation/Zero/pending
+clear. Two successful OTA builds: initial07:35:25Z UI superseded by final top Stop
+placement; initial3 timeout probes separately retained. No auto resumption.
+Asked operator actual table size/current safe pose; await answer before physical
+test. Forward space guard is FALSE under current temporary model (see below).
+Do not claim the real guide/calibration/random path was physically completed.
+
+User approved20 October2026 implementation of AUTO_GUIDE_V015.md and wants Codex
+to operate the web, one physical step at a time with their observations. This
+supersedes the historical pause below for authorized continuation, not permission
+to assume current physical setup or auto-repeat motion. v0.15.0 keeps one RAM
+pending sample during same boot, no120 s expiry/lease; invalidates on control/
+Stop/network/config/OTA/new run/reboot. Actual deployment/tests recorded in latest
+VERIFICATION entry. Stored gains/schema untouched; hand confirmation/Zero clear
+at boot. Do not reuse late45° or3–5cm observations as fresh measured samples.
+
+Current temporary75x75/reach15/margin10/coast0/speed5 geometry has10cm forward
+goal extent, while initial forward prediction40*(.8-.5)=12cm. The new guide
+explains this space guard and disables the forward test; do not inflate table
+size or invent gains to bypass it. Establish actual available test area with
+operator before physical commissioning. Real random demo still unstarted.
+
+## Historical v0.14.1 commissioning
+
+USER PAUSED physical testing20 October2026 ("sebentar saya hentikan dulu testnya").
+Global Stop acknowledged; verified no owner, wheels0/laserOFF, servo references90
+still held with pulses enabled (Stop does not de-energize servos). No automatic
+trial/calibration/demo/soak resumption. Operator has not recentered after the last
+CW trial; reported45 degrees arrived after sample expiry and was not saved.
+Await the user's new instruction before further physical work. Pause record:
+ignored build/operator-paused-v0141.json. Firmware/OTA remains v0.14.1 as below.
 
 LATEST PHYSICAL FOLLOW-UP (supersedes initial post-OTA idle/location below):
 Operator freshly confirmed centered fenced table/front heading/safe90 pose.

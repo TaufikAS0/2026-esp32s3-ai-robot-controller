@@ -1,5 +1,10 @@
 # AI Robot Controller
 
+v0.15.0 adds **Siapkan Auto**, a guided pose → forward/right/left calibration →
+Zero → explicit Start flow. A completed sample can wait for input during the same
+boot without a120-second limit. See [Auto guide](04_Dokumen/AUTO_GUIDE_V015.md).
+Mode/config/polling never starts movement automatically.
+
 v0.14.1 corrects demo control for motors with a large PWM deadband. See
 [motor setup and upgrade notes](04_Dokumen/DEMO_V0141_PWM.md): optional minimum/
 deadband parameters, upper limit80%, unchanged conservative defaults, and fresh

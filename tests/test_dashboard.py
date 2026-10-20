@@ -124,9 +124,13 @@ class DashboardTests(unittest.TestCase):
                 self.demo.update(running=True,run_id=self.demo['run_id']+1,phase='drive',simulation=body['mode']=='simulation')
             elif path=='/demo/stop':
                 if body['run_id']!=self.demo['run_id']:code=409;result=dict(error='demo_run_mismatch')
-                else:self.demo.update(running=False,zero_valid=False,phase='idle')
+                else:self.demo.update(running=False,zero_valid=False,phase='idle',sample_pending=False,sample_reason='demo_stop')
             elif path=='/demo/calibration/start':
-                self.demo.update(running=True,calibrating=True,run_id=8,sample_id=8,phase='calibration',zero_valid=False)
+                self.demo.update(running=True,calibrating=True,run_id=8,sample_id=8,phase='calibration',zero_valid=False,sample_pending=False,sample_kind=['forward','cw','ccw'].index(body['kind']))
+            elif path=='/demo/calibration/result':
+                if self.demo.get('sample_pending'):
+                    self.demo['config']['calibration']|=1<<self.demo['sample_kind']
+                    self.demo.update(sample_pending=False,sample_reason='result_saved',zero_valid=False)
         elif path == '/wifi':
             result=self.wifi
         elif path.startswith('/wifi/') or (path=='/settings' and 'ssid' in body):
@@ -144,7 +148,7 @@ class DashboardTests(unittest.TestCase):
                     self.wifi['profiles']=[p for p in self.wifi['profiles'] if p['ssid']!=body['ssid']]
         elif path == "/status":
             result = dict(firmware_version=VERSION, build_time_utc="2026-10-12T01:02:03Z", hardware=self.hardware, uptime_ms=112147, sta_connected=True, sta_ssid="HuaweiJIN", mode=self.mode, sta_ip="192.168.1.34", session=self.session, reason="stop", arduino_ota=False,
-                          network_busy=self.network_busy,control_channel=dict(ready=self.fast_channel,port=81),arm_motion=dict(speed_dps=60,acceleration_dps2=240,**self.arm_policy),
+                          owner='manual' if self.session else 'none',maintenance=False,network_busy=self.network_busy,control_channel=dict(ready=self.fast_channel,port=81),arm_motion=dict(speed_dps=60,acceleration_dps2=240,**self.arm_policy),
                           eyes=dict(**self.eye_settings,task_ready=True,check=dict(mode="animate",target="both",scanned=112,scan_complete=True,found_addresses=[60],left_probe_code=2,right_probe_code=0,remaining_ms=0), active_expression="curious", reaction="turn_left", left_online=True, right_online=False,
                                     left=dict(x=48,y=32,width=50,height=40),right=dict(x=48,y=32,width=50,height=30)),
                           commanded_output=dict(left=0, right=0, arm_left=90, arm_right=90, laser=False))
@@ -481,8 +485,75 @@ class DashboardTests(unittest.TestCase):
         self.assertTrue(self.page.locator('#demoStart').is_disabled())
         self.assertIn('kecepatan minimum motor melebihi',self.page.locator('#demoReadiness').inner_text())
 
+    def test_demo_wizard_preparation_has_no_actuator_requests(self):
+        self.demo_setup()
+        self.page.locator('#demoPrepare').click()
+        self.assertIn('Periksa persiapan',self.page.locator('#demoStepTitle').inner_text())
+        self.page.once('dialog',lambda dialog:dialog.accept())
+        self.page.locator('#demoHandsReady').click()
+        self.page.wait_for_function('demoData.config.arms_confirmed')
+        self.assertFalse(any(path in ['/command','/control/acquire','/control/mode','/demo/calibration/start'] for path,_ in self.calls))
+        self.assertIn('Uji maju',self.page.locator('#demoStepTitle').inner_text())
+
+    def test_demo_wizard_all_steps_and_explicit_start(self):
+        self.demo_setup();self.demo['config']['arms_confirmed']=True
+        self.page.locator('#demoPrepare').click();self.page.evaluate('loadDemo()')
+        for kind in ['forward','cw','ccw']:
+            self.page.wait_for_function('!document.querySelector("#demoWizardRun").hidden')
+            before=len(self.calls)
+            self.page.once('dialog',lambda dialog:dialog.accept());self.page.locator('#demoWizardRun').click()
+            self.page.wait_for_function('demoData.calibrating')
+            relevant=[path for path,_ in self.calls[before:] if path in ['/control/mode','/demo/zero','/demo/calibration/start']]
+            self.assertEqual(relevant,['/control/mode','/demo/zero','/demo/calibration/start'])
+            self.assertEqual([body for path,body in self.calls if path=='/demo/calibration/start'][-1],dict(kind=kind))
+            self.demo.update(running=False,calibrating=False,sample_pending=True)
+            self.page.evaluate('loadDemo()');self.page.wait_for_function('demoData.sample_pending')
+            self.assertIn('cm' if kind=='forward' else 'derajat',self.page.locator('#demoResultLabel').inner_text())
+            self.page.locator('#demoWizardMeasured').fill('4' if kind=='forward' else '45')
+            self.page.locator('#demoWizardCoast').fill('0')
+            if kind!='forward':self.page.locator('#demoDirection').check()
+            self.page.locator('#demoWizardSave').click();self.page.wait_for_function('!demoData.sample_pending&&!demoBusy')
+        self.assertFalse(any(path=='/demo/start' for path,_ in self.calls))
+        self.page.once('dialog',lambda dialog:dialog.accept());self.page.locator('#demoWizardZero').click()
+        self.page.wait_for_function('demoData.zero_valid')
+        self.demo['can_start_robot']=True;self.page.evaluate('loadDemo()')
+        self.page.wait_for_function('!document.querySelector("#demoWizardStart").disabled')
+        self.page.once('dialog',lambda dialog:dialog.accept());self.page.locator('#demoWizardStart').click()
+        self.page.wait_for_function('demoData.running')
+        self.assertIn(('/demo/start',dict(mode='robot')),self.calls)
+
+    def test_demo_wizard_pending_survives_reload_and_requires_direction(self):
+        self.demo_setup();self.demo.update(sample_pending=True,sample_kind=1,sample_id=9,run_id=9)
+        self.page.reload();self.page.wait_for_function('demoData&&demoData.sample_pending')
+        self.assertTrue(self.page.locator('#demoResultBox').is_visible())
+        self.assertFalse(any(path.startswith('/demo/') for path,_ in self.calls if path!='/demo/config'))
+        self.page.locator('#demoWizardMeasured').fill('45');self.page.locator('#demoWizardCoast').fill('0')
+        self.page.locator('#demoWizardSave').click()
+        self.assertFalse(any(path=='/demo/calibration/result' for path,_ in self.calls))
+        self.page.locator('#demoDirection').check();self.page.locator('#demoWizardSave').click()
+        self.page.wait_for_function('!demoData.sample_pending')
+        self.assertIn(('/demo/calibration/result',dict(sample_id=9,measured=45,coast_cm=0)),self.calls)
+
+    def test_demo_wizard_rejected_measurement_no_calibration(self):
+        for button in ['demoNoMovement','demoWrongDirection']:
+            self.demo.update(sample_pending=True,sample_kind=1,sample_id=9,run_id=9)
+            self.page.evaluate('loadDemo()');self.page.wait_for_function('demoData&&demoData.sample_pending')
+            self.page.locator('#'+button).click();self.page.wait_for_function('!demoData.sample_pending')
+        self.assertFalse(any(path=='/demo/calibration/result' for path,_ in self.calls))
+        self.assertIn(('/demo/stop',dict(run_id=9)),self.calls)
+
+    def test_demo_wizard_space_guard_and_mobile(self):
+        self.demo_setup();self.demo['config']['arms_confirmed']=True;self.demo['calibration_forward_fits']=False
+        self.page.set_viewport_size(dict(width=390,height=1100));self.page.locator('#demoPrepare').click();self.page.evaluate('loadDemo()')
+        self.page.wait_for_function('demoData.calibration_forward_fits===false')
+        self.assertTrue(self.page.locator('#demoWizardRun').is_disabled())
+        self.assertIn('Ruang model belum cukup',self.page.locator('#demoStepInfo').inner_text())
+        self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth<=innerWidth'))
+        self.assertTrue(self.page.locator('#demoGlobalStop').is_visible())
+
     def test_demo_zero_cancel_and_confirm_no_motion(self):
         self.demo_setup()
+        self.page.locator('#demoAdvanced').evaluate('e=>e.open=true')
         self.page.once('dialog',lambda d:d.dismiss())
         self.page.locator('#demoZero').click()
         self.assertFalse(any(p=='/demo/zero' for p,_ in self.calls))
@@ -494,6 +565,7 @@ class DashboardTests(unittest.TestCase):
 
     def test_demo_real_start_requires_server_readiness_and_confirmation(self):
         self.demo_setup()
+        self.page.locator('#demoAdvanced').evaluate('e=>e.open=true')
         self.assertTrue(self.page.locator('#demoStart').is_disabled())
         self.demo.update(can_start_robot=True,calibration_ready=True,zero_valid=True)
         self.page.evaluate('loadDemo()')

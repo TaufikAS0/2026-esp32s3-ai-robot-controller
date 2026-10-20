@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.15.0 — 2026-10-20 WIB
+
+- Previous: v0.14.1 independent Manual/Auto/Zero/test/result controls and120 s
+  result expiry made operator commissioning difficult.
+- Changes: Siapkan Auto guided physical-check/forward/right/left/results/Zero/
+  explicitStart, units/direction/no-movement controls, pending result restored by
+  polling after reload, useful space/status explanations and visible global Stop.
+  Pending RAM sample lasts through same boot until saved once or invalidated by
+  control/Stop/network/config/OTA/new run/reboot; no lease held while awaiting input.
+- Unchanged: NVS demoV1/gains,80% PWM cap, speed/space/pose guards, raw HTTP/TCP,
+  pins/partitions/Wi-Fi/open access,500 ms expiry/single GPIO writer. No auto motion.
+- Tests: expanded native pending invalidation/long delay/storage and Chromium full
+  guide/reload/units/invalid observations/mobile. Exact results in VERIFICATION.
+- Limitations: temporary geometry is not physical measurement; current forward
+  calibration needs more actual room than the20cm goal box permits. No invented
+  results or automatic guard bypass; operator measurements still required.
+- Upgrade: app-only OTA, no NVS migration/erase; stored valid wheel gains survive,
+  fresh hands confirmation and Zero required. No old sample/run restored.
+
 ## v0.14.1 — 2026-10-20 WIB
 
 - Previous: v0.14.0 demo capped25% while operator found15% immobile and60–80%

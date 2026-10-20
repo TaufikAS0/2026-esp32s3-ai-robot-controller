@@ -12,6 +12,8 @@ struct DemoSnapshot {
   unsigned sampleKind=0;
   float integral=0;
   bool running=false,simulation=false,calibrating=false,zero=false,storage=false,ready=false;
+  bool samplePending=false;
+  const char* sampleReason="no_sample";
   const char* reason="boot";
 };
 class DemoService {
@@ -36,12 +38,13 @@ class DemoService {
   SemaphoreHandle_t mutex_=nullptr;
   DemoSnapshot state_;
   ControlLogic virtual_;
-  uint32_t session_=0,sequence_=0,epoch_=0,last_=0,sent_=0,calAt_=0,sampleAt_=0;
-  bool sampleReady_=false;
+  uint32_t session_=0,sequence_=0,epoch_=0,last_=0,sent_=0,calAt_=0,sampleEpoch_=0;
+  void invalidateSample(const char* reason);
+  void refreshSample(const ControlLogic& logic);
   static void task(void* context);
   void tick(uint32_t now);
-  void finish(const char* reason);
-  bool persist(const DemoConfig& config);
+  bool finish(const char* reason);
+  bool persist(const DemoConfig& config,const uint32_t* expectedEpoch=nullptr);
   bool idle(const ControlLogic& logic) const;
   bool armsAllowed(const ControlLogic& logic) const;
 };

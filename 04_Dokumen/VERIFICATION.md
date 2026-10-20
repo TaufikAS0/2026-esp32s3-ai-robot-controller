@@ -1,6 +1,71 @@
 # Verification evidence
 
-Current source: v0.14.1 (2026-10-20). Entries below distinguish firmware versions, host/model tests and operator-observed hardware trials.
+Current source: v0.15.0 (2026-10-20). Entries below distinguish firmware versions, host/model tests and operator-observed hardware trials.
+
+## v0.15.0 guided Auto — 2026-10-20 WIB
+
+- Previous v0.14.1. Implemented approved AUTO_GUIDE_V015.md: explicit pose check,
+  sequential forward/right/left test/result steps, units/direction, discard invalid
+  motion observations, confirmed Auto/Zero before EACH operator-started test,
+  separate final Start, advanced legacy controls collapsed and global Stop above
+  the map. No acquisition/actuator commands from load/reload/Save/preparation.
+- Pending completed calibration result stays in RAM for the boot without120 s
+  expiry. It holds no lease. Invalidates on Stop/foreign controller (including
+  whole quick sessions between ticks), network/config/OTA/new run/reboot. Own
+  successful release is excluded; ACK and expected epoch checked. Result Save
+  rechecks epoch under exclusive idle flash gate. Old/duplicate IDs reject.
+  GET/demo adds sample_pending/sample_reason/config_valid/calibration_forward_fits.
+  NVS demoV1 format/gains preserved, not stored pending state. No pin/partition/
+  network/access/raw HTTP-TCP/500 ms expiry change or auto resume.
+- Actual vault files read: Firmware_AI_Vault_Home; Rules_Nama_dan_Folder_Workspace;
+  Rules_Firmware_Standar; Rules_GitHub_Gitflow; Rules_Kredensial_WiFi;
+  WiFi_HuaweiJIN; Rules_Akses_Robot_Lab; Rules_Versioning;
+  Rules_Change_Notifications. User-saved STA remains authoritative, no Wi-Fi change.
+- Local97 Python/browser tests PASS, including52 Chromium dashboard tests. All13
+  demo tests repeated PASS after final UI placement. Ten native C++17 suites
+  Wall/Wextra/Werror PASS; planner/service ASan/UBSan PASS after final control fix.
+  Coverage includes130 s waiting without lease, all invalidation events, quick
+  acquire/release, new sample IDs, duplicate results, failed stop ACK, reboot/gains,
+  full wizard sequence/reload/direction/units/discard/mobile/space explanations.
+  Initial wizard tests failed because mock status omitted owner; corrected fixture
+  and full regressions passed. No production guard weakened to satisfy tests.
+- Pinned core3.3.10 incremental ESP32-S3 N16R8 build PASS, source hashes/binary
+  identity/emitted two6,291,456-byte slots verified. Final v0.15.0/buildUTC
+  2026-10-20T07:40:11Z =20 October2026 14:40:11 WIB. App1,241,840 bytes;
+  program storage1,241,698/global RAM57,576. SHA256
+  `0ef348562bb3a7b077e54f8508784998265a46bcd71a40feaf6dc7a2c774b7c1`.
+  Incremental reuses core/library objects, not labeled clean. One intermediate
+  build was rejected by the source-change gate during final ACK-guard work; not
+  uploaded. The initial deployable07:35:25Z artifact was subsequently superseded
+  only to move mobile sticky Stop from bottom to top (bottom overlapped guide).
+- Both app-only OTA uploads acknowledged success, no failed upload retry. First
+  reboot had3 status timeouts before recovery. Final reboot had5 failed probes
+  before recovery, all retained. Final exact version/build/MACe0:72:a1:fd:0d:88
+  verified at192.168.1.22; saved Wi-Fi profiles, geometry and calibration mask
+  preserved. Boot Manual/unowned, all wheel duties0/laserOFF/pulsesdisabled,
+  demo not running/Zero invalid/hand confirmationfalse/sample_pendingfalse.
+- Final no-motion API PASS:34 normal GET samples/0 failure,p95~63ms,
+  p99/worst~109ms; uptime31,761→35,964ms, Wi-Fi disconnect0→0. No additional
+  reboot observed during this4.203s idle sample. Expected rejection of stale
+  result ID and real Start retained. No configuration/actuator commands sent by
+  the verification suite. Initial deployed UI suite also passed34 reads/0fail,
+  p95~62/p99/worst~63ms; these brief samples are not sustained latency guarantees.
+- Final actual desktop/mobile browser PASS: Siapkan Auto opens preparation,
+  advanced controls collapsed, no old Start/Zero duplicated in main flow, no
+  JS error/overflow/POST. Mock pending-result and live mobile images visually
+  inspected; final Stop position corrected. Actual pending-result persistence
+  across a REAL motion trial/reload has not been exercised; native/browser tests
+  cover the behavior without actuators. Ignored build/{ota,live,browser}-v015*.json,
+  wizard-v015-*.png and build_manifest retain evidence, including initial artifact.
+- LIMITS / remaining physical step: stored75x75/reach15/margin10/coast0/speed5
+  geometry is a user-authorized temporary MODEL. Its10cm half-goal extent is
+  smaller than initial forward prediction12cm, so calibration_forward_fits=false.
+  The guide explicitly explains the guard; no fabricated larger table/gains or
+  old45°/3–5cm observation is accepted automatically. Asked operator for actual
+  table size and current physical pose before movement; no answer yet at this
+  record. No physical actuator command or new real demo/calibration in this task.
+  No edge/containment/endurance proof. Old soak partial/monitor paused unchanged.
+
 
 ## v0.14.1 motor deadband and operator commissioning — 2026-10-20 WIB
 
