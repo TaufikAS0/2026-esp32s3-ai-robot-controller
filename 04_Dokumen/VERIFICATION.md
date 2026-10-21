@@ -6,6 +6,10 @@
   operator Stop confirmation. Read-only follow-up found wheel targets nonzero and
   laserON. No OTA/globalStop/actuator request sent; owner not overridden. Device
   remainsv0.18.2. Raw build/v0183-ota-active-owner.json and ota-v0183-result.json.
+  Later GET observed unowned/released/wheels0/laserOFF, but one deliberate new
+  preflight immediately found an owner again and refused before any upload.
+  No takeover/globalStop or flash retry. Await controllers actually closed;
+  first refusal preserved in ota-v0183-active-owner-preflight.json.
 
 - Read-only observation while OPERATOR drove v0.18.2/MACe0:72:a1:fd:0d:88 at
  192.168.1.14:20 GETs/0fail,p95~47ms. Uptime increased continuously/disconnect

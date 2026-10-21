@@ -3,6 +3,8 @@
 OTA PRECHECK REFUSED new active Manual HTTP owner/session3134620396 with wheels
 nonzero/laserON after earlier Stop confirmation. No upload/globalStop sent.
 User asked to close other controllers; reverify idle before deliberate OTA retry.
+One later unowned GET was followed by active owner again at actual preflight;
+second upload attempt never sent binary. Do not keep trying while control recurs.
 
 SOURCE/BUILD PASS v0.18.3/buildUTC2026-10-21T06:58:20Z (2026-10-21 13:58:20 WIB),
 app1,276,848 bytes/SHA256 c4a2d71bdfaf7a81a1fa5419ef1abfed1cbef0c15fc4fec5d25f3473584a09ca. Read CONTROL_ABORT_V0183.md.
