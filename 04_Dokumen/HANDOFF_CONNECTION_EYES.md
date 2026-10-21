@@ -1,0 +1,522 @@
+# Continuation status — v0.18.3 abort diagnostics / laser Angry
+
+DEPLOYED v0.18.3/buildUTC2026-10-21T06:58:20Z (2026-10-21 13:58:20 WIB),
+app1,276,848 bytes/SHA256 c4a2d71bdfaf7a81a1fa5419ef1abfed1cbef0c15fc4fec5d25f3473584a09ca. Read CONTROL_ABORT_V0183.md.
+Dashboard still HTTP81; abort does not prove Wi-Fi loss. Passive operator-run
+observation20 GETs/0fail captured session change then500ms timeout, uptime growing,
+Wi-Fi disconnect0. No probe actuator requests/takeover. Exact client cause unknown.
+Suspend own Manual background demo/Wi-Fi polls/hidden Operations preview; bounded
+20-event page diagnostics with explicit ACK timeout/path/ms, no retries/replay.
+Laser overrides movement/Manual/Showcase as Angry, except OTA. OFF restores settings.
+122 Python/browser(77 Chromium),10 native and pinned core build PASS. No stability
+or physical combined-load proof. OTA acknowledged after operator Stop/idle check;
+2 postboot timeouts retained before exact identity recovery. MACe0:72:a1:fd:0d:88
+at192.168.1.14. Idle34 reads/0fail,p95~312/p99~343ms, live normal/VR browser PASS/noPOST.
+Port81 status reached343ms and port80 status312ms, above300ms command ACK
+limit; idle read success with3s timeout does not prove command deadline safety.
+Final unowned/wheels0/laserOFF/pulsesdisabled; config preserved, no resume. Old soak
+partial/monitor paused; GPIO/NVS/network/500ms expiry unchanged. See VERIFICATION.
+
+### Earlier preflight refusals (historical; deployment completed above)
+
+OTA PRECHECK REFUSED new active Manual HTTP owner/session3134620396 with wheels
+nonzero/laserON after earlier Stop confirmation. No upload/globalStop sent.
+User asked to close other controllers; reverify idle before deliberate OTA retry.
+One later unowned GET was followed by active owner again at actual preflight;
+second upload attempt never sent binary. Do not keep trying while control recurs.
+
+## Previous v0.18.2 deployment
+
+# Continuation status — v0.18.2 servo ranges / VR
+
+DEPLOYED v0.18.2/buildUTC2026-10-21T04:55:20Z (2026-10-21 11:55:20 WIB),
+MACe0:72:a1:fd:0d:88 at192.168.1.14. App1,275,456 bytes/SHA256 8f305194834b625a908620fc502fe927d515cdd9a76eb15a95f1ab82a72de56a.
+Read SERVO_RANGE_V0182.md. Operasi/Batas tangan uses existing shared RAM policy,
+preserves current dynamic fields, full slider min/max travel and endpoint labels.
+Open releases own lease; apply never moves or centers. Backend refusal preserves
+actual ranges/drafts. Longer normal tracks plus explicit extra VR layout with
+Stop/settings/exit reachable; no physical headset validation or WebXR feature.
+120 Python/browser(75 Chromium),10 native, pinned-core build PASS. Initial check
+process interruption recorded; one hidden software check runner completed all jobs.
+OTA acknowledged/2 postboot timeouts before verified identity. Idle34 reads/
+0fail,p95~62/p99~78ms; actual six normal/VR viewport browser checks PASS/no POST.
+Final Manual/unowned/wheel duties0/laserOFF/pulsesdisabled. Reference90 not physical
+pose; no actuator test or real60..120 config write. Ranges boot0..180/RAM-only,
+saved Wi-Fi/table config preserved. API/pins/NVS/network/timeout unchanged;
+old soak partial/monitor paused. See VERIFICATION for raw evidence and limits.
+
+## Previous v0.18.1 deployment
+
+# Continuation status — v0.18.1 responsive Manual
+
+DEPLOYED v0.18.1/buildUTC2026-10-21T03:50:02Z (2026-10-21 10:50:02 WIB),
+MACe0:72:a1:fd:0d:88 at192.168.1.14. App1,267,376 bytes/SHA256 a84125c69a26784a043e99102f0acba5916d3af4244801b78c4dcfec2e1be406.
+Read MANUAL_RESPONSE_V0181.md. Explicit user decision supersedes old Manual
+easing: direct bounded accepted reference on control tick; UI integer1degree,
+same-target event dedup, Auto planner unchanged. Larger joystick/sliders/thumbs
+and circular laser ON/OFF button. One producer/no replay/Stop/500ms expiry remain.
+116 Python/browser(71 Chromium),10 native and pinned-core build PASS. First
+Windows standard-header compile failure preserved; jobs1 retry passed unchanged.
+Temporary preflight LAN loss recovered without network changes; OTA acknowledged,
+2 postboot GET timeouts before exact identity recovery. Idle34 reads/
+0 failures,p95~63/p99~63ms. Live three viewport browser checks PASS/no POST.
+Final Manual/unowned/wheel duties0/laserOFF/pulsesdisabled;90 references are not
+measured physical pose. Saved config preserved/no resume; no physical movement
+or speed/laser test. Keep old soak partial/monitor paused. See VERIFICATION.
+
+## Previous v0.18.0 deployment and preparation
+
+# Continuation status — v0.18.0 Operations viewport
+
+DEPLOYED v0.18.0/buildUTC2026-10-21T03:19:44Z at192.168.1.14,
+MACe0:72:a1:fd:0d:88. App-only OTA success acknowledged; three postboot GET
+timeouts retained before exact identity recovery. Final Manual/no owner/session0,
+wheel duties0/laserOFF/servo pulsesdisabled; references90/90 NOT physical pose.
+Saved Wi-Fi profile order/table configuration/calibration mask preserved;
+demo/exhibition idle/centerinvalid. Actual idle suite34 normal reads/0 failure,
+p95~62/p99~63ms, no reboot/disconnect during suite. Live Operations desktop,
+portrait/landscape PASS/no overflow/JS error/POST; navigation acquires nothing.
+No physical actuator commands or laser activation. Raw ota-v018/live-v018/browser
+results and operation-v018-live screenshots ignored in build/.
+
+Initial GitHub CI failed a test asserting globalStop before async release ACK.
+Fixture now waits for actual Stop success message; both affected Stop/navigation
+tests PASS locally, firmware source/binary unchanged. See newest VERIFICATION.
+
+## Initial source publication (historical; deployment completed above)
+
+SOURCE/BUILD PASS v0.18.0/buildUTC2026-10-21T03:19:44Z (10:19:44WIB).
+App1,263,920 bytes/SHA256 4d5770efa5d1fc5c6bb4b0656abfe0ef6c4ac68f55cad3bfa5c28e816036a925.
+Read OPERATIONS_V018.md. Dedicated /#operation-panel: joystick left, both hand
+sliders/existing right-hand laser switch right, visible mode/power/global Stop.
+Single Manual producer/shared targets; navigation/load/power never acquire.
+Entry/exit releases own session, normal joystick release retains selected laser;
+Stop/blur/cancel/error/500ms timeout still clear. Rapid navigation cannot replay.
+115 Python/browser(70 Chromium),10 native and pinned-core3.3.10 build PASS.
+Desktop/mobile/landscape/no-scroll and direct reload tested; screenshots inspected.
+Initial direct-route bug and fixed-delay fixture failure preserved in VERIFICATION.
+
+NO OTA/DEVICE CONTACT this task; no physical output trial. Last verified deployed
+v0.17.0/build02:34:09Z at192.168.1.14 (MACe0:72:a1:fd:0d:88), from earlier task.
+Do not treat this as current identity/ownership/physical pose proof. For later
+OTA verify exact MAC/build/idle/owner afresh; no takeover or actuator activation.
+No API/pin/partition/NVS/network/control-task changes; old soak partial/paused.
+
+## Previous deployed v0.17.0 handoff
+
+# Continuation status — v0.17.0 Manual joystick/laser
+
+DEPLOYED at192.168.1.14: v0.17.0/buildUTC2026-10-21T02:34:09Z,
+MACe0:72:a1:fd:0d:88. App-only OTA acknowledged success; two postboot GET
+timeouts retained before exact identity recovery. Final Manual/no owner/session0,
+wheel duties0/laserOFF/servo pulsesdisabled; reference90/90 is NOT measured pose.
+Saved Wi-Fi order and table config/calibration mask preserved; demo/exhibition
+idle/centerinvalid. Actual idle suite34 normal GETs/0 unexpected failures,
+p95~62/p99~94ms, no reboot/disconnect during suite. Live desktop/mobile browser
+PASS/no JS errors/overflow/POST; choosing joystick acquires nothing. No physical
+actuator command or laser activation this task. Source CI push/PR PASS on
+fb15a95e05b95bf07d574e47924fe1e14a68815f. See newest VERIFICATION.
+
+Preflight history below is retained: first active owner refused; after operator
+Stop, network temporarily unreachable before any upload. User reconfirmed IP;
+fresh identity/idle checks then permitted the successful deliberate OTA.
+
+## Earlier v0.17.0 preparation (historical)
+
+BUILD PASS v0.17.0/buildUTC2026-10-21T02:34:09Z(09:34:09WIB),
+app1,256,688 bytes/SHA
+b50c72d556a5b561e56c141dc4a1029a897bdc308701096aafb60968b7f78bb1.
+Initial OTA preflight BLOCKED by live Manual HTTP session/laserON; no upload or
+globalStop sent. Operator asked to Stop/release; do not override the owner.
+Before deployment retry verify idle/MAC/version again, do not trust stale pose.
+Device remainedv0.16.0 at this preflight. See newest VERIFICATION for follow-up.
+
+Source v0.17.0; read JOYSTICK_LASER_V017.md. User21 October reports laser
+turning off when driving and requests joystick wheels with side vertical arm
+sliders. Root source path: normal direction pointer release called full stop(),
+releasing session and clearing laser; firmware release behavior itself correct.
+Normal drive release now zeros wheels and preserves chosen laser in same fresh
+Manual session, only while browser continues100ms commands. Full Stop/mode/view/
+blur/cancel/loss/error still clear laser;500ms watchdog unchanged. Joystick is
+optional Manual view; radial clamp12% deadzone/normalized Daya motor, one drive
+pointer; arrow-key repeat cannot restart after cancellation. Arm aliases share
+target/number/min/max. No API/pin/partition/NVS/network/control task changes.
+110 Python/browser(65 Chromium),10 native suites PASS. Build/OTA evidence to be
+recorded when complete. Initial failure in one new test was a pointer coordinate
+below the viewport; fixed test to scroll joystick into view; all110 then pass.
+No physical actuator commands/laser activation this task. Before upload live
+MACe0:72:a1:fd:0d:88, v0.16.0/build10:10:18Z at192.168.1.14 verified idle,
+owner none, Manual, arms reference180/98 with pulsesenabled. These are NOT
+measured physical pose or permission to seed90 after reboot. Do not assume
+old physical observation establishes current safe pose for new actuator trials.
+Old soak partial/monitor paused; prior pameran behavior unchanged.
+
+## Prior v0.16.0 deployment and physical observations
+
+# Continuation status — v0.16.0 floor exhibition
+
+LATEST real one-goal trial PASS after fresh operator ready confirmation:
+67 paired samples/19.078s,148 requests0fail,p95~93/p99~109/worst~110ms.
+Onboard random goal and Happy left140/swing130–150 gesture completed; while
+arm raised wheel outputs0. No reboot/Wi-Fi disconnect (uptime306559→326816ms).
+ScopedStop ACK; final no owner/all wheel duties0/laserOFF/arms90/pulsesenabled,
+demo stopped/centerinvalid. Same v0.16.0/build10:10:18Z. Table NVS untouched.
+Before next run operator must manually place center/front then use web Reset
+ke Tengah and separate Start. No automatic next run. Earlier interrupted test
+and reset acknowledgement remain recorded below, not discarded. Model bounds
+are not measured physical containment. Full evidence in VERIFICATION.
+
+DEPLOYED v0.16.0/buildUTC2026-10-20T10:10:18Z(17:10:18WIB),
+MACe0:72:a1:fd:0d:88 at192.168.1.14. App1,250,016 bytes/SHA
+f9583e4dc5f9c151c89f5a3e06f0fca00e4ecba9a87a9bf963d5e2c1421290d4.
+OTA ack success/3postboot GET timeouts then recovery, exact identity/idle verified.
+34 normal idle reads0failure,p95~78/p99~94ms; read-only desktop/mobile PASS.
+First real onboard random trial INTERRUPTED BY OPERATOR reset (user confirms),
+not completed.18 samples/4.64s before GET/Stop/finalstatus timeouts; subsequent
+globalStop ACK and reboot idle verified. Raw resetreason4/no crash trace means
+low-level mechanism uncertain; do not claim firmware spontaneously rebooted or
+that this real goal/wave passed. Subsequent no-output onboard simulation30s
+completed one goal/gesture without reboot; stopped/no owner/centerinvalid.
+Await new ready confirmation; no automatic physical retry. Source checks below.
+
+User20 October2026 authorizes SUPERVISED FLOOR random movement with a virtual
+30x30 cm axle-center area; accepts physical drift and manual recentering.
+Read EXHIBITION_V016.md. Reset ke Tengah is idle-only model reset after physical
+placement, never autonomous homing; explicit Start separate. No fake demoV1
+calibration/NVS writes. Runtime profile/center clear on reboot; old table mode
+guards unchanged. Tests:101 Python/browser,10 native and planner/service
+ASan/UBSan PASS. Build/OTA/live/publication evidence follows in VERIFICATION.
+At this entry preparation, active device v0.15.0/build07:40:11Z, expectedMAC
+e0:72:a1:fd:0d:88, newIP192.168.1.14, Auto/no owner/wheels0/laserOFF/hands90.
+Operator confirmed floor center/front, safe hands and observing for post-OTA
+bounded trial. Do not auto-retry physical motion on failure. Old soak partial,
+monitor paused, no runner start.
+
+Operator observations AFTER v0.15 deployment: forward80%1s about3–4 cm and
+4–5deg left drift, right45deg/left45deg with no visible coasting. Bounded
+laptop exhibition292ACK/29.45s/no errors/idle; out-and-back140ACK/14.016s
+operator later reports center return success (no measured numeric error).
+Left100 was upward, left180 vertical/free, left150 approved then lowered10deg
+to raised140/swing130–150 twice/base90. User approved final wave and requested
+Happy smile; script Happy test/readback/restore/idle passed. High right poses
+NOT confirmed; right stays90. Raw ignored build logs retain each physical trial
+and operator observation. These are estimates, not table calibration/endurance.
+
+## Previous v0.15.0 handoff (historical baseline)
+
+# Continuation status — v0.15.0 guided Auto
+
+DEPLOYED: exact v0.15.0/buildUTC2026-10-20T07:40:11Z (20 October14:40:11 WIB),
+MACe0:72:a1:fd:0d:88, app1,241,840 bytes at192.168.1.22.97 Python/browser,
+10 native suites and planner/service sanitizers PASS. Incremental pinned-core
+build/source hashes/slot gate PASS. Final OTA acknowledged success;5 postboot
+probe timeouts before recovery retained. Final idle34 reads/0fail,p95~63,
+p99/worst~109ms. Live desktop/mobile guide inspected/no POST/JS error/overflow.
+No physical actuator command this task; final Manual/unowned/wheel duties0,
+laserOFF/pulsesdisabled. Stored config/mask preserved; confirmation/Zero/pending
+clear. Two successful OTA builds: initial07:35:25Z UI superseded by final top Stop
+placement; initial3 timeout probes separately retained. No auto resumption.
+Asked operator actual table size/current safe pose; await answer before physical
+test. Forward space guard is FALSE under current temporary model (see below).
+Do not claim the real guide/calibration/random path was physically completed.
+
+User approved20 October2026 implementation of AUTO_GUIDE_V015.md and wants Codex
+to operate the web, one physical step at a time with their observations. This
+supersedes the historical pause below for authorized continuation, not permission
+to assume current physical setup or auto-repeat motion. v0.15.0 keeps one RAM
+pending sample during same boot, no120 s expiry/lease; invalidates on control/
+Stop/network/config/OTA/new run/reboot. Actual deployment/tests recorded in latest
+VERIFICATION entry. Stored gains/schema untouched; hand confirmation/Zero clear
+at boot. Do not reuse late45° or3–5cm observations as fresh measured samples.
+
+Current temporary75x75/reach15/margin10/coast0/speed5 geometry has10cm forward
+goal extent, while initial forward prediction40*(.8-.5)=12cm. The new guide
+explains this space guard and disables the forward test; do not inflate table
+size or invent gains to bypass it. Establish actual available test area with
+operator before physical commissioning. Real random demo still unstarted.
+
+## Historical v0.14.1 commissioning
+
+USER PAUSED physical testing20 October2026 ("sebentar saya hentikan dulu testnya").
+Global Stop acknowledged; verified no owner, wheels0/laserOFF, servo references90
+still held with pulses enabled (Stop does not de-energize servos). No automatic
+trial/calibration/demo/soak resumption. Operator has not recentered after the last
+CW trial; reported45 degrees arrived after sample expiry and was not saved.
+Await the user's new instruction before further physical work. Pause record:
+ignored build/operator-paused-v0141.json. Firmware/OTA remains v0.14.1 as below.
+
+LATEST PHYSICAL FOLLOW-UP (supersedes initial post-OTA idle/location below):
+Operator freshly confirmed centered fenced table/front heading/safe90 pose.
+Selected Auto, set fresh confirmed Zero and ran one80%1-second CW calibration.
+Run/sample1 completed, effective integral0.25719994; angle/direction feedback
+not received before120 s expiry, result NOT saved. No automatic repeat. Latest
+check165 s after trial: Auto/no owner, wheels0/laserOFF/hands90 pulsesenabled,
+demo stopped, Zero invalid/calibration0. Recenter and obtain fresh operator
+observation for a new sample; do not save expired ID or assume current heading
+matches map front after this rotation. Log build/calibration-cw-v0141.json.
+Full real random demo remains unstarted. Same firmware/build/branch as below.
+
+Read DEMO_V0141_PWM.md and latest VERIFICATION first. Operator commissioned
+hands90 and88–92 safe; floor15% produced0cm,60%~1cm straight,80%~3–5cm estimated
+in1 s. Lifted test suggests no40%/slow60%/stronger80%; descending answer40% taken
+as stopping point, not precise threshold. No physical random demo started. These
+observations invalidate old25% demo cap and simple raw-PWM speed assumption.
+150 direct commands acknowledged/no request failure, all trials scoped-release
+to wheels0/laserOFF/hands90. Physical dimensions remain user-authorized MODEL
+75x75/reach15 for20x20 goals, not actual measured table dimensions.
+
+v0.14.1 implements optional min_pwm/deadband_pwm,80% cap, effective-effort model/
+calibration and minimum-speed guard. Defaults unchanged15/0/0; changing any PWM
+setting invalidates calibration. Legacy15/19-field API/storage accepted; extended
+17/21-field data saved under same demoV1. No external raw PWM contract change.
+No NVS erase/pin/partition/network/access changes. Rules/version notes read.
+
+92 Python/browser +10 native suites/sanitizers PASS; incremental pinned-core
+build/source hashes/slot gate PASS. App-only OTA verified v0.14.1/buildUTC
+2026-10-20T03:03:42Z (20 October10:03:42 WIB), MACe0:72:a1:fd:0d:88/app1,232,496.
+Three postboot timeouts before recovery retained.36 normal no-motion reads,
+0 failure,p95/p99/worst~78ms; new80/60/50 model saved, fresh flags remain false.
+Read-only live browser/advanced mobile PASS. Final checked Manual/unowned,
+wheel duties0/laserOFF/pulsesdisabled; no actuator commands after this OTA.
+Need fresh accepted hand pose/limits, physical recenter/fence and measured
+forward/CW/CCW/coast before real Start. Do not turn approximate old floor trial
+distances into a completed calibration. No automatic resumption; old soak partial,
+monitor paused. Device was last on the floor after clear-lane diagnostics;
+do not silently assert centered fenced-table placement for a new Zero.
+
+## Historical v0.14.0 editable table demo
+
+v0.14.0 implemented and app-only OTA verified at192.168.1.22, expected
+MACe0:72:a1:fd:0d:88/buildUTC2026-10-19T20:42:42Z (20 October03:42:42 WIB).
+Read DEMO_V014.md and current VERIFICATION entry before continuing. User wants
+table dimensions/reach editable in web and will enter estimates later; fields
+remain blank, no fabricated physical geometry or calibration was persisted.
+Simulation uses private virtual control; real onboard demo requires explicit
+Auto, valid measured configuration/calibration, fresh hand confirmation and Zero.
+Closing browser does not stop real demo. Global Stop remains unconditional;
+demo Stop requires current run_id. Never resume a session/pose after reboot/fault.
+
+90 Python/browser and10 native suites PASS; planner/service sanitizers PASS;
+clean core3.3.10 build/app1,230,672 bytes/source hashes/OTA slots PASS. Live no-motion
+API:35 normal samples/0 failure,p95~62 ms,p99/worst~63 ms; six expected rejection
+cases. Two postboot timeouts before recovery retained. HTTP80/81 demo and read-only
+TCPhello/status work. Live desktop/mobile UI inspected, no POST/JS error/overflow.
+Final checked Manual/unowned, all wheel duties0/laserOFF/pulsesdisabled, demoidle,
+Zeroinvalid and realStartdisabled. No actual actuator command/calibration/demo
+run this delivery. User fills size, establishes safe hand pose/limits, measures
+forward/CW/CCW one-second tests on fenced table, then repositions/Set Zero before
+real Start. Physical drift/containment remain unverified. Old soak stays partial,
+monitor paused, no automatic restart. Build/time is compiler identity, not clock.
+
+## Historical v0.12.0 saved Wi-Fi and failover
+
+Latest source adds scan/5 saved priority profiles/failover and always-active
+recovery AP, under new explicit user policy replacing fixed-SSID-only behavior.
+Read WIFI_PROFILES_V012.md and latest VERIFICATION. NVS wifiProfilesV1 is now
+authoritative; no boot overwrite of saved credentials. Preserve no-wheel/unknown
+servo pose constraint. Network changes invalidate control, do not resume targets.
+Build/upload/physical failover evidence is reported separately; old soak stays
+partial/paused, no new automation started.
+
+v0.12.0 app OTA subsequently verified over recovery AP192.168.4.1, exact
+buildUTC2026-10-19T12:46:30Z (19:46:30 WIB), app1,199,472 bytes;82 Python/browser
+tests and8 native suites PASS. Initial postboot HTTP check failed until laptop
+re-associated to the same saved AP. Actual scan/CRUD/network guard worked;
+follow-up trace observed temporary-profile attempt -> HuaweiJIN at15.594 s ->
+waiting30.625 s, with8 failed requests retained. Initial live test also timed out;
+all temporary profiles removed, sole original HuaweiJIN restored. No successful
+second-router association claimed. Real UI read-only inspected. Final wheels0,
+laserOFF/pulsesdisabled/no owner; no actuator command sent. See latest VERIFICATION
+for exact failure/recovery evidence and limits. No new soak; old monitor paused.
+
+Latest source adds TCP9000 for an external LAN engine: read TCP_CONTROL_V011.md
+and the latest VERIFICATION entry. JSON lines, explicit Auto/program, one socket,
+bound sessions,500 ms expiry and no command replay. User confirmed unknown
+physical initial servo pose; live verification must send no command and must not
+enable servo/laser until an accepted pose is supplied. Old soak remains FAILED/
+PARTIAL, monitor PAUSED. Build/OTA/live outcome is recorded separately below.
+
+v0.11.0 app OTA succeeded: exact buildUTC2026-10-19T03:04:54Z (10:04:54 WIB),
+MACe0:72:a1:fd:0d:88, app1,185,408 bytes.75 Python/browser tests +7 native suites
+PASS (TCP suite also ASan/UBSan). Actual no-actuator suite:50 status requests,
+0 normal failures,p95=46 ms,p99/worst47 ms; session arbitration/expiry, framing
+and slow-client faults verified. First slow-reader setup failed to establish
+closure; original evidence retained and corrected setup/probe recorded in
+VERIFICATION. Final Manual/unowned, all wheel duties0, laserOFF, pulsesdisabled;
+no command requests or physical actuator tests. Backend's real engine remains
+to be integrated against the documented contract; no24-hour acceptance claim.
+
+## Latest source — v0.10.0
+
+App OTA and bounded live verification are complete: exact v0.10.0/buildUTC2026-10-16T17:04:24Z/MAC confirmed,34 zero-wheel commands with no unexpected request failures (p95~94 ms,p99/worst~109 ms), reference+2 degrees/return, HTTP80 partial-header overlap with HTTP81 control, CORS/policy checks and final scoped release. Laser off, wheels0, dynamicOFF, reference held99.0164/102.635. Real desktop/mobile dashboard inspection passed with no POST requests. Raw evidence stays ignored underbuild/{ota,live,browser}-v010-result.json; see VERIFICATION for exact limits. This is short-run evidence, not24-hour acceptance or physical angle feedback.
+
+Servo/UI/HTTP81 fixes, per-arm RAM min/max and optional bounded dynamic hands are implemented. Read SERVO_CONTROL_V010.md and the latest VERIFICATION entry for build/OTA/live evidence. Natural60/240; dynamic OFF at boot. Tests: six native suites and64 Python/browser tests passed. Firmware buildUTC2026-10-16T17:04:24Z (2026-10-17 00:04:24 WIB), app1,179,616 bytes. No physical wheel test is authorized; do not restart the failed old soak automatically.
+
+## Interrupted run, servo follow-up
+
+The original24-hour runner is **FAILED/PARTIAL**, not running: ended2026-10-16 21:51:33 WIB after1 h34 min15.719 s on conflicting controller ownership. Monitor is PAUSED. See [the full partial result](SOAK_RESULT_2026-10-16.md):13,609 requests/130 failures,8,202 zero-wheel command attempts/32 command failures, no recorded reboot/Wi-Fi disconnect. Final idle verification failed because of ownership conflict; do not label the last older idle snapshot a verified final state.
+
+User now requests fixing slider/control offline behavior, visible angles, configurable per-arm limits, faster accelerate/cruise/brake motion and optional dynamic arm movement during forward/reverse; then tested source push and app OTA. Do not restart the old soak. All physical wheel test commands still must remain zero. Dynamic wheel reactions are tested in simulation. The previous body below is historical launch evidence and must not be treated as current process status.
+
+Issue#2 has been consumed on the testing laptop. Feature branch remains feature/initial-robot-controller; PR#1 targets develop and must remain unmerged. Read the latest VERIFICATION entry and SOAK.md before further work. The original handoff is preserved below as historical problem definition.
+
+Implemented and tested: Fox clipping/mirroring, six distinct Sharingan designs/category (52 presets), native raster precomputation/clipping, dropped OLED catch-up work, network/reset/OLED telemetry and guarded durable soak runner. First command after disabled pulses seeds an explicitly accepted reference instead of traversing assumed90 degrees; subsequent rate limits remain. No wheel tests, pin/NVS/partition/profile/access change or500 ms timeout extension. Five native suites,12 client/7 policy/2 identity/10 soak tests and28 Chromium simulations passed. Native/browser contact sheets inspected; physical pixels remain unobserved.
+
+App-only OTA verifiedv0.9.0/buildUTC2026-10-16T13:10:42Z (20:10:42 WIB), application1,138,640 bytes, SHA256314a75148b86bb16051a2a414a259cdb9b4e22e0b0cdbeb518f6bbc138c133c4. Boot identity/idle outputs/HTML verified at192.168.1.66, MACe0:72:a1:fd:0d:88 via Ethernet192.168.1.122. Source snapshot and regenerated binary identity matched; final build reused core/library objects (see VERIFICATION for exact build evidence).
+
+Smoke144.188 s completed all10 scenarios:527 zero-wheel commands,0 command failures,commandp95=48 ms/p99=78 ms,worst ACK gap234 ms. Normal non-slow-client requests721/0 failures. Intentional partial-header slow client caused2 status/recovery timeouts; recovered without radio disconnect/reboot. Producer expiry verified laser off/session invalidation. Thus normal short-run improved, but synchronous slow-client stalls remain a known limitation and causation of the original intermittent outages is still unproven. No exhibition-ready claim.
+
+**Historical launch below: this process subsequently failed; see latest status above.**
+
+- StartUTC2026-10-16T13:17:17.4144055Z =20:17:17 WIB; planned deadline around2026-10-17 20:17:18 WIB, plus cleanup, if uninterrupted.
+- Initial PID1620; verify command line/start time in ignoredbuild/soak-24h-v090.launch.json, never trust PID alone.
+- Durable state: build/soak-24h-v090/checkpoint.json, events.jsonl and requests.csv; stdout/stderr use same output prefix.500 ms expiry and zero-wheel boundary guard remain enforced.
+- Codex heartbeat pantau-soak-robot-24-jam-tanpa-roda is ACTIVE every30 minutes on the continuation chat. It only supervises the existing job, reports actionable failure/completion, and must pause on terminal state. No auto-restart, target resumption or unattended flashing.
+- Cancel by creatingbuild/soak-24h-v090/stop.flag. Runner releases its own session, restores settings when unowned, and verifies final zero wheels/laser off; loss of connectivity leaves final physical state unverified.
+
+Next: inspect durable evidence after24 actual hours; report full/partial duration, failures including induced ones, per-scenario and command percentiles/worst gaps, RF/reset/heap/OLED telemetry and recovery. Then pause monitoring and update report/PR. Do not interrupt a healthy soak to flash a speculative fix. Physical pixels, mechanical response, supply/current/brownout measurements and exhibition RF conditions remain unknown.
+
+---
+
+# Handoff: exhibition connection stability and eye rendering
+
+Updated 2026-10-16 (UTC+7). This is an **open problem**, not a completed fix.
+
+User confirmed: execute on **the other laptop**, already powered on24/7; do not start a duplicate runner or automation on the laptop publishing this handoff. The Codex on that other laptop must consume this GitHub prompt, verify it can actually reach the robot's lab network, then prepare/run the automation itself. Merely staying powered on does not establish LAN reachability.
+
+## Copy-ready prompt for the next Codex on the testing laptop
+
+Continue this repository on `feature/initial-robot-controller`, PR to `develop`; do not merge or touch `main`. Read `AGENTS.md`, README, API.md, VERIFICATION.md, EYES_DESIGN.md, ARM_MOTION_DESIGN.md and this handoff first. Locate/read the actual firmware vault when available using AGENTS' mandatory sequence; standalone approved lab policies are documented in the repository. Audit current branch, remote, working tree and live firmware identity before changes. Preserve existing work.
+
+The user needs this robot for an exhibition. Implement and verify the following, then push reviewed/tested changes to the feature branch and update its PR. Be explicit about what passed and what remains unknown. Do not claim an exhibition-ready connection from compilation or a few successful requests.
+
+### Non-negotiable actuation scope
+
+- **Do not move the robot's wheels. Every test command must have left=0 and right=0.** Never run the existing moving `example.py`. Add an enforced zero-wheel assertion to the soak runner; no nonzero-wheel scenario or wheel-direction physical test is authorized in this handoff.
+- Servo tests are authorized. Use small, slow movements near the current accepted pose, within configured limits; avoid unsolicited full-travel sweeps. The boot reference is not a measured physical position. Begin with a short supervised setup where possible.
+- User specifically reports disconnections when servo and laser operate. Include laser-only and servo-plus-laser scenarios, keep wheels zero, and end each scenario with laser off. Do not add autonomous aiming or wheel motion.
+- On failure, conflicting owner, maintenance, loss of freshness or cancellation: stop producing commands, attempt stop/release, and leave wheels zero/laser off. Firmware's 500 ms expiry remains mandatory; no reconnect may silently resume the previous motion/laser target.
+- Keep single actuator output ownership, producer freshness, session/sequence validation, both OLED mounting rotations and logical/physical eye swap semantics intact. Do not mask failures by extending the stale-command timeout.
+
+### 1. Diagnose and improve connection stability
+
+Facts: the installed baseline is v0.8.0, build `2026-10-16T12:13:15Z` (19:13:15 UTC+7), last verified at `http://192.168.1.66/`. IP can change; rediscover/verify device identity instead of assuming. Robot is ESP32-S3 N16R8, two SSD1306 displays, SDA8/SCL9; Wire addresses left0x3D/right0x3C. Device MAC last verified `e0:72:a1:fd:0d:88`.
+
+On 2026-10-16, 16 sequential status requests with a 2-second deadline yielded15 successes/1 timeout. Observed latencies in ms:94,1078,94,1969,219,219,31,94,63,79,63,1984,109,2047,94,78 (2047 was the timed-out attempt). A successful status sample reported RSSI-72 dBm, modem sleep disabled, free heap232572, uptime930074 ms, both OLEDs online/errors0, Shinobi Showcase active. User separately reports intermittent disappearance and more trouble while servos/laser run. Raw logs are local ignored artifacts, not shipped source.
+
+These observations establish latency failures, **not** the cause of radio disconnects. Compare idle/OLED disabled/reactive/Sharingan-heavy rendering with actuator/laser cases. Measure before changing code and record RSSI, uptime/reset, reconnect/disconnect reason/count, heap minima, request latency/loss, HTTP concurrency and OLED work duration. Add useful bounded telemetry if missing; avoid heavy per-request flash work or log flooding.
+
+Source review leads, not proven root causes:
+
+- `eye_raster.h` recomputes expensive per-pixel floats/trigonometry; Sharingan computes tomoe positions inside the pixel loop, and radial detection currently invokes atan2 even for shapes that do not use angle. Reduce repeated work, clip raster bounds and precompute per-frame constants, preserving rendering correctness.
+- Eye task is priority1/core0; Wi-Fi also uses core0. Measure budget/overruns and avoid catch-up loops monopolizing CPU. Keep I2C off the actuator task.
+- Dashboard runs status polling, catalog loads and command fetches concurrently against synchronous WebServer. Study the **pinned core3.3.10 implementation**, actual browser traffic and slow clients before blaming keep-alive. Prioritize command freshness without letting queued old commands replay later.
+- Laptop previously had simultaneous Ethernet/Wi-Fi routes in the same subnet; this is a possible test confounder. Record interface/route used, avoid attributing every timeout to firmware, and do not change routers/routes/security without scope.
+- Servo/laser load may reveal a supply/reset problem; that is a hypothesis. A healthy uptime across an outage differs from reboot/brownout. Record reset reason on boot and distinguish confirmed evidence from assumptions. Software cannot prove supply stability.
+
+Lab STA remains HuaweiJIN and AP12345678; authorized source defaults already exist. Open LAN API/OTA is intentional. Preserve NVS migration: update differing lab STA/AP values; remove only apiToken/otaPassword; keep other keys. No arbitrary network/profile/partition changes.
+
+### 2. Fix Kurama and add real Sharingan choices
+
+Kurama/Fox has an identified raster defect: the highlight is unconditionally painted after ellipse/lid clipping in both C++ and JS. It can create a disconnected pixel island above the right lid. Fix the clipping/mirroring coherently in native renderer and preview. Regression-test both eyes across phases, verify no lit pixels outside the intended silhouette, and visually inspect actual native bitmap and browser output. ACK does not prove the physical OLED image.
+
+Sharingan currently has just one3-tomoe preset. Add a tidy separate Sharingan category/subgroup with **visibly different** designs:1/2/3-tomoe and several distinct stylized Mangekyo pinwheel/flower/star variants, for example. Existing sharingan ID stays compatible. Do not merely rename identical thumbnails or vary speed alone. Monochrome128x64 readability matters; compare pairs across animation phases. Keep reactive/playful on the existing rounded-box character; these special eyes belong to explicit Manual/Showcase. Catalog is the source of truth; update validation, Python accepted IDs, previews, thumbnails, native/browser tests and docs together.
+
+### 3. Prepare and actually run an automated 24-hour soak
+
+User explicitly wants the next AI to design its own scenarios and use automation for an all-day test. **Do not claim it ran until an accessible lab laptop actually executes it.** Remote GitHub CI cannot reach this private LAN and is not a substitute for the device soak. If the testing laptop has left the lab, prepare the runner/automation and report blocked device execution honestly; do not hammer guessed IPs all day.
+
+Build a reproducible Python runner with URL/config arguments (no machine-specific paths), scenario seed/config, precise monotonic timing, JSONL/CSV logs, summary percentiles and checkpoints. Enforce the zero-wheel guard before every command. Log version/build identity and network/device uptime for each scenario. Log failures as failures, not discarded retries. A crashed/stalled producer must expire, rather than let a background heartbeat perpetuate stale targets. Do not fight a human/controller session. Provide clean cancellation and final stop/off behavior.
+
+Design a bounded24-hour matrix including idle, reactive OLEDs, heavy Sharingan/Showcase, HTTP/browser-like concurrency, servo-only, laser-only, and combined servo+laser. Include repetition, recovery after request loss and slow-client tests. Test intentional network outages only with an isolated/explicit method; no router reboot or disruptive shared-network changes. OTA interruptions belong in a controlled maintenance scenario, not random unattended flashing. Start with a short smoke run and inspect output before the full soak.
+
+On the actual testing laptop, use its Codex automation capability: prefer a heartbeat attached to its continuation chat, inspecting durable runner progress/checkpoints periodically (for example every30 minutes) and notifying only actionable failures or completion. Launch one durable runner; automation monitors/resumes supervision rather than spawning duplicate24-hour jobs. Keep messages quiet while unchanged. End the soak after24 hours of real execution, summarize complete/partial duration and stop/disable its monitoring schedule. If automation tools are unavailable, state that and provide an explicit local scheduler/launch alternative instead of claiming a schedule exists.
+
+Suggested provisional exhibition target: normal loaded-control p95 response<150 ms and p99<300 ms, no command gap reaching500 ms, no unexpected reboot or stale-target resume, and24 hours without unexplained disconnects. These are targets to assess with the user and evidence, not a guarantee. Report sample counts, worst gaps, scenario durations, failures, retries, disconnect/reboot counts and recovery times; show both percentile and worst-case failures. RF conditions at the exhibition can differ from the lab. Do not call the result universally reliable.
+
+### Delivery and acceptance
+
+Use a new semver for firmware behavior/new presets, generate actual UTC build metadata, run native control/driver/eye/service tests, Python client/expiry/network/identity tests, Chromium dashboard simulations and pinned ESP32-S3 build/size/partition gates. OTA only the app binary when the verified robot is reachable; stop/maintenance/pulses-off first and verify identity plus idle outputs after reboot. Record separate build, simulation, short live test and24-hour soak results. Push feature branch; keep PR to develop unmerged. Update this handoff, changelog and verification report with exact next steps, artifact identity and honest limits.
+
+## Handoff publication status
+
+The current publication ships the previously built/tested v0.8.0 source plus this handoff. **No new firmware fix for the above timeout, Kurama or expanded Sharingan work has been implemented in this publication. No24-hour runner/automation is running as a result of publishing this prompt.** This task must be started on the continuation laptop/chat; creating a GitHub issue does not launch Codex by itself.
+
+
+## v0.13.0 strongest saved Wi-Fi and simple dashboard — 2026-10-19 WIB
+
+Previous: v0.12.0. User explicitly replaced manual priority ordering with strongest
+detected saved SSID first, fallback on failure, visible active Wi-Fi/signal and
+simple save/connect/delete UI. Read current AGENTS/README/API/handoff/verification
+and actual sibling vault home, folder, firmware, Gitflow, Rules_Kredensial_WiFi,
+WiFi_HuaweiJIN, Rules_Akses_Robot_Lab, Rules_Versioning, Rules_Change_Notifications.
+See WIFI_V013.md for the current contract; v0.12 ordered-attempt notes are history.
+
+Changes: asynchronous scan at boot/loss/retry; strongest VISIBLE SAVED candidate
+first,15 s each, then30 s cooldown. If none seen or scan fails, no blind automatic
+association attempts; wait120 s before scanning again. Explicit manual connect
+can attempt hidden/absent SSID first. Healthy link never roams/scans automatically.
+Rank all5 saved SSIDs even beyond24 public scan rows; duplicate BSSID RSSI uses
+strongest, equal RSSI keeps stored order. /wifi/order retained as tie preference.
+Active SSID/live RSSI/bars/IP now top-level, distinct from last-scan signals and
+browser hotspot access. One existing POST/settings saves/connects; simple saved
+Sambung/Hapus. GET/wifi adds selection/busy/retry/scan age and nullable RSSI.
+Hostname is set before Wi-Fi start per core API; timed-out driver scan is stopped.
+
+Unchanged: pins, two6 MiB slots, core3.3.10, Wi-Fi profile NVS schema/list,
+AP password/open LAN, HTTP80/81/TCP9000, ownership/500 ms expiry, no stale resume.
+Upgrade: app-only OTA preserves NVS profiles, no erase/unrelated key modifications.
+
+Tests:84 Python/browser tests PASS (39 dashboard,13 HTTP,11 TCP,9 policy,2 identity,
+10 soak simulation);8 GCC C++17 Wall/Wextra/Werror suites PASS. Expanded network
+test (actual service/fake SDK) also ASan/UBSan PASS including full5-candidate array,
+RSSI ties/duplicate APs, profile deletion/cache correspondence, >24 results,
+scan failure/timeout, absent-network120 s wait, preferred manual override and
+strongest fallback. Existing control/TCP/eyes/driver/OTA reservation tests passed.
+Mock desktop/mobile visual review passed. Native evidence remains simulation.
+
+Pinned incremental firmware build PASS: v0.13.0,
+buildUTC 2026-10-19T13:19:03Z =2026-10-19 20:19:03 WIB.
+App1,203,456 bytes; program1,203,306/staticRAM55,008; two6,291,456-byte slots verified.
+App SHA256 65d70241a133c930e017876a1683f18006ec8243fa400425ce2b1107c92f3192.
+Source-input hashes passed and were checked again before upload; clean_build=false.
+
+Actual AP192.168.4.1 matched MACe0:72:a1:fd:0d:88, v0.12.0/build12:46:30Z,
+no owner/session, wheels0/laserOFF/pulsesdisabled before OTA. FIRST upload failed
+HTTP400; subsequent polling confirmed old version, not a successful flash. Exact
+cause not proven; busy network is plausible. Evidence ota-v013-result.json.
+Waited for observed connecting -> waiting transition (ota-v013-idle-window.json)
+then performed ONE retry; upload acknowledged ok/rebooting. Windows remained
+associated to same AP/BSSID but ARP unresolved after reboot; disconnect/reconnect
+the SAME saved hotspot restored access. No router/route/firewall change. Final
+readback matches exact v0.13.0/build/MAC, idle wheels/PWM0, laserOFF/pulsesdisabled,
+HTTP81/TCP ready and one original saved profile. Evidence ota-v013-retry-result.json.
+Do not hide first rejection or claim uninterrupted reboot/reassociation.
+
+Actual device test PARTIAL: 53.031 s, 47 requests,
+1 failure retained. Manual async scan returned 10 SSIDs,
+sorted RSSI, offline current_ssid empty/RSSI null, passwords absent, profiles
+unchanged. The failure was the first GET/wifi at1.22 s during manual scan,
+timeout3 s; later polling completed. All42 status reads succeeded; p95
+250.0 ms, p99 1859.0 ms, worst
+2328.0 ms (successful samples; timeout is separate). Whole
+suite passed=false, not relabeled PASS. Final uptime119917 ms, Wi-Fi waiting,
+STAconnect0/disconnect4/reason203; these counts include connection attempts,
+not4 proven RF outages. No unexpected reboot observed in bounded check. Reason203
+does not establish password/RF/root cause here. Evidence live-wifi-v013-result.json.
+Final manual/unowned, network_busyfalse, all wheel duties0, laserOFF/pulsesdisabled.
+No actuator command and no profile save/delete was sent during this live check.
+
+Actual desktop/mobile dashboard read-only PASS, no JS error/overflow or actuator
+POST, correct v0.13.0 and one saved profile. Screenshots wifi-v013-live-desktop.png,
+wifi-v013-live-mobile.png and browser-wifi-v013-live.json under ignored build/.
+
+Limitations: scan/AP association still can interrupt HTTP; successful status can
+exceed2 s. Not seamless failover or TCP200 ms stability certification. Only one
+saved network on device; successful strongest selection/fallback between two
+credentialed routers remains native simulation. Actual saved profile survived
+OTA; new user credential persistence is not separately reboot-tested. Unknown
+servo pose restriction maintained; no wheels/servo/laser activation, new soak or
+automation restart. Old24-hour run remains partial; keep feature PR#1 to develop
+open/unmerged. Next tests: two real saved networks with operator credentials,
+association failure diagnosis and AP/RF latency observation, without moving wheels.
