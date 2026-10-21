@@ -1,5 +1,31 @@
 # Verification evidence
 
+## v0.17.0 successful OTA and live idle checks —21 October2026 WIB
+
+- After operator Stop/release, initial network precheck timed out before any OTA
+  request. LAN/AP checks found no expected MAC; ignored
+  build/ota-v017-preflight-unreachable.json retained. No automatic flash retry,
+  network change or reset. User reconfirmed192.168.1.14; fresh GET/ARP verified
+  expectedMACe0:72:a1:fd:0d:88 and idle before deliberate app-only upload.
+- OTA acknowledged success; two postboot GET timeouts retained, third probe
+  recovered exact v0.17.0/buildUTC2026-10-21T02:34:09Z. Binary SHA/size match
+  build evidence below. Boot Manual/no owner/session0, all wheel duties0,
+  laserOFF/servo pulsesdisabled. References90/90 are not measured physical pose.
+  Saved Wi-Fi profile order and table config/calibration mask preserved;
+  demo/exhibition idle/centerinvalid, no automatic resumption.
+- Actual no-motion API suite PASS:34 normal GETs/0 unexpected failures,
+  p95~62ms,p99/worst~94ms. Invalid/stale/unready requests rejected as expected;
+  no actuator commands. Uptime14,135 to18,072ms; Wi-Fi disconnect0 to0,
+  no reboot during suite. Live desktop1100/mobile390 browser PASS: no JS errors,
+  horizontal overflow or POST. Selecting joystick did not acquire control;
+  mobile screenshot visually inspected. These idle checks do not prove physical
+  laser retention during wheel movement; positive target tests remain mocked.
+- Raw evidence in ignored build/ota-v017-result.json, live-v017-result.json,
+  browser-v017-live.json and joystick-v017-live screenshots. Source commit
+  fb15a95e05b95bf07d574e47924fe1e14a68815f passed GitHub push CI39534239212
+  and PR CI39534244034 including pinned-core compile/slot gates. Old soak
+  remains partial/monitor paused; no endurance claim or new physical trial.
+
 ## v0.17.0 build and deployment preflight —21 October2026 WIB
 
 - Pinned core3.3.10 incremental build PASS: versionv0.17.0, buildUTC
@@ -114,7 +140,7 @@
 - Device at192.168.1.14 verified v0.15.0/build07:40:11Z/MAC before upload; idle,
   no owner. Post-build/OTA/live results recorded below when actually complete.
 
-Current source: v0.17.0 (2026-10-20). Entries below distinguish firmware versions, host/model tests and operator-observed hardware trials.
+Current source: v0.17.0 (2026-10-21). Entries below distinguish firmware versions, host/model tests and operator-observed hardware trials.
 
 ## v0.15.0 guided Auto — 2026-10-20 WIB
 

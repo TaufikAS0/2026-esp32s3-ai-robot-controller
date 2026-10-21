@@ -1,5 +1,22 @@
 # Continuation status — v0.17.0 Manual joystick/laser
 
+DEPLOYED at192.168.1.14: v0.17.0/buildUTC2026-10-21T02:34:09Z,
+MACe0:72:a1:fd:0d:88. App-only OTA acknowledged success; two postboot GET
+timeouts retained before exact identity recovery. Final Manual/no owner/session0,
+wheel duties0/laserOFF/servo pulsesdisabled; reference90/90 is NOT measured pose.
+Saved Wi-Fi order and table config/calibration mask preserved; demo/exhibition
+idle/centerinvalid. Actual idle suite34 normal GETs/0 unexpected failures,
+p95~62/p99~94ms, no reboot/disconnect during suite. Live desktop/mobile browser
+PASS/no JS errors/overflow/POST; choosing joystick acquires nothing. No physical
+actuator command or laser activation this task. Source CI push/PR PASS on
+fb15a95e05b95bf07d574e47924fe1e14a68815f. See newest VERIFICATION.
+
+Preflight history below is retained: first active owner refused; after operator
+Stop, network temporarily unreachable before any upload. User reconfirmed IP;
+fresh identity/idle checks then permitted the successful deliberate OTA.
+
+## Earlier v0.17.0 preparation (historical)
+
 BUILD PASS v0.17.0/buildUTC2026-10-21T02:34:09Z(09:34:09WIB),
 app1,256,688 bytes/SHA
 b50c72d556a5b561e56c141dc4a1029a897bdc308701096aafb60968b7f78bb1.
