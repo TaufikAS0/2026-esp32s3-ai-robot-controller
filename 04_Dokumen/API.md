@@ -1,5 +1,13 @@
 # HTTP API v1
 
+### v0.18.0 dedicated Operations viewport
+
+[OPERATIONS_V018.md](OPERATIONS_V018.md) adds dashboard route `/#operation-panel`.
+No new endpoint/schema/GPIO: existing Manual commands drive left joystick,
+two right-side arm sliders and the existing laser switch. Navigation/load/power
+do not acquire; entering/leaving releases only this browser's lease. Global Stop
+and 100ms command producer / 500ms firmware expiry remain.
+
 ### v0.17.0 Manual joystick and laser release
 
 [JOYSTICK_LASER_V017.md](JOYSTICK_LASER_V017.md) changes dashboard input only.

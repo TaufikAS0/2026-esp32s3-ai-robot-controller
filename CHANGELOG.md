@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.18.0 — 2026-10-21 WIB
+
+- Previous: joystick and arm controls were embedded in connection/control card.
+- Changes: dedicated full-viewport Operations menu, joystick left, both hand
+  sliders and existing right-hand laser switch right, visible mode/status/power/
+  global Stop. Entry/exit release own lease; route transitions cannot replay input.
+- Unchanged: API/HTTP/TCP, control/GPIO, pins/partitions/NVS/Wi-Fi/access policy,
+  500ms timeout, Auto/demo/exhibition. Old soak partial/monitor paused.
+- Tests: responsive Chromium/navigation/control regressions, native/Python and
+  pinned-core build evidence in VERIFICATION.md.
+- Limitations: targets/requested state are not physical feedback. No physical
+  actuator tests or OTA in this source publication task.
+- Upgrade: later app-only OTA after identity/idle checks; Ctrl+F5 then Operasi.
+  See OPERATIONS_V018.md; boot never resumes movement or selected laser.
+
 ## v0.17.0 — 2026-10-21 WIB
 
 - Previous: direction pointer release ended the entire Manual session, clearing

@@ -1,3 +1,24 @@
+# Continuation status — v0.18.0 Operations viewport
+
+SOURCE/BUILD PASS v0.18.0/buildUTC2026-10-21T03:19:44Z (10:19:44WIB).
+App1,263,920 bytes/SHA256 4d5770efa5d1fc5c6bb4b0656abfe0ef6c4ac68f55cad3bfa5c28e816036a925.
+Read OPERATIONS_V018.md. Dedicated /#operation-panel: joystick left, both hand
+sliders/existing right-hand laser switch right, visible mode/power/global Stop.
+Single Manual producer/shared targets; navigation/load/power never acquire.
+Entry/exit releases own session, normal joystick release retains selected laser;
+Stop/blur/cancel/error/500ms timeout still clear. Rapid navigation cannot replay.
+115 Python/browser(70 Chromium),10 native and pinned-core3.3.10 build PASS.
+Desktop/mobile/landscape/no-scroll and direct reload tested; screenshots inspected.
+Initial direct-route bug and fixed-delay fixture failure preserved in VERIFICATION.
+
+NO OTA/DEVICE CONTACT this task; no physical output trial. Last verified deployed
+v0.17.0/build02:34:09Z at192.168.1.14 (MACe0:72:a1:fd:0d:88), from earlier task.
+Do not treat this as current identity/ownership/physical pose proof. For later
+OTA verify exact MAC/build/idle/owner afresh; no takeover or actuator activation.
+No API/pin/partition/NVS/network/control-task changes; old soak partial/paused.
+
+## Previous deployed v0.17.0 handoff
+
 # Continuation status — v0.17.0 Manual joystick/laser
 
 DEPLOYED at192.168.1.14: v0.17.0/buildUTC2026-10-21T02:34:09Z,

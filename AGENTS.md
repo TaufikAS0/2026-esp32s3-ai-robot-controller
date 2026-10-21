@@ -1,5 +1,11 @@
 # AI Robot Controller Rules
 
+v0.18.0 read04_Dokumen/OPERATIONS_V018.md. Operations is a dedicated viewport:
+joystick left, both arms/laser right. Reuse one Manual producer/limits, no lease
+from navigation/load/power setting. Enter/exit releases own session; global Stop
+remains available. Laser/LED switch is existing laser, not another GPIO. Do not
+activate hardware for browser validation; old soak stays partial/paused.
+
 v0.17.0 read04_Dokumen/JOYSTICK_LASER_V017.md. Normal drive release with laser
 selected must zero wheels without releasing/clearing laser or replaying a session.
 Full Stop/mode/view/blur/cancel/error/loss still clear it;500ms expiry unchanged.

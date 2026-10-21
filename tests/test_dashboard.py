@@ -179,6 +179,100 @@ class DashboardTests(unittest.TestCase):
         self.page.locator('#manualLayout').select_option('joystick')
         self.page.wait_for_function("!document.getElementById('manualPad').hidden")
 
+    def test_operations_navigation_full_viewport_and_positions(self):
+        self.page.locator('#operationNav').click()
+        self.page.wait_for_function("document.body.classList.contains('operation-mode')")
+        self.assertFalse(any(p in ('/command','/control/acquire','/control/mode') for p,b in self.calls))
+        for width,height,name in [(1440,900,'desktop'),(390,844,'mobile'),(844,390,'landscape'),(360,640,'small')]:
+            self.page.set_viewport_size(dict(width=width,height=height))
+            panel=self.page.locator('#operation-panel').bounding_box()
+            self.assertEqual((panel['x'],panel['y'],panel['width'],panel['height']),(0,0,width,height))
+            stick=self.page.locator('#driveJoystick').bounding_box()
+            left=self.page.locator('#joyArmLeft').bounding_box()
+            right=self.page.locator('#joyArmRight').bounding_box()
+            self.assertLess(stick['x']+stick['width'],left['x'])
+            self.assertLess(left['x'],right['x'])
+            for selector in ['#driveJoystick','#joyArmLeft','#joyArmRight','#operationLaser','#operationStop','#operationBack']:
+                b=self.page.locator(selector).bounding_box()
+                self.assertGreaterEqual(b['x'],0);self.assertGreaterEqual(b['y'],0)
+                self.assertLessEqual(b['x']+b['width'],width)
+                self.assertLessEqual(b['y']+b['height'],height)
+            self.assertLessEqual(self.page.locator('#operation-panel').evaluate('e=>e.scrollHeight'),height)
+            self.page.screenshot(path=str(ROOT/f'build/operation-v018-{name}.png'))
+
+    def test_operations_switch_stop_and_exit_clear_targets(self):
+        self.joystick_setup()
+        self.page.locator('#operationLaser').check()
+        self.page.wait_for_function('controller.session===42&&!controller.pending')
+        self.assertTrue(self.page.locator('#laser').is_checked())
+        self.page.locator('#joyArmLeft').fill('130')
+        self.page.locator('#joyArmRight').fill('100')
+        self.page.wait_for_function('controller.desired.arm_left===130&&controller.desired.arm_right===100&&!controller.pending')
+        self.page.locator('#operationStop').click()
+        self.page.wait_for_function('controller.session===0')
+        self.assertIn(('/stop',{}),self.calls)
+        self.assertFalse(self.page.locator('#operationLaser').is_checked())
+        self.page.locator('#operationLaser').check()
+        self.page.wait_for_function('controller.session===42&&!controller.pending')
+        self.stick_drag(0,-1)
+        self.page.evaluate("location.hash='eyes-panel'")
+        self.page.wait_for_function("document.getElementById('operation-panel').hidden")
+        self.page.mouse.up()
+        self.assertEqual(self.page.evaluate('[controller.session,controller.desired.left,controller.desired.right,controller.desired.laser]'),[0,0,0,False])
+        self.assertTrue(any(p=='/control/release' for p,b in self.calls))
+
+    def test_operations_direct_reload_does_not_acquire_or_replay(self):
+        self.page.goto('http://robot/#operation-panel')
+        self.page.wait_for_function("document.body.classList.contains('operation-mode')&&connected")
+        self.page.reload()
+        self.page.wait_for_function("document.body.classList.contains('operation-mode')&&connected")
+        self.assertFalse(any(p in ('/command','/control/acquire','/control/mode') for p,b in self.calls))
+        self.assertFalse(self.page.locator('#operationLaser').is_checked())
+        self.page.locator('#operationBack').click()
+        self.page.wait_for_function("document.getElementById('operation-panel').hidden")
+        self.assertTrue(self.page.locator('.directions').is_visible())
+
+    def test_operations_explicit_manual_power_and_busy_state(self):
+        self.mode='auto';self.page.evaluate('refresh()')
+        self.page.wait_for_function("mode==='auto'")
+        self.joystick_setup()
+        self.assertTrue(self.page.locator('#operationLaser').is_disabled())
+        self.assertIn('Auto aktif',self.page.locator('#operationState').inner_text())
+        self.assertFalse(any(p=='/control/mode' for p,b in self.calls))
+        self.page.locator('#operationManual').click()
+        self.page.wait_for_function("mode==='manual'&&!switchingMode")
+        self.page.locator('#operationPower').fill('65')
+        self.assertEqual(self.page.locator('#power').input_value(),'65')
+        self.assertEqual(self.page.locator('#operationPowerValue').inner_text(),'65%')
+        self.assertFalse(any(p=='/control/acquire' for p,b in self.calls))
+        self.network_busy=True;self.page.evaluate('refresh()')
+        self.page.wait_for_function('networkBusy')
+        self.assertTrue(self.page.locator('#operationLaser').is_disabled())
+        self.assertIn('Jaringan',self.page.locator('#operationState').inner_text())
+
+    def test_operations_rapid_navigation_during_release_does_not_replay(self):
+        self.joystick_setup()
+        self.page.locator('#operationLaser').check()
+        self.page.wait_for_function('controller.session===42&&!controller.pending')
+        count=len([b for p,b in self.calls if p=='/control/acquire'])
+        self.page.evaluate('''()=>{
+          const original=controller.request;
+          controller.request=async(path,body)=>{
+            if(path==='/control/release')await new Promise(resolve=>window.finishRelease=resolve);
+            return original(path,body);
+          };
+          location.hash='control-panel';
+        }''')
+        self.page.wait_for_function('operationTransition&&!!window.finishRelease')
+        self.assertTrue(self.page.locator('#operationLaser').is_disabled())
+        self.page.evaluate("location.hash='operation-panel'")
+        self.page.wait_for_function("!operationTransition&&!document.getElementById('operation-panel').hidden")
+        self.page.evaluate('finishRelease()')
+        self.page.wait_for_timeout(150)
+        self.assertTrue(self.page.locator('#operation-panel').is_visible())
+        self.assertEqual(self.page.evaluate('[controller.session,controller.desired.left,controller.desired.right,controller.desired.laser]'),[0,0,0,False])
+        self.assertEqual(count,len([b for p,b in self.calls if p=='/control/acquire']))
+
     def stick_drag(self,x=.5,y=-.5):
         self.page.locator('#driveJoystick').scroll_into_view_if_needed()
         box=self.page.locator('#driveJoystick').bounding_box()
@@ -213,7 +307,7 @@ class DashboardTests(unittest.TestCase):
 
     def test_joystick_pointer_release_keeps_selected_laser(self):
         self.joystick_setup()
-        self.page.locator('#laser').check()
+        self.page.locator('#operationLaser').check()
         self.page.wait_for_function('controller.session===42&&!controller.pending')
         self.stick_drag(.7,-.7)
         self.assertGreater(self.page.evaluate('controller.desired.left'),0)
@@ -230,12 +324,12 @@ class DashboardTests(unittest.TestCase):
         self.page.wait_for_function('controller.desired.left<0&&controller.desired.right>0')
         self.page.keyboard.up('ArrowLeft')
         self.page.wait_for_function('controller.session===0')
-        self.page.locator('#laser').check()
+        self.page.locator('#operationLaser').check()
         self.page.wait_for_function('controller.session===42&&!controller.pending')
         self.stick_drag(0,-1)
         self.page.evaluate("releaseDrive(driveInput,true)")
         self.page.wait_for_function('controller.session===0')
-        self.assertFalse(self.page.locator('#laser').is_checked())
+        self.assertFalse(self.page.locator('#operationLaser').is_checked())
         self.page.mouse.up()
 
     def test_joystick_two_vertical_arms_sync_and_bounds(self):
@@ -259,7 +353,8 @@ class DashboardTests(unittest.TestCase):
         self.page.set_viewport_size(dict(width=390,height=844))
         self.assertLessEqual(self.page.evaluate('document.documentElement.scrollWidth'),390)
         self.page.locator('#manualPad').screenshot(path=str(ROOT/'build/joystick-v017-mobile.png'))
-        self.page.locator('#manualLayout').select_option('buttons')
+        self.page.locator('#operationBack').click()
+        self.page.wait_for_function("document.getElementById('operation-panel').hidden")
         self.assertTrue(self.page.locator('#manualPad').is_hidden())
 
     def test_joystick_auto_offline_blur_no_replay(self):
@@ -267,7 +362,7 @@ class DashboardTests(unittest.TestCase):
         self.page.evaluate("window.dispatchEvent(new Event('blur'))")
         self.page.wait_for_function('controller.session===0')
         self.page.mouse.up()
-        self.page.locator('#modeAuto').click()
+        self.page.evaluate("selectMode('auto')")
         self.page.wait_for_function("mode==='auto'")
         count=len([b for p,b in self.calls if p=='/command'])
         box=self.page.locator('#driveJoystick').bounding_box()
@@ -289,7 +384,7 @@ class DashboardTests(unittest.TestCase):
 
     def test_joystick_movement_and_arm_change_preserve_laser(self):
         self.joystick_setup()
-        self.page.locator('#laser').check()
+        self.page.locator('#operationLaser').check()
         self.page.wait_for_function('controller.session===42&&!controller.pending')
         self.stick_drag(.5,-.8)
         self.page.evaluate("setArmTarget('armLeft',140)")
@@ -777,10 +872,13 @@ class DashboardTests(unittest.TestCase):
         self.assertEqual(count, sum(p == "/command" for p, _ in self.calls))
 
     def test_pointer_release_stops(self):
+        # Native mouse coordinates must not race the dashboard's smooth scroll.
+        self.page.add_style_tag(content='html{scroll-behavior:auto!important}')
         button = self.page.locator('[data-drive="forward"]')
+        button.scroll_into_view_if_needed()
         button.hover()
         self.page.mouse.down()
-        self.page.wait_for_timeout(180)
+        self.page.wait_for_function('controller.desired.left>0&&controller.session===42&&!controller.pending')
         self.assertTrue(any(p == "/command" and b["left"] > 0 for p, b in self.calls))
         self.page.mouse.up()
         self.assert_stopped()

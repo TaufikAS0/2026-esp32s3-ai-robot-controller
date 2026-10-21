@@ -1,5 +1,11 @@
 # AI Robot Controller
 
+v0.18.0 adds **Operasi · layar kendali** (`/#operation-panel`): one viewport with
+joystick left, both hand sliders and right-hand laser switch right, visible
+connection/mode/power and STOP. Navigation/load do not move or acquire; leaving
+releases this browser's control. [Guide](04_Dokumen/OPERATIONS_V018.md).
+See VERIFICATION for build and actual upload status.
+
 v0.17.0 adds Manual **Joystick + slider tangan vertikal**. Normal driving release
 zeros wheels while preserving a selected laser in the same active Manual session.
 Global Stop, blur/disconnect/timeout still switch laser off. Button view remains.

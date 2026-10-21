@@ -1,5 +1,46 @@
 # Verification evidence
 
+## v0.18.0 Operations viewport —21 October2026 WIB
+
+- Previous v0.17.0; source now v0.18.0. Read actual vault home, workspace naming,
+  firmware standard, Gitflow, Rules_Kredensial_WiFi.md, WiFi_HuaweiJIN.md,
+  Rules_Akses_Robot_Lab.md, Rules_Versioning.md and Rules_Change_Notifications.md.
+  Saved STA profiles/AP and LAN policy unchanged; no network/device contact.
+- Dedicated /#operation-panel fills browser viewport. Joystick left, both arms
+  and existing laser/LED switch right; shared targets/limits/power and one Manual
+  producer. Opening/reload/power do not acquire/select mode/move; explicit Manual,
+  global Stop and own-session release on entry/exit. Rapid navigation epochs
+  prevent a late release restoring an obsolete screen or old targets.
+- 115 Python/browser tests PASS, including70 Chromium;10 native strict C++17
+  suites PASS. Five new cases cover direct reload/no replay, four viewport sizes,
+  relative control placement/no scroll, laser/hand sync, global Stop/exit, explicit
+  Manual/network busy/shared power and delayed-release rapid navigation. Existing
+  joystick/buttons/pointer/key/timeout regressions retained. Mock mobile390x844,
+  landscape844x390, desktop1440x900 and small360x640 screenshots inspected/tested;
+  mobile and landscape visually inspected. Positive targets are mocked, NOT GPIO.
+- Initial direct-route test exposed initialization before later UI state existed;
+  initial route now runs after script initialization via queueMicrotask. A helper
+  briefly corrupted two test Unicode expectations; restored original characters.
+  Old pointer test saw no command at fixed180ms and again with an ACK wait;
+  isolated run passed. Instrumented ordered reproduction proved smooth scroll
+  moved the button after hover: mouse y595 versus final button y698, pointerdown
+  hit an empty area. Fixture disables smooth scroll ONLY for this native mouse
+  test and waits for explicit command/session ACK state; original release/Stop
+  assertions retained. Ordered six-case reproduction then passed. Final full115
+  passed; initial failures and before/after pointer traces kept in ignored
+  build/operations-v018-* logs. No runtime timeout relaxed or device retry.
+- Pinned ESP32-S3 Arduino core3.3.10 incremental build PASS. BuildUTC
+  2026-10-21T03:19:44Z =21 October2026 10:19:44WIB. App1,263,920 bytes,
+  storage1,263,766/globalRAM57,592; both emitted6,291,456-byte OTA slots verified.
+  Source/binary identity and source stability gates PASS; SHA256
+  4d5770efa5d1fc5c6bb4b0656abfe0ef6c4ac68f55cad3bfa5c28e816036a925.
+- No OTA or physical actuator request in this task. Last verified deployment
+  remains v0.17.0/buildUTC2026-10-21T02:34:09Z at192.168.1.14, from earlier
+  verification below; current device state not rechecked. New UI requires later
+  app-only OTA after fresh identity/idle gates. Build/logs/screenshots in ignored
+  build/operations-v018-* and operation-v018-*; no binary added to Git.
+  API/GPIO/pins/partitions/NVS and500ms expiry unchanged; old soak partial/paused.
+
 ## v0.17.0 successful OTA and live idle checks —21 October2026 WIB
 
 - After operator Stop/release, initial network precheck timed out before any OTA
@@ -140,7 +181,7 @@
 - Device at192.168.1.14 verified v0.15.0/build07:40:11Z/MAC before upload; idle,
   no owner. Post-build/OTA/live results recorded below when actually complete.
 
-Current source: v0.17.0 (2026-10-21). Entries below distinguish firmware versions, host/model tests and operator-observed hardware trials.
+Current source: v0.18.0 (2026-10-21). Entries below distinguish firmware versions, host/model tests and operator-observed hardware trials.
 
 ## v0.15.0 guided Auto — 2026-10-20 WIB
 
