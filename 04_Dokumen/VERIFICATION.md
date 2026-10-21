@@ -1,5 +1,49 @@
 # Verification evidence
 
+## v0.18.3 HTTP abort diagnosis / laser priority —21 October2026 WIB
+
+- OTA preflight refused a NEW active Manual HTTP session3134620396 despite prior
+  operator Stop confirmation. Read-only follow-up found wheel targets nonzero and
+  laserON. No OTA/globalStop/actuator request sent; owner not overridden. Device
+  remainsv0.18.2. Raw build/v0183-ota-active-owner.json and ota-v0183-result.json.
+
+- Read-only observation while OPERATOR drove v0.18.2/MACe0:72:a1:fd:0d:88 at
+ 192.168.1.14:20 GETs/0fail,p95~47ms. Uptime increased continuously/disconnect
+  counter0. Session1553119055 changed to1247450466 then timeout/unowned/wheels0.
+  Some observed wheels were nonzero due to operator commands, NOT probe commands.
+  No acquire/Stop/movement/reset/OTA sent during this observation. Initial snapshot
+  laserON/ownerManual,RSSI-53dBm. Recorded build/abort-diagnosis-status.json and
+  abort-readonly-observation.json. Fact:500ms gap without accepted commands;
+  exact browser/packet/scheduling cause unknown, no observed reboot/Wi-Fi loss.
+- Dashboard remains HTTP81 (not WebSocket),100ms full targets,300ms command abort,
+ 400ms local producer guard/500ms firmware expiry. Do not infer RF loss from abort.
+  Reduce unnecessary Manual session demo/Wi-Fi polling and hidden Operations eye
+  canvas work; leave normal status and fail-safe pointer/focus/hidden stops.
+  Explicit HTTP/timeout messages plus bounded20-event per-page UTC diagnostics
+  under Batas tangan. No payload/password/SSID or persistent log; no replay/retry.
+- Firmware laser priority Angry box/laser_focus beats movement, hands, Manual and
+  Showcase. OTA higher priority; display disabling/diagnostics respected. OFF
+  restores settings; no GPIO/task/actuator change. Source CONTROL_ABORT_V0183.md.
+-122 Python/browser PASS (77 Chromium),10 native strict suites PASS.450ms mocked
+  ACK reproduces disconnect of lease while browser remains connected; wheels/
+  laser clear, explicit timeout retained and no auto reacquisition. Background
+  polls/preview suppression and blur diagnostics checked. Native validates laser
+  every eye mode/turn/reverse/hands, OTA and selected-expression restoration.
+- First parallel full run had one old joystick keyboard/cancel test timeout;
+  isolated rerun passed unchanged. Final full regression ran sequentially after
+  build and passed; initial failure preserved, no deadlines/guards weakened.
+  Exact cause of initial test timing failure not established.
+- Re-read actual vault credential/profile/Versioning/ChangeNotifications,
+  AGENTS/handoff/EYES_DESIGN/API. No network/access/NVS/pin/partition changes.
+  Pinned core3.3.10 incremental build/source identity/stability/dual6,291,456-byte
+  slot gates PASS. BuildUTC2026-10-21T06:58:20Z = 2026-10-21 13:58:20 WIB; app1,276,848 bytes,
+  SHA256 c4a2d71bdfaf7a81a1fa5419ef1abfed1cbef0c15fc4fec5d25f3473584a09ca.
+- Deployment status: not yet uploaded at source publication. Last verified device
+  v0.18.2/build04:55:20Z, operator sessions observed. No takeover. Before later
+  app-only OTA verify current identity/idle afresh. No real actuator/combined load
+  test or stability claim; software mitigation does not prove root cause removed.
+  Old soak partial/monitor paused. Raw build/v0183-* ignored; no binary in Git.
+
 ## v0.18.2 Operations ranges / VR / OTA —21 October2026 WIB
 
 - Existing shared RAM policy now editable via Operasi/Batas tangan. Per-hand
@@ -297,7 +341,7 @@
 - Device at192.168.1.14 verified v0.15.0/build07:40:11Z/MAC before upload; idle,
   no owner. Post-build/OTA/live results recorded below when actually complete.
 
-Current source: v0.18.2 (2026-10-21). Entries below distinguish firmware versions, host/model tests and operator-observed hardware trials.
+Current source: v0.18.3 (2026-10-21). Entries below distinguish firmware versions, host/model tests and operator-observed hardware trials.
 
 ## v0.15.0 guided Auto — 2026-10-20 WIB
 

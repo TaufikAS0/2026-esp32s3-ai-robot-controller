@@ -1,3 +1,25 @@
+# Continuation status — v0.18.3 abort diagnostics / laser Angry
+
+OTA PRECHECK REFUSED new active Manual HTTP owner/session3134620396 with wheels
+nonzero/laserON after earlier Stop confirmation. No upload/globalStop sent.
+User asked to close other controllers; reverify idle before deliberate OTA retry.
+
+SOURCE/BUILD PASS v0.18.3/buildUTC2026-10-21T06:58:20Z (2026-10-21 13:58:20 WIB),
+app1,276,848 bytes/SHA256 c4a2d71bdfaf7a81a1fa5419ef1abfed1cbef0c15fc4fec5d25f3473584a09ca. Read CONTROL_ABORT_V0183.md.
+Dashboard still HTTP81; abort does not prove Wi-Fi loss. Passive operator-run
+observation20 GETs/0fail captured session change then500ms timeout, uptime growing,
+Wi-Fi disconnect0. No probe actuator requests/takeover. Exact client cause unknown.
+Suspend own Manual background demo/Wi-Fi polls/hidden Operations preview; bounded
+20-event page diagnostics with explicit ACK timeout/path/ms, no retries/replay.
+Laser overrides movement/Manual/Showcase as Angry, except OTA. OFF restores settings.
+122 Python/browser(77 Chromium),10 native and pinned core build PASS. No stability
+or physical combined-load proof. NOT YET UPLOADED at source publication; robot last
+verified v0.18.2/build04:55:20Z/MACe0:72:a1:fd:0d:88 at192.168.1.14, operator was
+controlling. Verify idle/current identity before any OTA, no takeover. Old soak
+partial/monitor paused; GPIO/NVS/network/500ms expiry unchanged. See VERIFICATION.
+
+## Previous v0.18.2 deployment
+
 # Continuation status — v0.18.2 servo ranges / VR
 
 DEPLOYED v0.18.2/buildUTC2026-10-21T04:55:20Z (2026-10-21 11:55:20 WIB),

@@ -1,5 +1,13 @@
 # HTTP API v1
 
+### v0.18.3 HTTP diagnosis and laser eye reaction
+
+[CONTROL_ABORT_V0183.md](CONTROL_ABORT_V0183.md): no transport/schema change.
+Dashboard still uses HTTP81 where available; command ACK300ms, producer400ms,
+firmware500ms unchanged. Background demo/Wi-Fi polling paused during own Manual
+session. `eyes.active_expression=angry`, `reaction=laser_focus` take priority while
+laser outputON, even in selected eye Manual/Showcase, except OTA/display disabling.
+
 ### v0.18.2 Operations range editor / VR view
 
 [SERVO_RANGE_V0182.md](SERVO_RANGE_V0182.md) exposes the existing `/arms/policy`

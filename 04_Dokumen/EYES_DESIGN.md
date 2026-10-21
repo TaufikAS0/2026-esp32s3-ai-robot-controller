@@ -1,5 +1,10 @@
 # Dual OLED eyes — v0.9.0
 
+v0.18.3 overrides reaction priority below: OTA > laser Angry (`laser_focus`) >
+existing expression/motor/hands/idle policy. Laser applies even during selected
+Manual/Showcase and turning/reversing; OFF restores existing settings. See
+[CONTROL_ABORT_V0183.md](CONTROL_ABORT_V0183.md). Display enable/diagnostics remain.
+
 v0.9.0: Fox/animal highlights are mirrored and intersected with the intended
 ellipse/lid silhouette, never painted outside it. Native and browser regressions
 compare both Fox eyes across100 phases and six Sharingan variants across4 phases.

@@ -1,5 +1,10 @@
 # AI Robot Controller
 
+v0.18.3 reduces background work during Manual Operations, clarifies HTTP ACK
+timeouts with a bounded diagnostic history, and prioritizes Angry eyes while
+laser output is active. Transport remains HTTP,500ms expiry unchanged.
+[Diagnosis and limits](04_Dokumen/CONTROL_ABORT_V0183.md).
+
 v0.18.2 exposes **Operasi → Batas tangan**: per-hand min/max maps across the full
 slider travel, with visible endpoints. **Panjang ekstra untuk VR** expands tracks
 while keeping STOP/settings/exit available. Shared device policy, RAM-only after

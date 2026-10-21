@@ -33,6 +33,21 @@ int main() {
   out.left = out.right = 1;
   f = animator.update(settings,out,false,23000); assert(f.expression == Expression::Love);
   f = animator.update(settings,out,true,24000); assert(f.expression == Expression::Sleepy);
+  // Laser override beats turns/reverse/hands, Manual and Showcase without editing settings.
+  out.laser=true;out.servoEnabled=true;out.armLeft=180;
+  for(auto mode:{EyePlayMode::Reactive,EyePlayMode::Playful,EyePlayMode::Showcase,EyePlayMode::Manual}) {
+    settings.playMode=mode;
+    for(bool automatic:{false,true}) {
+      settings.automatic=automatic;
+      for(float right:{-1.f,0.f,1.f}) {
+        out.left=-1;out.right=right;f=animator.update(settings,out,false,25000);
+        assert(f.expression==Expression::Angry && strcmp(f.reaction,"laser_focus")==0);
+      }
+    }
+  }
+  settings.automatic=false;settings.expression=Expression::Love;
+  assert(animator.update(settings,out,true,25010).expression==Expression::Sleepy);
+  out.laser=false;assert(animator.update(settings,out,false,25020).expression==Expression::Love);
   settings.blink = true;
   f = animator.update(settings,out,false,4090); assert(f.blinking && f.left.height == 3);
   settings.blink = false;

@@ -40,6 +40,7 @@ class EyeAnimator {
     float gazeX = 0, gazeY = 0;
     const float phase = float(now % 60000) * .001f * settings.tempo;
     if (maintenance) { f.expression = Expression::Sleepy; f.reaction = "ota"; }
+    else if (out.laser) { f.expression = Expression::Angry; f.reaction = "laser_focus"; gazeX=turn*24; }
     else if (settings.automatic) {
       if (moving) {
         gazeX = turn * 24;
@@ -58,7 +59,7 @@ class EyeAnimator {
         f.reaction="idle_playful"; gazeX=std::sin(phase*.8f)*float(3+settings.energy*3);
       }
     } else f.reaction = "manual_expression";
-    if(settings.automatic && settings.playMode==EyePlayMode::Showcase && !maintenance) {
+    if(settings.automatic && settings.playMode==EyePlayMode::Showcase && !maintenance && !out.laser) {
       f.expression=choose(settings.category,uint32_t(float(now)*settings.tempo/2200.f));
       f.reaction="showcase";
     }

@@ -1,5 +1,11 @@
 # AI Robot Controller Rules
 
+v0.18.3 read04_Dokumen/CONTROL_ABORT_V0183.md. HTTP abort != Wi-Fi disconnect.
+Keep300/400/500ms deadlines/no replay; suspend unnecessary Manual background
+polls/hidden Operations previews. Bounded page diagnostic history, no secrets.
+Laser Angry overrides movement/Manual/Showcase, OTA higher; settings unchanged.
+Never take over operator session for diagnosis/OTA; observer logs are not own tests.
+
 v0.18.2 read04_Dokumen/SERVO_RANGE_V0182.md. Operations range editor uses existing
 shared RAM arm policy; preserve dynamic fields, no local-only limit bypass or
 automatic centering/actuation on apply. Device refusal must retain actual ranges.

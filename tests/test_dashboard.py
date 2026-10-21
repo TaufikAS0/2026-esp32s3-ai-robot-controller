@@ -4,6 +4,7 @@ import os
 import pathlib
 import re
 import unittest
+import time
 from playwright.sync_api import sync_playwright
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -41,6 +42,7 @@ class DashboardTests(unittest.TestCase):
         self.session = 0
         self.mode = "manual"
         self.reject = False
+        self.command_delay=0
         self.offline = False
         self.hardware = dict(chip_model="ESP32-S3", cpu_freq_mhz=240, free_heap_bytes=245760, heap_size_bytes=327680, min_free_heap_bytes=220000, psram_size_bytes=8388608, free_psram_bytes=8000000, application_bytes=1050000, ota_slot_bytes=6291456, flash_size_bytes=16777216, wifi_rssi_dbm=-55)
         self.eye_settings = dict(enabled=True, automatic=True, blink=True, swap=False,
@@ -71,6 +73,8 @@ class DashboardTests(unittest.TestCase):
         self.urls.append(req.url)
         body = json.loads(req.post_data) if req.post_data and "application/json" in req.headers.get("content-type", "") else None
         self.calls.append((path, body))
+        if path=='/command' and self.command_delay:
+            time.sleep(self.command_delay)
         if self.drop_status and path=='/status':
             route.abort('failed')
             return
@@ -517,6 +521,32 @@ class DashboardTests(unittest.TestCase):
         self.page.wait_for_timeout(60)
         self.assertEqual(self.page.evaluate('controller.session'),42)
         self.assertTrue(self.page.evaluate('connected'))
+
+    def test_command_ack_timeout_without_wifi_loss_stops_and_records_cause(self):
+        self.joystick_setup();self.page.locator('#operationLaser').click()
+        self.page.wait_for_function('controller.session===42&&!controller.pending')
+        self.command_delay=.45
+        self.page.wait_for_function("controller.session===0&&el('controlDiagnostics').textContent.includes('timeout ACK /command')")
+        self.assertTrue(self.page.evaluate('connected'))
+        self.assertFalse(self.page.evaluate('controller.desired.laser'))
+        self.assertEqual(self.page.evaluate('[controller.desired.left,controller.desired.right]'),[0,0])
+        self.assertIn('belum membuktikan Wi-Fi putus',self.page.locator('#controlDiagnostics').inner_text())
+        count=len([1 for p,b in self.calls if p=='/control/acquire'])
+        self.command_delay=0;self.page.wait_for_timeout(300)
+        self.assertEqual(count,len([1 for p,b in self.calls if p=='/control/acquire']))
+
+    def test_manual_session_suspends_background_demo_wifi_and_hidden_preview(self):
+        self.joystick_setup();self.page.locator('#operationLaser').click()
+        self.page.wait_for_function('controller.session===42&&!controller.pending')
+        before=len([1 for p,b in self.calls if p in ('/demo','/wifi')])
+        self.page.evaluate('loadDemo();loadWifi()')
+        self.page.wait_for_timeout(150)
+        self.assertEqual(before,len([1 for p,b in self.calls if p in ('/demo','/wifi')]))
+        self.assertTrue(self.page.evaluate('controller.desired.laser&&controller.session===42'))
+        self.assertEqual(self.page.evaluate('''()=>{const old=paintEye;let n=0;paintEye=()=>++n;try{animateEyePreview();return n;}finally{paintEye=old;}}'''),0)
+        self.page.evaluate("window.dispatchEvent(new Event('blur'))")
+        self.page.wait_for_function('controller.session===0')
+        self.assertIn('kehilangan fokus',self.page.locator('#controlDiagnostics').inner_text())
 
     def test_arm_motion_profile_and_sharingan(self):
         self.page.get_by_text('Kehalusan gerak tangan Auto',exact=True).click()

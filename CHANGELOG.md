@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.18.3 — 2026-10-21 WIB
+
+- Previous: opaque browser AbortError, unnecessary demo/Wi-Fi/hidden preview work
+  during Manual, laser eye reaction overridden by movement and selected modes.
+- Changes: reduce Manual background work; classify ACK timeout vs HTTP errors,
+  bounded page diagnostics; laser priority Angry eyes with settings restored OFF.
+- Unchanged: HTTP/TCP/schema,300/400/500ms deadlines, no replay/ownership/focus
+  guards, GPIO/pins/partitions/NVS/network. Old soak partial/paused.
+- Tests: delayed-ACK Chromium reproduction/no auto retry, background suppression,
+  native laser-priority/OTA/restoration; final checks in VERIFICATION.
+- Limitations: observed500ms expiry without Wi-Fi loss does not isolate its remote
+  browser trigger. No universal stability or physical combined-load claim.
+- Upgrade: app-only OTA after fresh identity/idle, Ctrl+F5; copy diagnostics on
+  failure before reload. Do not take over active operator control.
+
 ## v0.18.2 — 2026-10-21 WIB
 
 - Previous: shared arm limits existed but editor was hidden; compact VR tracks.
