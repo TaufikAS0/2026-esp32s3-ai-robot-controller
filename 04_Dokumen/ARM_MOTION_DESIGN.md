@@ -1,5 +1,9 @@
 # Arm movement design — v0.8.0
 
+v0.18.1 override: Manual follows accepted bounded references directly without
+ArmMotion easing. Auto keeps the planner/settings below. UI targets are1°;
+fractional API targets still valid. See [MANUAL_RESPONSE_V0181.md](MANUAL_RESPONSE_V0181.md).
+
 Current v0.10.0 overrides: [SERVO_CONTROL_V010.md](SERVO_CONTROL_V010.md).
 Natural60/240; Lembut25/60; Lincah90/360, RAM min/max and optional bounded
 forward/reverse dynamic offsets in the existing control task. No dynamic gestures

@@ -1,5 +1,13 @@
 # HTTP API v1
 
+### v0.18.1 direct Manual reference
+
+[MANUAL_RESPONSE_V0181.md](MANUAL_RESPONSE_V0181.md): Manual owner targets apply
+directly at the control tick without easing; Auto/program retains motion limits.
+No endpoint/body change. Fractional API targets remain valid; dashboard uses1°
+steps. /arms/settings remains idle-only but its speed/acceleration profile now
+affects Auto, not direct Manual. Stop/expiry/limits/ownership remain unchanged.
+
 ### v0.18.0 dedicated Operations viewport
 
 [OPERATIONS_V018.md](OPERATIONS_V018.md) adds dashboard route `/#operation-panel`.

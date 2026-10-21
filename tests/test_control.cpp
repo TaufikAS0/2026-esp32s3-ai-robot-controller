@@ -76,7 +76,26 @@ int main() {
   arm.step(10,.01f,limits);assert(std::fabs(arm.position-beforeRetarget)<=limits.speed*.01f+.001f);
   for(unsigned i=0;i<700;++i) arm.step(10,.01f,limits);
   assert(arm.position==10 && arm.velocity==0);
-  ControlLogic smooth; assert(smooth.acquire(Owner::Manual,99,0));
+  ControlLogic direct;assert(direct.acquire(Owner::Manual,88,0));
+  Command hand{88,1,0,0,90,90,false};assert(direct.command(hand,1));direct.tick(10);
+  hand.sequence++;hand.armLeft=170;hand.armRight=10;
+  assert(direct.command(hand,11));direct.tick(20);
+  assert(direct.output.armLeft==170 && direct.output.armRight==10);
+  hand.sequence++;hand.armLeft=169;hand.armRight=11;
+  assert(direct.command(hand,21));direct.tick(30);
+  assert(direct.output.armLeft==169 && direct.output.armRight==11);
+  hand.sequence++;hand.armLeft=42;hand.armRight=100;
+  assert(direct.command(hand,31));direct.stop("stop");direct.tick(40);
+  assert(direct.output.armLeft==169 && direct.output.armRight==11);
+  assert(!direct.command(hand,41));
+  assert(direct.acquire(Owner::Manual,89,50));hand.session=89;hand.sequence=1;
+  assert(direct.command(hand,51));direct.tick(551);
+  assert(direct.owner==Owner::None && direct.output.armLeft==169);
+  assert(direct.setMode(ControlMode::Auto));assert(direct.acquire(Owner::Program,90,560));
+  hand.session=90;hand.sequence=1;hand.armLeft=90;
+  assert(direct.command(hand,561));direct.tick(570);
+  assert(direct.output.armLeft<169 && direct.output.armLeft>168);
+  ControlLogic smooth;assert(smooth.setMode(ControlMode::Auto)); assert(smooth.acquire(Owner::Program,99,0));
   Command pose{99,1,0,0,90,90,false};assert(smooth.command(pose,1)); smooth.tick(10);
   pose.sequence=2;pose.armLeft=170;pose.armRight=10;assert(smooth.command(pose,11));
   for(unsigned t=20;t<400;t+=10) {
@@ -89,5 +108,5 @@ int main() {
   smooth.tick(900);assert(smooth.output.armLeft==held);
   assert(smooth.configureArms({25,60}));
   assert(!smooth.configureArms({0,60}));assert(!smooth.configureArms({45,601}));
-  assert(smooth.acquire(Owner::Manual,100,901));assert(!smooth.configureArms({25,60}));
+  assert(smooth.acquire(Owner::Program,100,901));assert(!smooth.configureArms({25,60}));
 }

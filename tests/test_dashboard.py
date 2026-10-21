@@ -200,9 +200,29 @@ class DashboardTests(unittest.TestCase):
             self.assertLessEqual(self.page.locator('#operation-panel').evaluate('e=>e.scrollHeight'),height)
             self.page.screenshot(path=str(ROOT/f'build/operation-v018-{name}.png'))
 
+    def test_operations_large_laser_button_and_one_degree_targets(self):
+        self.joystick_setup()
+        button=self.page.locator('#operationLaser')
+        self.assertEqual(button.evaluate('e=>e.tagName'),'BUTTON')
+        self.assertEqual(button.evaluate('e=>getComputedStyle(e).borderRadius'),'50%')
+        self.assertGreaterEqual(button.bounding_box()['width'],100)
+        self.assertGreaterEqual(self.page.locator('#joyArmLeft').bounding_box()['width'],68)
+        self.assertEqual(self.page.locator('#joyArmLeft').get_attribute('step'),'1')
+        button.click();self.page.wait_for_function('controller.session===42&&!controller.pending')
+        self.assertEqual(button.get_attribute('aria-pressed'),'true')
+        self.assertEqual(self.page.locator('#operationLaserLabel').inner_text(),'ON')
+        result=self.page.evaluate('''async()=>{
+          const send=controller.send;let calls=0;controller.send=async()=>{++calls;};
+          try{await setArmTarget('armLeft',42.2);await setArmTarget('armLeft',42.4);return {calls,value:controller.desired.arm_left};}
+          finally{controller.send=send;}
+        }''')
+        self.assertEqual(result,dict(calls=1,value=42))
+        button.press('Space');self.page.wait_for_function("el('operationLaser').getAttribute('aria-pressed')==='false'")
+        self.assertFalse(self.page.evaluate('controller.desired.laser'))
+
     def test_operations_switch_stop_and_exit_clear_targets(self):
         self.joystick_setup()
-        self.page.locator('#operationLaser').check()
+        self.page.locator('#operationLaser').click()
         self.page.wait_for_function('controller.session===42&&!controller.pending')
         self.assertTrue(self.page.locator('#laser').is_checked())
         self.page.locator('#joyArmLeft').fill('130')
@@ -212,8 +232,8 @@ class DashboardTests(unittest.TestCase):
         self.page.wait_for_function('controller.session===0')
         self.page.wait_for_function("document.getElementById('message').textContent==='Output dihentikan.'")
         self.assertIn(('/stop',{}),self.calls)
-        self.assertFalse(self.page.locator('#operationLaser').is_checked())
-        self.page.locator('#operationLaser').check()
+        self.assertEqual(self.page.locator('#operationLaser').get_attribute('aria-pressed'),'false')
+        self.page.locator('#operationLaser').click()
         self.page.wait_for_function('controller.session===42&&!controller.pending')
         self.stick_drag(0,-1)
         self.page.evaluate("location.hash='eyes-panel'")
@@ -228,7 +248,7 @@ class DashboardTests(unittest.TestCase):
         self.page.reload()
         self.page.wait_for_function("document.body.classList.contains('operation-mode')&&connected")
         self.assertFalse(any(p in ('/command','/control/acquire','/control/mode') for p,b in self.calls))
-        self.assertFalse(self.page.locator('#operationLaser').is_checked())
+        self.assertEqual(self.page.locator('#operationLaser').get_attribute('aria-pressed'),'false')
         self.page.locator('#operationBack').click()
         self.page.wait_for_function("document.getElementById('operation-panel').hidden")
         self.assertTrue(self.page.locator('.directions').is_visible())
@@ -253,7 +273,7 @@ class DashboardTests(unittest.TestCase):
 
     def test_operations_rapid_navigation_during_release_does_not_replay(self):
         self.joystick_setup()
-        self.page.locator('#operationLaser').check()
+        self.page.locator('#operationLaser').click()
         self.page.wait_for_function('controller.session===42&&!controller.pending')
         count=len([b for p,b in self.calls if p=='/control/acquire'])
         self.page.evaluate('''()=>{
@@ -308,7 +328,7 @@ class DashboardTests(unittest.TestCase):
 
     def test_joystick_pointer_release_keeps_selected_laser(self):
         self.joystick_setup()
-        self.page.locator('#operationLaser').check()
+        self.page.locator('#operationLaser').click()
         self.page.wait_for_function('controller.session===42&&!controller.pending')
         self.stick_drag(.7,-.7)
         self.assertGreater(self.page.evaluate('controller.desired.left'),0)
@@ -325,12 +345,12 @@ class DashboardTests(unittest.TestCase):
         self.page.wait_for_function('controller.desired.left<0&&controller.desired.right>0')
         self.page.keyboard.up('ArrowLeft')
         self.page.wait_for_function('controller.session===0')
-        self.page.locator('#operationLaser').check()
+        self.page.locator('#operationLaser').click()
         self.page.wait_for_function('controller.session===42&&!controller.pending')
         self.stick_drag(0,-1)
         self.page.evaluate("releaseDrive(driveInput,true)")
         self.page.wait_for_function('controller.session===0')
-        self.assertFalse(self.page.locator('#operationLaser').is_checked())
+        self.assertEqual(self.page.locator('#operationLaser').get_attribute('aria-pressed'),'false')
         self.page.mouse.up()
 
     def test_joystick_two_vertical_arms_sync_and_bounds(self):
@@ -385,7 +405,7 @@ class DashboardTests(unittest.TestCase):
 
     def test_joystick_movement_and_arm_change_preserve_laser(self):
         self.joystick_setup()
-        self.page.locator('#operationLaser').check()
+        self.page.locator('#operationLaser').click()
         self.page.wait_for_function('controller.session===42&&!controller.pending')
         self.stick_drag(.5,-.8)
         self.page.evaluate("setArmTarget('armLeft',140)")
@@ -427,7 +447,7 @@ class DashboardTests(unittest.TestCase):
         self.assertTrue(self.page.evaluate('connected'))
 
     def test_arm_motion_profile_and_sharingan(self):
-        self.page.get_by_text('Kehalusan gerak tangan',exact=True).click()
+        self.page.get_by_text('Kehalusan gerak tangan Auto',exact=True).click()
         self.page.locator('#armMotionProfile').select_option('gentle')
         self.page.locator('#saveArmMotion').click()
         self.page.wait_for_function("document.getElementById('armMotionMessage').textContent.includes('diterapkan')")

@@ -1,3 +1,22 @@
+# Continuation status — v0.18.1 responsive Manual
+
+DEPLOYED v0.18.1/buildUTC2026-10-21T03:50:02Z (2026-10-21 10:50:02 WIB),
+MACe0:72:a1:fd:0d:88 at192.168.1.14. App1,267,376 bytes/SHA256 a84125c69a26784a043e99102f0acba5916d3af4244801b78c4dcfec2e1be406.
+Read MANUAL_RESPONSE_V0181.md. Explicit user decision supersedes old Manual
+easing: direct bounded accepted reference on control tick; UI integer1degree,
+same-target event dedup, Auto planner unchanged. Larger joystick/sliders/thumbs
+and circular laser ON/OFF button. One producer/no replay/Stop/500ms expiry remain.
+116 Python/browser(71 Chromium),10 native and pinned-core build PASS. First
+Windows standard-header compile failure preserved; jobs1 retry passed unchanged.
+Temporary preflight LAN loss recovered without network changes; OTA acknowledged,
+2 postboot GET timeouts before exact identity recovery. Idle34 reads/
+0 failures,p95~63/p99~63ms. Live three viewport browser checks PASS/no POST.
+Final Manual/unowned/wheel duties0/laserOFF/pulsesdisabled;90 references are not
+measured physical pose. Saved config preserved/no resume; no physical movement
+or speed/laser test. Keep old soak partial/monitor paused. See VERIFICATION.
+
+## Previous v0.18.0 deployment and preparation
+
 # Continuation status — v0.18.0 Operations viewport
 
 DEPLOYED v0.18.0/buildUTC2026-10-21T03:19:44Z at192.168.1.14,

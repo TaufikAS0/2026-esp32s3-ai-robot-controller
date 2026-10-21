@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.18.1 — 2026-10-21 WIB
+
+- Previous: v0.18.0 eased Manual hands using Auto's motion limits; small controls.
+- Changes: direct Manual reference without speed/acceleration easing,1° UI input
+  and duplicate-target filtering, larger joystick/sliders and round laser toggle.
+  Motion profile controls labeled Auto; Auto interpolation retained.
+- Unchanged: API schemas/fractional targets, angular limits, ownership/sequence,
+  Stop/500ms expiry, wheels, pins/partitions/NVS/network. Old soak partial/paused.
+- Tests: native Manual/Auto/stop/expiry and Chromium input/laser/layout checks;
+  final regression/build/OTA evidence in VERIFICATION.md.
+- Limitations: direct target is not measured servo speed/position;1° UI resolution
+  does not imply physical1° accuracy. No actuator activation in idle validation.
+- Upgrade: app-only OTA after identity/idle gates; Ctrl+F5 then Operasi. No resume.
+
 ## v0.18.0 — 2026-10-21 WIB
 
 - Previous: joystick and arm controls were embedded in connection/control card.

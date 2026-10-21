@@ -151,8 +151,15 @@ class ControlLogic {
     } else dynamicPhase_=0;
     effectiveArmLeft=ArmPolicy::clamp(target.armLeft+offset,armPolicy.leftMin,armPolicy.leftMax);
     effectiveArmRight=ArmPolicy::clamp(target.armRight-offset,armPolicy.rightMin,armPolicy.rightMax);
-    output.armLeft = armsLeft_.step(effectiveArmLeft,dt,armSettings);
-    output.armRight = armsRight_.step(effectiveArmRight,dt,armSettings);
+    // Manual follows the newest accepted reference directly, without easing.
+    // Keep the Auto planner and its velocity state separate from direct input.
+    if(mode==ControlMode::Manual && owner==Owner::Manual) {
+      armsLeft_.hold(effectiveArmLeft); armsRight_.hold(effectiveArmRight);
+      output.armLeft=effectiveArmLeft; output.armRight=effectiveArmRight;
+    } else {
+      output.armLeft = armsLeft_.step(effectiveArmLeft,dt,armSettings);
+      output.armRight = armsRight_.step(effectiveArmRight,dt,armSettings);
+    }
     const float safeLeft=ArmPolicy::clamp(output.armLeft,armPolicy.leftMin,armPolicy.leftMax);
     const float safeRight=ArmPolicy::clamp(output.armRight,armPolicy.rightMin,armPolicy.rightMax);
     if(safeLeft!=output.armLeft) armsLeft_.hold(safeLeft);

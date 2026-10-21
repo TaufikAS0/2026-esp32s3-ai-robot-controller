@@ -1,5 +1,10 @@
 # AI Robot Controller
 
+v0.18.1 makes Manual hand targets respond directly without software easing,
+retains integer1° dashboard steps, enlarges Operations controls and replaces its
+laser switch with a large circular ON/OFF button. Auto retains motion profiles.
+[Behavior and limits](04_Dokumen/MANUAL_RESPONSE_V0181.md).
+
 v0.18.0 adds **Operasi · layar kendali** (`/#operation-panel`): one viewport with
 joystick left, both hand sliders and right-hand laser switch right, visible
 connection/mode/power and STOP. Navigation/load do not move or acquire; leaving

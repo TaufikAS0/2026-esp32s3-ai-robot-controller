@@ -1,5 +1,11 @@
 # AI Robot Controller Rules
 
+v0.18.1 operator request supersedes Manual easing: read04_Dokumen/MANUAL_RESPONSE_V0181.md.
+Manual directly follows accepted bounded targets on the control tick; Auto keeps
+ArmMotion. UI1degree targets/dedup, no API precision restriction; Stop/500ms expiry
+still freeze/reject stale targets. Circular laser button shares one producer/state.
+Do not enable hardware during idle validation or infer physical1degree accuracy.
+
 v0.18.0 read04_Dokumen/OPERATIONS_V018.md. Operations is a dedicated viewport:
 joystick left, both arms/laser right. Reuse one Manual producer/limits, no lease
 from navigation/load/power setting. Enter/exit releases own session; global Stop

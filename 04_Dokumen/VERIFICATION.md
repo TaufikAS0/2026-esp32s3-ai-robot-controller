@@ -1,5 +1,49 @@
 # Verification evidence
 
+## v0.18.1 Manual direct / larger controls / OTA —21 October2026 WIB
+
+- Operator explicitly requested responsive Manual hands without easing,1degree
+  UI targets, larger joystick/hand sliders and large circular laser button.
+  Manual reference now follows latest accepted bounded target on control tick;
+  Auto retains ArmMotion. Reset internal trajectory velocity on direct ticks;
+  same UI integer events deduped while100ms producer remains fresh. Fractional
+  API compatibility and optional dynamic policy unchanged. No physical1degree
+  accuracy or measured servo speed claimed. Read MANUAL_RESPONSE_V0181.md.
+- Actual vault Versioning/Change Notifications and Wi-Fi credential/profile rules
+  re-read; README/API/AGENTS/handoff checked. Existing pin/partition/NVS/network/
+  access and500ms timeout unchanged. No settings or network migration.
+-116 Python/browser PASS (71 Chromium),10 native strict C++17 suites PASS.
+  Native verifies Manual full target/1degree retarget in one tick, Stop/expiry
+  before application, Auto smoothing after direct hold, old policy/ramp guards.
+  Browser verifies round laser button pressed state/Space and duplicate integer
+  input filtering, larger thumbs and existing desktop/mobile/landscape layouts,
+  no lease from navigation and no replay. Mobile/landscape screenshots inspected.
+- First pinned-core Windows compile failed opening a C++ standard header with
+  Invalid argument, before a valid artifact. Header existed; exact cause unknown.
+  Preserved build/v0181-build-initial-failure.log; one deliberate retry using
+  jobs1 succeeded, no source or toolchain workaround. Core3.3.10 incremental
+  build/source stability/identity/emitted dual6,291,456-byte slot gates PASS.
+  Versionv0.18.1/buildUTC2026-10-21T03:50:02Z = 2026-10-21 10:50:02 WIB.
+  App1,267,376 bytes/SHA256 a84125c69a26784a043e99102f0acba5916d3af4244801b78c4dcfec2e1be406.
+- Read-only LAN prechecks initially timed out at192.168.1.14 ports80/81 and
+  AP192.168.4.1. User reconfirmed .14; fresh80/81 GETs plus ARP recovered expected
+  MACe0:72:a1:fd:0d:88 via Ethernet, idle/no owner. Cause of temporary loss
+  unknown; no network change/reset/actuator request. Pre-OTA source device
+  v0.18.0/buildUTC2026-10-21T03:19:44Z independently verified by uploader.
+- App-only OTA success acknowledged;2 postboot GET timeouts retained before
+  exact v0.18.1/build/MAC recovery. Final Manual/no owner/session0, wheel duties0,
+  laserOFF/servo pulsesdisabled. References90/90 NOT physical pose. Saved Wi-Fi
+  profile order and table config/calibration mask preserved; demo/exhibition
+  idle, center/Zero/hand confirmation/pending sample clear. No automatic resume.
+- Actual idle suite34 normal reads/0 unexpected failures,
+  p95~63/p99~63ms; uptime12988 to16962ms,
+  Wi-Fi disconnect0 to0.
+  Live Operations desktop/mobile/landscape PASS/no scroll/JS errors/POST;
+  navigation and circular OFF button inspected without actuator activation.
+  No physical speed/position/laser activation test. Old soak partial/paused.
+- Raw ignored build/v0181-*,ota-v0181-result.json,live-v0181-result.json,
+  browser-v0181-live.json and operation-v0181-live screenshots retain results.
+
 ## v0.18.0 app-only OTA and live checks —21 October2026 WIB
 
 - Fresh MACe0:72:a1:fd:0d:88/v0.17.0/build02:34:09Z confirmed at192.168.1.14,
@@ -212,7 +256,7 @@
 - Device at192.168.1.14 verified v0.15.0/build07:40:11Z/MAC before upload; idle,
   no owner. Post-build/OTA/live results recorded below when actually complete.
 
-Current source: v0.18.0 (2026-10-21). Entries below distinguish firmware versions, host/model tests and operator-observed hardware trials.
+Current source: v0.18.1 (2026-10-21). Entries below distinguish firmware versions, host/model tests and operator-observed hardware trials.
 
 ## v0.15.0 guided Auto — 2026-10-20 WIB
 
