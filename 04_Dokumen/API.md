@@ -1,5 +1,12 @@
 # HTTP API v1
 
+### v0.17.0 Manual joystick and laser release
+
+[JOYSTICK_LASER_V017.md](JOYSTICK_LASER_V017.md) changes dashboard input only.
+No endpoint/schema changes. Normal drive release with laser selected sends wheel
+zero within the active Manual lease; full release/Stop still switches laser off.
+Existing100ms full commands/500ms timeout, Auto/demo laserOFF and arms limits stay.
+
 ### v0.16.0 supervised floor exhibition
 
 [EXHIBITION_V016.md](EXHIBITION_V016.md) adds strict POST/demo/exhibition/config,

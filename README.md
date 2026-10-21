@@ -1,5 +1,10 @@
 # AI Robot Controller
 
+v0.17.0 adds Manual **Joystick + slider tangan vertikal**. Normal driving release
+zeros wheels while preserving a selected laser in the same active Manual session.
+Global Stop, blur/disconnect/timeout still switch laser off. Button view remains.
+[Setup, cause and limits](04_Dokumen/JOYSTICK_LASER_V017.md).
+
 v0.16.0 adds **Jelajah pameran · pagar virtual** for supervised clear FLOOR use.
 Default30x30 cm virtual axle-center area; editable sizes, isolated simulation,
 STOP and **Reset ke Tengah** after manually placing the robot at its marked

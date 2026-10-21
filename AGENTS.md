@@ -1,5 +1,12 @@
 # AI Robot Controller Rules
 
+v0.17.0 read04_Dokumen/JOYSTICK_LASER_V017.md. Normal drive release with laser
+selected must zero wheels without releasing/clearing laser or replaying a session.
+Full Stop/mode/view/blur/cancel/error/loss still clear it;500ms expiry unchanged.
+Joystick has one drive pointer, radial clamp/deadzone/normalized power; vertical
+arm sliders share existing limits/targets. View selection/load must not acquire.
+Do not enable laser or move hardware during idle/browser validation.
+
 v0.16.0 operator decision20 October2026: read04_Dokumen/EXHIBITION_V016.md.
 Supervised FLOOR exhibition is separate from measured table mode. User accepts
 open-loop drift in a virtual30x30 cm axle-center area and manually repositions.

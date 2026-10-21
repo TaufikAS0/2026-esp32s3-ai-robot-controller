@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.17.0 — 2026-10-21 WIB
+
+- Previous: direction pointer release ended the entire Manual session, clearing
+  laser along with wheels even when the user intended to keep it on.
+- Changes: normal wheel release preserves selected laser in same fresh session;
+  distinct full Stop/cancellation behavior. Optional screen joystick and flanking
+  vertical arm sliders, diagonal power-limited mixing, keyboard arrows, one drive
+  pointer, shared degree targets/min/max, no stale held-key restart.
+- Unchanged: firmware control/timeout, API/HTTP/TCP, pins/partitions/NVS/profiles,
+  LAN access, demo/exhibition. Old soak partial/monitor paused.
+- Tests: Chromium regressions and full native/Python/build/device idle evidence
+  recorded in VERIFICATION; see JOYSTICK_LASER_V017.md for exact behavior.
+- Limitations: software target/readback is not physical feedback. No wheel/servo
+  movement or laser activation in idle validation, no new endurance proof.
+- Upgrade: app-only OTA after build/identity/idle gates; Ctrl+F5 then select Manual
+  and Joystick view. Boot clears control; no automatic motion/laser resumption.
+
 ## v0.16.0 — 2026-10-20 WIB
 
 - Previous: v0.15.0 guided table calibration; operator tests/exhibition ran from a

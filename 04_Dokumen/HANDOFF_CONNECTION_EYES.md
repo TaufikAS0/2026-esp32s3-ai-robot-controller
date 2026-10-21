@@ -1,3 +1,35 @@
+# Continuation status — v0.17.0 Manual joystick/laser
+
+BUILD PASS v0.17.0/buildUTC2026-10-21T02:34:09Z(09:34:09WIB),
+app1,256,688 bytes/SHA
+b50c72d556a5b561e56c141dc4a1029a897bdc308701096aafb60968b7f78bb1.
+Initial OTA preflight BLOCKED by live Manual HTTP session/laserON; no upload or
+globalStop sent. Operator asked to Stop/release; do not override the owner.
+Before deployment retry verify idle/MAC/version again, do not trust stale pose.
+Device remainedv0.16.0 at this preflight. See newest VERIFICATION for follow-up.
+
+Source v0.17.0; read JOYSTICK_LASER_V017.md. User21 October reports laser
+turning off when driving and requests joystick wheels with side vertical arm
+sliders. Root source path: normal direction pointer release called full stop(),
+releasing session and clearing laser; firmware release behavior itself correct.
+Normal drive release now zeros wheels and preserves chosen laser in same fresh
+Manual session, only while browser continues100ms commands. Full Stop/mode/view/
+blur/cancel/loss/error still clear laser;500ms watchdog unchanged. Joystick is
+optional Manual view; radial clamp12% deadzone/normalized Daya motor, one drive
+pointer; arrow-key repeat cannot restart after cancellation. Arm aliases share
+target/number/min/max. No API/pin/partition/NVS/network/control task changes.
+110 Python/browser(65 Chromium),10 native suites PASS. Build/OTA evidence to be
+recorded when complete. Initial failure in one new test was a pointer coordinate
+below the viewport; fixed test to scroll joystick into view; all110 then pass.
+No physical actuator commands/laser activation this task. Before upload live
+MACe0:72:a1:fd:0d:88, v0.16.0/build10:10:18Z at192.168.1.14 verified idle,
+owner none, Manual, arms reference180/98 with pulsesenabled. These are NOT
+measured physical pose or permission to seed90 after reboot. Do not assume
+old physical observation establishes current safe pose for new actuator trials.
+Old soak partial/monitor paused; prior pameran behavior unchanged.
+
+## Prior v0.16.0 deployment and physical observations
+
 # Continuation status — v0.16.0 floor exhibition
 
 LATEST real one-goal trial PASS after fresh operator ready confirmation:

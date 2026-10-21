@@ -1,5 +1,43 @@
 # Verification evidence
 
+## v0.17.0 build and deployment preflight —21 October2026 WIB
+
+- Pinned core3.3.10 incremental build PASS: versionv0.17.0, buildUTC
+  2026-10-21T02:34:09Z =09:34:09WIB; app1,256,688 bytes, storage1,256,534,
+  globalRAM57,592; two emitted6,291,456-byte OTA slots verified. Source stability/
+  binary version/time/SHA gates PASS. SHA256
+  b50c72d556a5b561e56c141dc4a1029a897bdc308701096aafb60968b7f78bb1.
+- First app-only OTA PRECHECK REFUSED active Manual HTTP control, before any
+  OTA/globalStop request. Live owner manual/session1908599956, wheels0,
+  laserON, references0/132. No takeover. Operator asked to Stop/release;
+  build/ota-v017-preflight-blocked.json preserved. This is a blocked preflight,
+  NOT a failed flash or proof the device version changed. At that time robot
+  remainedv0.16.0/build2026-10-20T10:10:18Z. Further actual deployment/idle
+  evidence added only when completed. No physical wheel/arm/laser activation
+  by this task. Simulated laser retention is not optical/electrical proof.
+
+## v0.17.0 Manual joystick/laser source checks —21 October2026 WIB
+
+- Read actual vault home/naming/firmware/Gitflow/credential/profile/access/
+  Versioning/Change Notifications. Existing saved Wi-Fi/AP/access policy kept;
+  no NVS clear or new keys. Diagnosed dashboard direction release -> full
+  stop/session release -> laserOFF, consistent with reported symptom.
+-110 Python/browser tests PASS, including65 Chromium;10 native C++17 strict
+  suites PASS. Nine new browser cases verify retained laser across normal
+  direction/joystick release and arm retarget, globalStop clears, direction/
+  diagonal/reverse/deadzone/limit mixing, pointer and keyboard cancellation,
+  arm slider synchronization/limits, no acquire from view change, mobile, Auto/
+  blur and no stale held-key replay. Existing timeout/client/OTA/demo regressions
+  remain. One initial new pointer test targeted an offscreen coordinate; test
+  corrected to scroll joystick into view; no product guard weakened.
+- Mobile joystick image visually inspected. Tests use actual embedded HTML with
+  mocked requests; positive wheel/laser targets in those tests are NOT physical
+  output. Live GET-only precheck at192.168.1.14 confirmed expected MAC, deployed
+  v0.16.0/build2026-10-20T10:10:18Z, Manual/no owner/wheels0/laserOFF, armrefs
+  180/98 with pulsesenabled. No physical actuator command sent this task.
+- Build/OTA/live evidence recorded below once complete. Old soak remains partial
+  and monitor paused; no new endurance or optical/physical output claim.
+
 ## v0.16.0 final bounded real exhibition —20 October2026 WIB
 
 - Operator freshly confirmed center/front, safe90 hands and observation after
@@ -76,7 +114,7 @@
 - Device at192.168.1.14 verified v0.15.0/build07:40:11Z/MAC before upload; idle,
   no owner. Post-build/OTA/live results recorded below when actually complete.
 
-Current source: v0.16.0 (2026-10-20). Entries below distinguish firmware versions, host/model tests and operator-observed hardware trials.
+Current source: v0.17.0 (2026-10-20). Entries below distinguish firmware versions, host/model tests and operator-observed hardware trials.
 
 ## v0.15.0 guided Auto — 2026-10-20 WIB
 

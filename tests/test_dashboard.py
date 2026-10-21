@@ -175,6 +175,131 @@ class DashboardTests(unittest.TestCase):
         self.assertEqual(self.page.locator('#armLeftNumber').input_value(),'42')
         self.assertIn('90.0°',self.page.locator('#armLeftActual').inner_text())
 
+    def joystick_setup(self):
+        self.page.locator('#manualLayout').select_option('joystick')
+        self.page.wait_for_function("!document.getElementById('manualPad').hidden")
+
+    def stick_drag(self,x=.5,y=-.5):
+        self.page.locator('#driveJoystick').scroll_into_view_if_needed()
+        box=self.page.locator('#driveJoystick').bounding_box()
+        self.page.mouse.move(box['x']+box['width']/2,box['y']+box['height']/2)
+        self.page.mouse.down()
+        self.page.mouse.move(box['x']+box['width']*(.5+x*.5),box['y']+box['height']*(.5+y*.5))
+        self.page.wait_for_function('controller.session===42&&!controller.pending')
+
+    def test_laser_survives_direction_release_but_global_stop_clears(self):
+        self.page.locator('#laser').check()
+        self.page.wait_for_function('controller.session===42&&!controller.pending')
+        self.page.locator('[data-drive="forward"]').dispatch_event('pointerdown',dict(pointerId=1))
+        self.page.wait_for_function('controller.desired.left>0')
+        self.page.locator('[data-drive="forward"]').dispatch_event('pointerup',dict(pointerId=1))
+        self.page.wait_for_function('controller.desired.left===0&&controller.desired.right===0&&!controller.pending')
+        self.page.wait_for_timeout(220)
+        self.assertTrue(self.page.locator('#laser').is_checked())
+        commands=[b for p,b in self.calls if p=='/command']
+        self.assertTrue(commands[-1]['laser'])
+        self.assertEqual((commands[-1]['left'],commands[-1]['right']),(0,0))
+        self.assertFalse(any(p=='/control/release' for p,b in self.calls))
+        self.page.locator('#stop').click()
+        self.page.wait_for_function('controller.session===0')
+        self.assertFalse(self.page.locator('#laser').is_checked())
+
+    def test_joystick_mix_deadzone_and_power_limit(self):
+        result=self.page.evaluate('''()=>{document.getElementById('power').value=80;return [[0,-1],[0,1],[-1,0],[1,0],[1,-1],[.01,.01]].map(p=>mixJoystick(...p));}''')
+        for value,expected in zip(result[:5],[(.8,.8),(-.8,-.8),(-.8,.8),(.8,-.8),(.8,0)]):
+            self.assertAlmostEqual(value['left'],expected[0])
+            self.assertAlmostEqual(value['right'],expected[1])
+        self.assertEqual((result[-1]['left'],result[-1]['right']),(0,0))
+
+    def test_joystick_pointer_release_keeps_selected_laser(self):
+        self.joystick_setup()
+        self.page.locator('#laser').check()
+        self.page.wait_for_function('controller.session===42&&!controller.pending')
+        self.stick_drag(.7,-.7)
+        self.assertGreater(self.page.evaluate('controller.desired.left'),0)
+        self.page.mouse.up()
+        self.page.wait_for_timeout(250)
+        self.assertEqual(self.page.evaluate('[controller.desired.left,controller.desired.right]'),[0,0])
+        self.assertTrue(self.page.evaluate('controller.desired.laser&&controller.session===42'))
+        self.assertFalse(any(p=='/control/release' for p,b in self.calls))
+
+    def test_joystick_keyboard_stop_and_cancel(self):
+        self.joystick_setup()
+        stick=self.page.locator('#driveJoystick');stick.focus()
+        self.page.keyboard.down('ArrowLeft')
+        self.page.wait_for_function('controller.desired.left<0&&controller.desired.right>0')
+        self.page.keyboard.up('ArrowLeft')
+        self.page.wait_for_function('controller.session===0')
+        self.page.locator('#laser').check()
+        self.page.wait_for_function('controller.session===42&&!controller.pending')
+        self.stick_drag(0,-1)
+        self.page.evaluate("releaseDrive(driveInput,true)")
+        self.page.wait_for_function('controller.session===0')
+        self.assertFalse(self.page.locator('#laser').is_checked())
+        self.page.mouse.up()
+
+    def test_joystick_two_vertical_arms_sync_and_bounds(self):
+        self.joystick_setup()
+        self.page.locator('#joyArmLeft').fill('140')
+        self.page.wait_for_function('controller.desired.arm_left===140&&!controller.pending')
+        self.page.locator('#joyArmRight').fill('98')
+        self.page.wait_for_function('controller.desired.arm_right===98&&!controller.pending')
+        self.assertEqual(self.page.locator('#armLeftNumber').input_value(),'140')
+        self.assertEqual(self.page.locator('#armRight').input_value(),'98')
+        self.page.evaluate('''()=>{renderArmPolicy({min_left:20,max_left:150,min_right:40,max_right:120});}''')
+        self.assertEqual(self.page.locator('#joyArmLeft').get_attribute('max'),'150')
+        self.assertEqual(self.page.locator('#joyArmRight').get_attribute('min'),'40')
+        self.assertEqual(self.page.locator('#joyArmLeft').evaluate("e=>getComputedStyle(e).writingMode"),'vertical-lr')
+        self.assertTrue(all(b['left']==b['right']==0 for p,b in self.calls if p=='/command'))
+
+    def test_joystick_layout_change_no_acquire_and_mobile(self):
+        self.joystick_setup()
+        self.assertFalse(self.page.locator('.directions').is_visible())
+        self.assertFalse(any(p in ('/command','/control/acquire') for p,b in self.calls))
+        self.page.set_viewport_size(dict(width=390,height=844))
+        self.assertLessEqual(self.page.evaluate('document.documentElement.scrollWidth'),390)
+        self.page.locator('#manualPad').screenshot(path=str(ROOT/'build/joystick-v017-mobile.png'))
+        self.page.locator('#manualLayout').select_option('buttons')
+        self.assertTrue(self.page.locator('#manualPad').is_hidden())
+
+    def test_joystick_auto_offline_blur_no_replay(self):
+        self.joystick_setup();self.stick_drag(0,-1)
+        self.page.evaluate("window.dispatchEvent(new Event('blur'))")
+        self.page.wait_for_function('controller.session===0')
+        self.page.mouse.up()
+        self.page.locator('#modeAuto').click()
+        self.page.wait_for_function("mode==='auto'")
+        count=len([b for p,b in self.calls if p=='/command'])
+        box=self.page.locator('#driveJoystick').bounding_box()
+        self.page.mouse.click(box['x']+box['width']/2,box['y']+10)
+        self.page.wait_for_timeout(150)
+        self.assertEqual(count,len([b for p,b in self.calls if p=='/command']))
+
+    def test_joystick_keyboard_repeat_cannot_restart_after_stop(self):
+        self.joystick_setup()
+        stick=self.page.locator('#driveJoystick');stick.focus()
+        stick.dispatch_event('keydown',dict(key='ArrowUp',repeat=False))
+        self.page.wait_for_function('controller.session===42&&!controller.pending')
+        self.page.evaluate('controller.stop()')
+        self.page.wait_for_function('controller.session===0')
+        count=len([b for p,b in self.calls if p=='/command'])
+        stick.dispatch_event('keydown',dict(key='ArrowUp',repeat=True))
+        self.page.wait_for_timeout(150)
+        self.assertEqual(count,len([b for p,b in self.calls if p=='/command']))
+
+    def test_joystick_movement_and_arm_change_preserve_laser(self):
+        self.joystick_setup()
+        self.page.locator('#laser').check()
+        self.page.wait_for_function('controller.session===42&&!controller.pending')
+        self.stick_drag(.5,-.8)
+        self.page.evaluate("setArmTarget('armLeft',140)")
+        self.page.wait_for_function('controller.desired.arm_left===140&&!controller.pending')
+        self.page.mouse.up()
+        self.page.wait_for_timeout(200)
+        cmd=[b for p,b in self.calls if p=='/command'][-1]
+        self.assertTrue(cmd['laser'])
+        self.assertEqual((cmd['left'],cmd['right'],cmd['arm_left']),(0,0,140))
+
     def test_limits_ui_applies_and_bounds_sliders(self):
         self.page.get_by_text('Batas sudut & mode dinamis',exact=True).click()
         for id,value in [('armMinLeft','20'),('armMaxLeft','140'),('armMinRight','30'),('armMaxRight','150')]:
