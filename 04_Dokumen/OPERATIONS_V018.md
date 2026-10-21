@@ -64,7 +64,8 @@ reachable; no forced zoom or orientation restriction is imposed.
 ## Upgrade
 
 v0.17.0 → v0.18.0 requires a pinned-core build and later app-only OTA after fresh
-device identity/idle verification. This task publishes source/build to GitHub;
-it does not upload or physically move the robot. After deployment reload with
+device identity/idle verification. Initial source publication was followed by
+successful app-only OTA; see VERIFICATION for identity and idle/browser evidence.
+No physical actuator movement was tested. After deployment reload with
 Ctrl+F5 and choose **Operasi · layar kendali**. Boot remains Manual/unowned,
 servo pulses disabled, no automatic movement or laser resumption.

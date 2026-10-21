@@ -210,6 +210,7 @@ class DashboardTests(unittest.TestCase):
         self.page.wait_for_function('controller.desired.arm_left===130&&controller.desired.arm_right===100&&!controller.pending')
         self.page.locator('#operationStop').click()
         self.page.wait_for_function('controller.session===0')
+        self.page.wait_for_function("document.getElementById('message').textContent==='Output dihentikan.'")
         self.assertIn(('/stop',{}),self.calls)
         self.assertFalse(self.page.locator('#operationLaser').is_checked())
         self.page.locator('#operationLaser').check()

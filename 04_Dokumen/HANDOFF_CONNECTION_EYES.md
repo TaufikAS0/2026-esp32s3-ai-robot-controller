@@ -1,5 +1,22 @@
 # Continuation status — v0.18.0 Operations viewport
 
+DEPLOYED v0.18.0/buildUTC2026-10-21T03:19:44Z at192.168.1.14,
+MACe0:72:a1:fd:0d:88. App-only OTA success acknowledged; three postboot GET
+timeouts retained before exact identity recovery. Final Manual/no owner/session0,
+wheel duties0/laserOFF/servo pulsesdisabled; references90/90 NOT physical pose.
+Saved Wi-Fi profile order/table configuration/calibration mask preserved;
+demo/exhibition idle/centerinvalid. Actual idle suite34 normal reads/0 failure,
+p95~62/p99~63ms, no reboot/disconnect during suite. Live Operations desktop,
+portrait/landscape PASS/no overflow/JS error/POST; navigation acquires nothing.
+No physical actuator commands or laser activation. Raw ota-v018/live-v018/browser
+results and operation-v018-live screenshots ignored in build/.
+
+Initial GitHub CI failed a test asserting globalStop before async release ACK.
+Fixture now waits for actual Stop success message; both affected Stop/navigation
+tests PASS locally, firmware source/binary unchanged. See newest VERIFICATION.
+
+## Initial source publication (historical; deployment completed above)
+
 SOURCE/BUILD PASS v0.18.0/buildUTC2026-10-21T03:19:44Z (10:19:44WIB).
 App1,263,920 bytes/SHA256 4d5770efa5d1fc5c6bb4b0656abfe0ef6c4ac68f55cad3bfa5c28e816036a925.
 Read OPERATIONS_V018.md. Dedicated /#operation-panel: joystick left, both hand

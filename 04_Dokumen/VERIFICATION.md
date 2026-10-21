@@ -1,5 +1,36 @@
 # Verification evidence
 
+## v0.18.0 app-only OTA and live checks —21 October2026 WIB
+
+- Fresh MACe0:72:a1:fd:0d:88/v0.17.0/build02:34:09Z confirmed at192.168.1.14,
+  no owner/session0, wheels0/laserOFF; arm references151.02/88 with pulsesenabled
+  were NOT used as measured pose. Re-read vault Wi-Fi credential/profile,
+  Versioning/Change Notifications; no network or NVS changes.
+- Previously published source commit0b776cf had failed GitHub push/PR CI:
+ 39538843549/39538850856. Test asserted /stop immediately after session became0,
+  while awaiting /control/release still preceded the globalStop request. This was
+  a test synchronization defect: fixture now waits for the acknowledged globalStop
+  success message before inspecting calls. Two affected Stop/navigation tests PASS
+  locally. No firmware source/binary change; original local115/10native/build
+  evidence below remains. Failed CI log retained in ignored build/v018-ci-failure.log.
+- Exact original app1,263,920 bytes/SHA256
+  4d5770efa5d1fc5c6bb4b0656abfe0ef6c4ac68f55cad3bfa5c28e816036a925
+  and source hashes verified before OTA. Upload acknowledged success/rebooting;
+  three postboot GET timeouts retained, fourth probe recovered exact v0.18.0/
+  buildUTC2026-10-21T03:19:44Z (10:19:44WIB). No automatic reflash.
+- Final Manual/no owner/session0, wheel duties0/laserOFF/servo pulsesdisabled;
+  90/90 references are not measured physical hand positions. Saved Wi-Fi profile
+  order and table calibration mask/config preserved. No pending sample/hand
+  confirmation/Zero/exhibition center or active run restored.
+- Idle API suite PASS:34 normal reads/0 unexpected failures,p95~62ms,p99/worst
+  ~63ms. Expected invalid/stale/unready requests rejected; no actuator commands.
+  Uptime31,931 to35,828ms, Wi-Fi disconnect0 to0; no reboot during suite.
+  Actual Operations browser1440x900/390x844/844x390 PASS: correct control positions,
+  no scroll/JS errors/POST, direct route and Dashboard/back navigation acquire
+  nothing. Mobile screenshot visually inspected. No physical motion/laser test.
+- Ignored build/ota-v018-result.json,live-v018-result.json,browser-v018-live.json,
+  operation-v018-live screenshots retain evidence. Old soak partial/monitor paused.
+
 ## v0.18.0 Operations viewport —21 October2026 WIB
 
 - Previous v0.17.0; source now v0.18.0. Read actual vault home, workspace naming,
