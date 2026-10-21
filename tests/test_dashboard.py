@@ -36,6 +36,7 @@ class DashboardTests(unittest.TestCase):
         self.wifi=dict(storage_ready=True,state='connected',connected=True,current_ssid='HuaweiJIN',target_ssid='HuaweiJIN',sta_ip='192.168.1.22',ap_active=True,ap_ssid='robot-setup',ap_ip='192.168.4.1',rssi=-55,busy=False,scan_state='idle',networks=[],profiles=[dict(ssid='HuaweiJIN',priority=1,secured=True)])
         self.demo=dict(ready=True,storage_ready=True,running=False,simulation=False,calibrating=False,zero_valid=False,calibration_ready=False,can_start_robot=False,run_id=0,sample_id=0,phase='idle',reason='boot',estimated=True,pose=dict(x_cm=0,y_cm=0,heading_deg=0),goal=dict(x_cm=0,y_cm=0),trace=[],config=dict(width_cm=0,length_cm=0,radius_cm=0,margin_cm=10,coast_cm=0,speed_cm_s=5,turn_deg_s=30,pwm=.15,base_left=90,base_right=90,min_left=0,max_left=180,min_right=0,max_right=180,arms_confirmed=False,calibration=0))
         self.arm_policy=dict(min_left=0,max_left=180,min_right=0,max_right=180,dynamic=False,amplitude_deg=8,period_ms=2400)
+        self.reject_arm_policy=False
         self.demo['exhibition']=dict(selected=False,center_valid=False,can_start=False,width_cm=30,length_cm=30)
         self.session = 0
         self.mode = "manual"
@@ -101,8 +102,11 @@ class DashboardTests(unittest.TestCase):
         elif path == "/arms/settings":
             result = {"ok":True}
         elif path == "/arms/policy":
-            self.arm_policy=body
-            result={"ok":True}
+            if self.reject_arm_policy:
+                code=409;result={"error":"arm_policy_rejected"}
+            else:
+                self.arm_policy=body
+                result={"ok":True}
         elif path == "/eyes/check":
             code = 503 if self.reject_checks else 202
             result = {"error": "eye_bus_unavailable"} if self.reject_checks else {"ok": True, "queued": True}
@@ -219,6 +223,74 @@ class DashboardTests(unittest.TestCase):
         self.assertEqual(result,dict(calls=1,value=42))
         button.press('Space');self.page.wait_for_function("el('operationLaser').getAttribute('aria-pressed')==='false'")
         self.assertFalse(self.page.evaluate('controller.desired.laser'))
+
+    def test_operations_range_editor_maps_full_slider_and_preserves_policy(self):
+        self.arm_policy.update(dynamic=True,amplitude_deg=5,period_ms=1800)
+        self.page.evaluate('refresh()');self.page.wait_for_function('operationPolicy?.dynamic===true')
+        self.joystick_setup();self.page.locator('#operationLimitsOpen').click()
+        self.page.wait_for_function("el('operationLimits').open")
+        for side in ['Left','Right']:
+            self.page.locator('#joyMin'+side).fill('60')
+            self.page.locator('#joyMax'+side).fill('120')
+        self.page.locator('#operationLimitsApply').click()
+        self.page.wait_for_function("el('operationLimitsMessage').textContent.startsWith('Batas diterapkan')")
+        self.assertEqual(self.arm_policy,dict(min_left=60,max_left=120,min_right=60,max_right=120,dynamic=True,amplitude_deg=5,period_ms=1800))
+        self.assertFalse(any(p in ('/command','/control/acquire') for p,b in self.calls))
+        for side in ['Left','Right']:
+            slider=self.page.locator('#joyArm'+side)
+            self.assertEqual(slider.get_attribute('min'),'60')
+            self.assertEqual(slider.get_attribute('max'),'120')
+            self.assertEqual(self.page.locator('#joyArm'+side+'Min').inner_text(),'60°')
+            self.assertEqual(self.page.locator('#joyArm'+side+'Max').inner_text(),'120°')
+        self.page.locator('#operationLimitsClose').click()
+        slider=self.page.locator('#joyArmLeft');slider.focus();slider.press('End')
+        self.page.wait_for_function('controller.desired.arm_left===120&&!controller.pending')
+        slider.press('Home');self.page.wait_for_function('controller.desired.arm_left===60&&!controller.pending')
+        self.assertTrue(all(60<=b['arm_left']<=120 and 60<=b['arm_right']<=120 for p,b in self.calls if p=='/command'))
+
+    def test_operations_limits_open_stops_own_session_and_invalid_draft_no_apply(self):
+        self.joystick_setup();self.page.locator('#operationLaser').click()
+        self.page.wait_for_function('controller.session===42&&!controller.pending')
+        self.page.locator('#operationLimitsOpen').click()
+        self.page.wait_for_function("el('operationLimits').open&&controller.session===0")
+        self.assertFalse(self.page.evaluate('controller.desired.laser'))
+        self.assertTrue(any(p=='/control/release' for p,b in self.calls))
+        self.page.locator('#joyMinLeft').fill('120');self.page.locator('#joyMaxLeft').fill('60')
+        self.page.locator('#operationLimitsApply').click()
+        self.assertFalse(any(p=='/arms/policy' for p,b in self.calls))
+        self.assertIn('minimum',self.page.locator('#operationLimitsMessage').inner_text())
+        self.page.keyboard.press('Escape')
+        self.assertEqual(self.page.evaluate('controller.session'),0)
+
+    def test_operations_limits_rejection_preserves_device_range_and_draft(self):
+        self.joystick_setup();self.page.locator('#operationLimitsOpen').click()
+        self.page.locator('#joyMinLeft').fill('60');self.page.locator('#joyMaxLeft').fill('120')
+        self.page.evaluate('refresh()');self.page.wait_for_timeout(100)
+        self.assertEqual(self.page.locator('#joyMinLeft').input_value(),'60')
+        self.reject_arm_policy=True;self.page.locator('#operationLimitsApply').click()
+        self.page.wait_for_function("el('operationLimitsMessage').textContent.startsWith('Batas belum diterapkan')")
+        self.assertEqual(self.page.locator('#joyArmLeft').get_attribute('min'),'0')
+        self.assertEqual(self.page.locator('#joyArmLeft').get_attribute('max'),'180')
+        self.assertEqual(self.arm_policy['min_left'],0)
+        self.assertEqual(self.page.locator('#joyMinLeft').input_value(),'60')
+        self.assertFalse(any(p in ('/command','/control/acquire','/stop') for p,b in self.calls))
+
+    def test_operations_vr_extra_length_and_reachable_controls(self):
+        self.joystick_setup()
+        for width,height,label in [(1440,900,'desktop'),(390,844,'mobile'),(844,390,'landscape')]:
+            self.page.set_viewport_size(dict(width=width,height=height))
+            normal=self.page.locator('#joyArmLeft').bounding_box()['height']
+            self.page.locator('#operationLimitsOpen').click();self.page.locator('#operationVr').check()
+            self.page.locator('#operationLimitsClose').click()
+            self.assertGreater(self.page.locator('#joyArmLeft').bounding_box()['height'],normal)
+            for selector in ['#joyArmLeft','#joyArmRight','#operationStop','#operationLimitsVr','#operationVrExit','#operationLaser']:
+                b=self.page.locator(selector).bounding_box()
+                self.assertGreaterEqual(b['x'],0);self.assertGreaterEqual(b['y'],0)
+                self.assertLessEqual(b['x']+b['width'],width)
+                self.assertLessEqual(b['y']+b['height'],height)
+            self.page.screenshot(path=str(ROOT/f'build/operation-v0182-vr-{label}.png'))
+            self.page.locator('#operationVrExit').click()
+        self.assertFalse(any(p in ('/command','/control/acquire','/arms/policy') for p,b in self.calls))
 
     def test_operations_switch_stop_and_exit_clear_targets(self):
         self.joystick_setup()

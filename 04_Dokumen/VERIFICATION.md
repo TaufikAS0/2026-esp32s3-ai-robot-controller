@@ -1,5 +1,46 @@
 # Verification evidence
 
+## v0.18.2 Operations ranges / VR / OTA —21 October2026 WIB
+
+- Existing shared RAM policy now editable via Operasi/Batas tangan. Per-hand
+  whole-degree min/max map the entire slider travel, with endpoint labels; current
+  dynamic fields preserved. Opening settings releases own session only, Apply
+  never acquires/moves/centers. Invalid values or backend rejection retain drafts
+  and device-confirmed slider limits. Firmware guards/policy schema unchanged.
+- Longer normal tracks and explicit Panjang ekstra untuk VR browser layout,
+  hiding header/power to extend tracks further; Stop/settings/exit remain within
+  tested viewport. No WebXR/headset integration, physical VR usability not tested.
+-120 Python/browser PASS (75 Chromium),10 native strict suites PASS. Four new
+  tests verify60..120 full-slider/Home/End mapping/policy preservation/no actuator
+  commands from settings, own Stop/invalid draft, backend refusal/draft retention,
+  and VR length/reachable controls at1440x900/390x844/844x390. Normal view also
+  tested360x640. Mobile/landscape VR screenshots visually inspected.
+- First foreground check processes ended without final status across continued
+  turn; OS inventory confirmed no old test/build process before starting one
+  hidden software-only check runner. Final build/v0182-checks-state.json records
+  successful exit codes for all three jobs; no duplicate runner or robot producer.
+- Re-read vault Versioning/Change Notifications and Wi-Fi credential/profile,
+  AGENTS/handoff/README/API. Pinned core3.3.10 incremental build/source identity/
+  stability/emitted6,291,456-byte slots PASS. BuildUTC2026-10-21T04:55:20Z
+  = 2026-10-21 11:55:20 WIB; app1,275,456 bytes/SHA256
+  8f305194834b625a908620fc502fe927d515cdd9a76eb15a95f1ab82a72de56a.
+- Fresh expectedMACe0:72:a1:fd:0d:88, v0.18.1/build03:50:02Z and idle verified
+  at192.168.1.14 before app-only OTA. Upload acknowledged success;2 postboot
+  GET timeouts retained before exact v0.18.2/build/MAC recovery. Saved Wi-Fi/table
+  config/calibration mask preserved. Manual/no owner/session0, wheel duties0,
+  laserOFF/servo pulsesdisabled, no restored run/Zero/center/hand confirmation.
+  References90/90 not measured physical pose. Policy remains boot0..180; example
+  bounds60..120 were mocked, NOT written to device during idle verification.
+- Actual idle34 normal reads/0 failures,p95~62/p99~78ms;
+  uptime13550 to17589ms, Wi-Fi disconnect
+  0 to0. Live normal and VR desktop/mobile/landscape
+  browser PASS/no JS error/POST/actuator input. Modal opening/VR selection/exit
+  tested on actual page without applying bounds. Screenshots inspected.
+- No actuator/controller/API/pin/partition/NVS/network changes; RAM ranges reset
+  after reboot as before. Manual direct/Auto easing and500ms timeout remain.
+  Old soak partial/paused. Raw ignored build/v0182-*,ota-v0182-result.json,
+  live-v0182-result.json,browser-v0182-live.json and operation-v0182-live* evidence.
+
 ## v0.18.1 Manual direct / larger controls / OTA —21 October2026 WIB
 
 - Operator explicitly requested responsive Manual hands without easing,1degree
@@ -256,7 +297,7 @@
 - Device at192.168.1.14 verified v0.15.0/build07:40:11Z/MAC before upload; idle,
   no owner. Post-build/OTA/live results recorded below when actually complete.
 
-Current source: v0.18.1 (2026-10-21). Entries below distinguish firmware versions, host/model tests and operator-observed hardware trials.
+Current source: v0.18.2 (2026-10-21). Entries below distinguish firmware versions, host/model tests and operator-observed hardware trials.
 
 ## v0.15.0 guided Auto — 2026-10-20 WIB
 

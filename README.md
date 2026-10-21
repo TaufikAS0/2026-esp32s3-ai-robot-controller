@@ -1,5 +1,10 @@
 # AI Robot Controller
 
+v0.18.2 exposes **Operasi → Batas tangan**: per-hand min/max maps across the full
+slider travel, with visible endpoints. **Panjang ekstra untuk VR** expands tracks
+while keeping STOP/settings/exit available. Shared device policy, RAM-only after
+boot, no motion from applying limits. [Guide](04_Dokumen/SERVO_RANGE_V0182.md).
+
 v0.18.1 makes Manual hand targets respond directly without software easing,
 retains integer1° dashboard steps, enlarges Operations controls and replaces its
 laser switch with a large circular ON/OFF button. Auto retains motion profiles.

@@ -1,5 +1,13 @@
 # HTTP API v1
 
+### v0.18.2 Operations range editor / VR view
+
+[SERVO_RANGE_V0182.md](SERVO_RANGE_V0182.md) exposes the existing `/arms/policy`
+contract in Operations, preserving dynamic fields and using confirmed min/max
+for the full slider travel. Same shared device guards and RAM reset on reboot;
+no new endpoint/schema/NVS. Settings/view changes never acquire or move; opening
+settings and exiting VR release this page's lease. STOP remains explicit.
+
 ### v0.18.1 direct Manual reference
 
 [MANUAL_RESPONSE_V0181.md](MANUAL_RESPONSE_V0181.md): Manual owner targets apply

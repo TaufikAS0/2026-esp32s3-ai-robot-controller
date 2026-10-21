@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.18.2 — 2026-10-21 WIB
+
+- Previous: shared arm limits existed but editor was hidden; compact VR tracks.
+- Changes: Operations per-hand range dialog, full-travel slider mapping and
+  endpoint labels; preserve current dynamic policy; longer tracks and extra VR
+  view with reachable Stop/settings/exit. No motion or acquisition on apply.
+- Unchanged: shared RAM policy/boot reset, API/actuator logic, direct Manual,
+  Auto easing,500ms expiry, pins/partitions/NVS/network; old soak partial/paused.
+- Tests: Chromium limits/invalid/rejection/policy/VR cases plus existing native,
+  client and build checks; final evidence in VERIFICATION.md.
+- Limitations: browser/VR layout is not a physical headset or mechanical-range
+  verification. No real movement/example-range setting in idle validation.
+- Upgrade: app-only OTA after identity/idle gates, Ctrl+F5 → Operasi → Batas tangan.
+
 ## v0.18.1 — 2026-10-21 WIB
 
 - Previous: v0.18.0 eased Manual hands using Auto's motion limits; small controls.

@@ -1,3 +1,23 @@
+# Continuation status — v0.18.2 servo ranges / VR
+
+DEPLOYED v0.18.2/buildUTC2026-10-21T04:55:20Z (2026-10-21 11:55:20 WIB),
+MACe0:72:a1:fd:0d:88 at192.168.1.14. App1,275,456 bytes/SHA256 8f305194834b625a908620fc502fe927d515cdd9a76eb15a95f1ab82a72de56a.
+Read SERVO_RANGE_V0182.md. Operasi/Batas tangan uses existing shared RAM policy,
+preserves current dynamic fields, full slider min/max travel and endpoint labels.
+Open releases own lease; apply never moves or centers. Backend refusal preserves
+actual ranges/drafts. Longer normal tracks plus explicit extra VR layout with
+Stop/settings/exit reachable; no physical headset validation or WebXR feature.
+120 Python/browser(75 Chromium),10 native, pinned-core build PASS. Initial check
+process interruption recorded; one hidden software check runner completed all jobs.
+OTA acknowledged/2 postboot timeouts before verified identity. Idle34 reads/
+0fail,p95~62/p99~78ms; actual six normal/VR viewport browser checks PASS/no POST.
+Final Manual/unowned/wheel duties0/laserOFF/pulsesdisabled. Reference90 not physical
+pose; no actuator test or real60..120 config write. Ranges boot0..180/RAM-only,
+saved Wi-Fi/table config preserved. API/pins/NVS/network/timeout unchanged;
+old soak partial/monitor paused. See VERIFICATION for raw evidence and limits.
+
+## Previous v0.18.1 deployment
+
 # Continuation status — v0.18.1 responsive Manual
 
 DEPLOYED v0.18.1/buildUTC2026-10-21T03:50:02Z (2026-10-21 10:50:02 WIB),

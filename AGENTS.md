@@ -1,5 +1,11 @@
 # AI Robot Controller Rules
 
+v0.18.2 read04_Dokumen/SERVO_RANGE_V0182.md. Operations range editor uses existing
+shared RAM arm policy; preserve dynamic fields, no local-only limit bypass or
+automatic centering/actuation on apply. Device refusal must retain actual ranges.
+Opening/exiting controls releases own lease only; VR expands browser tracks,
+keeps Stop/settings/exit accessible, never resumes targets. No NVS addition.
+
 v0.18.1 operator request supersedes Manual easing: read04_Dokumen/MANUAL_RESPONSE_V0181.md.
 Manual directly follows accepted bounded targets on the control tick; Auto keeps
 ArmMotion. UI1degree targets/dedup, no API precision restriction; Stop/500ms expiry
