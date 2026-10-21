@@ -1,6 +1,30 @@
 # Verification evidence
 
-## v0.18.3 HTTP abort diagnosis / laser priority —21 October2026 WIB
+## v0.18.3 deployment follow-up —21 October2026 WIB
+
+- Operator explicitly Stop/released before app-only OTA; fresh expectedMAC/
+  v0.18.2/build04:55:20Z/idle validated, no takeover. Upload acknowledged success,
+  2 postboot GET timeouts retained before exactv0.18.3/build06:58:20Z recovery.
+- Final Manual/no owner/session0,wheel duties0/laserOFF/servo pulsesdisabled.
+  References90 not physical position. Saved Wi-Fi/table config/calibration mask
+  preserved; no pending/Zero/center/hand confirmation/run resumed.
+- Actual idle suite34 normal reads/0fail,p95~312/p99~343ms; uptime
+  12923 to17660ms, Wi-Fi disconnect
+  0 to0.
+  Port81 status reached343ms; port80 status312ms. These reads used3s timeout,
+  so0 read failures does not establish safety within300ms command ACK deadline.
+  Live normal/VR desktop/mobile/landscape browser checks PASS/no JS errors/POST.
+  Diagnostik control element present; no physical laser/actuator activation or
+  combined-load stress. Angry reaction verified in native tests, not optical bench.
+- No universal stability claim: capture page diagnostics on recurrence. Raw ignored
+  build/ota-v0183-result.json,live-v0183-result.json,browser-v0183-live.json and
+  operation-v0183-live* screenshots. Old soak partial/paused.
+
+- GitHub CI PASS for source69307dc and predeployment docs03b8e15; latter
+  [push run](https://github.com/TaufikAS0/2026-esp32s3-ai-robot-controller/actions/runs/39560408224)
+  and [PR run](https://github.com/TaufikAS0/2026-esp32s3-ai-robot-controller/actions/runs/39560414885).
+
+## Historical source-publication evidence: v0.18.3 HTTP abort diagnosis / laser priority —21 October2026 WIB
 
 - OTA preflight refused a NEW active Manual HTTP session3134620396 despite prior
   operator Stop confirmation. Read-only follow-up found wheel targets nonzero and
